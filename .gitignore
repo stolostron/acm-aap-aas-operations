@@ -1,0 +1,2 @@
+## Ignore user-generated secrets for some pre-reqs
+*env.secret

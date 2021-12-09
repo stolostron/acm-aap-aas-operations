@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: ansible-automation-platform
+resources:
+- namespace.yaml
+secretGenerator:
+- name: aap-s3-secret
+  envs:
+  - env.secret
