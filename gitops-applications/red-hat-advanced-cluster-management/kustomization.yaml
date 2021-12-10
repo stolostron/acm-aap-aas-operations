@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  labels:
+    argocd.argoproj.io/secret-type: repository
+
+namespace: openshift-gitops
+
+resources:
+- red-hat-advanced-cluster-management.application.yaml
+
+secretGenerator:
+- name: repo
+  envs:
+  - env.secret
