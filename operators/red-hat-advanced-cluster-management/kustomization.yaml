@@ -4,3 +4,4 @@ namespace: open-cluster-management
 resources:
   - subscription.yaml
   - multiclusterhub.yaml
+  - multiclusterobservability.yaml
