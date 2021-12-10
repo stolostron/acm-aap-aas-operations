@@ -2,6 +2,8 @@ apiVersion: observability.open-cluster-management.io/v1beta2
 kind: MultiClusterObservability
 metadata:
   name: observability
+  labels:
+    operators.coreos.com/advanced-cluster-management.open-cluster-management: ''
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
