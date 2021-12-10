@@ -3,5 +3,6 @@ kind: Kustomization
 namespace: open-cluster-management
 resources:
   - subscription.yaml
+  - operatorgroup.yaml
   - multiclusterhub.yaml
   - multiclusterobservability.yaml
