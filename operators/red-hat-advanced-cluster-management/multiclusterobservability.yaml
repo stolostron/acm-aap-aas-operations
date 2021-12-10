@@ -1,0 +1,22 @@
+apiVersion: observability.open-cluster-management.io/v1beta2
+kind: MultiClusterObservability
+metadata:
+  name: observability
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  enableDownsampling: true
+  imagePullSecret: multiclusterhub-operator-pull-secret
+  observabilityAddonSpec:
+    enableMetrics: true
+    interval: 300
+  storageConfig:
+    alertmanagerStorageSize: 1Gi
+    compactStorageSize: 100Gi
+    metricObjectStorage:
+      key: thanos.yaml.secret
+      name: thanos-object-storage
+    receiveStorageSize: 100Gi
+    ruleStorageSize: 1Gi
+    storageClass: managed-premium
+    storeStorageSize: 10Gi

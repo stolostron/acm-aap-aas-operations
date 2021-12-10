@@ -6,10 +6,11 @@ generatorOptions:
     argocd.argoproj.io/secret-type: repository
   disableNameSuffixHash: true
 
+
 namespace: openshift-gitops
 
 resources:
-- red-hat-advanced-cluster-management.application.yaml
+- ansible-automation-platform.application.yaml
 
 secretGenerator:
 - name: aap-aas-repo-config-access

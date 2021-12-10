@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ansible-automation-platform
+  namespace: openshift-gitops
+spec:
+  destination:
+    name: in-cluster
+  project: default
+  source:
+    path: operators/ansible-automation-platform
+    repoURL: 'https://github.com/open-cluster-management/acm-aap-aas-operations'
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
