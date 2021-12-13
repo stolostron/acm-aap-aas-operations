@@ -1,0 +1,13 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: identity-management-configuration-for-kubernetes-sub
+  namespace: idp-mgmt-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  channel: main
+  installPlanApproval: Automatic
+  name: idp-mgmt-operator.v0.1.1
+  source: identity-configuration-management-for-kubernetes-catalogsource
+  sourceNamespace: idp-mgmt-config

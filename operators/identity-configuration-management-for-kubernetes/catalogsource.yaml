@@ -1,0 +1,12 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: identity-configuration-management-for-kubernetes-catalogsource
+  namespace: idp-mgmt-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  displayName: Identity Configuration Management for Kubernetes
+  publisher: Red Hat
+  sourceType: grpc
+  image: quay.io/identitatem/idp-mgmt-operator-catalog:v0.1.1-20211208-13-32-47
