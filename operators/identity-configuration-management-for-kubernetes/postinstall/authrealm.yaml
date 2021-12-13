@@ -1,7 +1,7 @@
 apiVersion: identityconfig.identitatem.io/v1alpha1
 kind: AuthRealm
 metadata:
-  name: ocm-github-authrealm
+  name: primary-authrealm
   namespace: idp-mgmt-config
   annotations:
     argocd.argoproj.io/sync-wave: "6"
@@ -9,7 +9,7 @@ spec:
   type: dex
   routeSubDomain: primary
   placementRef:
-    name: ocm-github-authrealm-placement
+    name: parimary-authrealm-placement
   identityProviders:
     - name: "OCM-GitHub"
       mappingMethod: add
