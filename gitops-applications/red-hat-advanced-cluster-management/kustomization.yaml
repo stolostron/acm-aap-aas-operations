@@ -14,4 +14,4 @@ resources:
 secretGenerator:
 - name: aap-aas-repo-config-access
   envs:
-  - env.secret
+  - github.secret
