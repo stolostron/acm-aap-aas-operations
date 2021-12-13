@@ -2,7 +2,7 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
   name: identity-configuration-management-for-kubernetes-catalogsource
-  namespace: openshift-operators
+  namespace: idp-mgmt-config
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
