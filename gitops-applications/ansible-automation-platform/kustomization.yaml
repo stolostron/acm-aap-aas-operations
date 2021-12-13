@@ -6,7 +6,6 @@ generatorOptions:
     argocd.argoproj.io/secret-type: repository
   disableNameSuffixHash: true
 
-
 namespace: openshift-gitops
 
 resources:
