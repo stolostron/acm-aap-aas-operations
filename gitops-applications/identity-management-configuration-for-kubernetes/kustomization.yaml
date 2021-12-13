@@ -9,7 +9,7 @@ generatorOptions:
 namespace: openshift-gitops
 
 resources:
-- identity-configuration-management-for-kubernetes.application.yaml
+- identity-management-config-for-kubernetes.application.yaml
 
 secretGenerator:
 - name: aap-aas-repo-config-access

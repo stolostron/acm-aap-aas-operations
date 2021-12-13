@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ansible-automation-platform
+  name: identity-managment-config-for-kubernetes
   namespace: openshift-gitops
 spec:
   destination:

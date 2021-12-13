@@ -6,8 +6,8 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "4"
 spec:
-  channel: main
+  channel: alpha
   installPlanApproval: Automatic
-  name: idp-mgmt-operator.v0.1.1
+  name: idp-mgmt-operator
   source: identity-configuration-management-for-kubernetes-catalogsource
   sourceNamespace: idp-mgmt-config
