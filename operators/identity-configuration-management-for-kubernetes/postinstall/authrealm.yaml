@@ -1,0 +1,22 @@
+apiVersion: identityconfig.identitatem.io/v1alpha1
+kind: AuthRealm
+metadata:
+  name: ocm-github-authrealm
+  namespace: idp-mgmt-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+spec:
+  type: dex
+  routeSubDomain: primary
+  placementRef:
+    name: ocm-github-authrealm-placement
+  identityProviders:
+    - name: "OCM-GitHub"
+      mappingMethod: add
+      type: GitHub
+      github:
+        clientID: "<CLIENT_ID>"
+        clientSecret:
+          name: github-oauth-clientsecret
+        organizations:
+        - open-cluster-management
