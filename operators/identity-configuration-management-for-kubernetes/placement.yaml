@@ -1,7 +1,7 @@
 apiVersion: cluster.open-cluster-management.io/v1alpha1
 kind: Placement
 metadata:
-  name: parimary-authrealm-placement
+  name: primary-authrealm-placement
   namespace: idp-mgmt-config
   annotations:
     argocd.argoproj.io/sync-wave: "6"

@@ -9,7 +9,7 @@ spec:
   type: dex
   routeSubDomain: primary
   placementRef:
-    name: parimary-authrealm-placement
+    name: primary-authrealm-placement
   identityProviders:
     - name: "OCM-GitHub"
       mappingMethod: add
