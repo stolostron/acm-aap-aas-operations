@@ -10,7 +10,7 @@ spec:
   ingress_type: Route
   loadbalancer_port: 80
   image_pull_policy: IfNotPresent
-  object_storage_s3_secret: aap-s3-secret-km6748kg96
+  object_storage_s3_secret: aap-s3-secret
   web:
     replicas: 1
   content:
