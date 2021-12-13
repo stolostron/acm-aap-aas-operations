@@ -5,4 +5,7 @@ metadata:
   namespace: idp-mgmt-config
   annotations:
     argocd.argoproj.io/sync-wave: "3"
-spec: {}
+spec:
+  targetNamespaces:
+  - idp-mgmt-config
+  - authrealms
