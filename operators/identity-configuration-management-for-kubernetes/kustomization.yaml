@@ -9,3 +9,4 @@ resources:
 - idpconfig.yaml
 - managedclusterset.yaml
 - placement.yaml
+- managedclustersetbinding.yaml
