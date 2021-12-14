@@ -12,3 +12,4 @@ secretGenerator:
 - name: multiclusterhub-operator-pull-secret
   envs:
   - multiclusterhub-operator-pull-secret.secret
+  type: kubernetes.io/dockerconfigjson
