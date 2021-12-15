@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  labels:
+    argocd.argoproj.io/secret-type: repository
+  disableNameSuffixHash: true
+
+namespace: openshift-gitops
+
+resources:
+- certmanager.application.yaml
+
+secretGenerator:
+- name: aap-aas-repo-config-access
+  envs:
+  - github.secret

@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+patchesJson6902:
+- target:
+    kind: ClusterIssuer
+    group: cert-manager.io
+    version: v1
+    name: public-issuer
+    namespace: cert-manager
+  patch: |-
+    - op: replace
+      path: /spec/acme/solvers/1/dns01/route53/accessKeyID
+      value: 'AKIASGQYJOPGMN7U335N'
+
+namespace: cert-manager
+
+resources:
+- azure.public.clusterissuer.yaml
+
+secretGenerator:
+- name: azuredns-config
+  namespace: openshift-operators
+  envs:
+    - azure.secret
