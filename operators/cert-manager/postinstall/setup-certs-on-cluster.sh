@@ -2,7 +2,5 @@
 
 oc patch ingresscontroller.operator default \
      --type=merge -p \
-     '{"spec":{"defaultCertificate": {"name": "apps-domain-tls-cert"}}}' \
+     '{"spec":{"defaultCertificate": {"name": "apps-domain-tls"}}}' \
      -n openshift-ingress-operator
-
-oc patch proxy/cluster --type=merge --patch='{"spec":{"trustedCA":{"name":"api-domain-tls"}}}'

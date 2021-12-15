@@ -14,10 +14,10 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/dnsNames/0
-      value: 'apps.aap-aas-hubs-vhzt6.az.red-chesterfield.com'
+      value: 'apps.aap-aas-hubs-hs6xj.az.red-chesterfield.com'
     - op: replace
       path: /spec/dnsNames/1
-      value: '*.apps.aap-aas-hubs-vhzt6.az.red-chesterfield.com'
+      value: '*.apps.aap-aas-hubs-hs6xj.az.red-chesterfield.com'
 - target:
     kind: Certificate
     group: cert-manager.io
@@ -27,7 +27,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/dnsNames/0
-      value: 'api.aap-aas-hubs-vhzt6.az.red-chesterfield.com'
+      value: 'api.aap-aas-hubs-hs6xj.az.red-chesterfield.com'
 
 resources:
 - namespace.yaml
