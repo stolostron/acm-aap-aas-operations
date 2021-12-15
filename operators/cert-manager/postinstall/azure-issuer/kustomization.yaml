@@ -29,7 +29,7 @@ patchesJson6902:
       value: 'az.red-chesterfield.com'
 
 resources:
-- azure.public.clusterissuer.yaml.secret
+- azure.public.clusterissuer.yaml
 
 secretGenerator:
 - name: azuredns-config
