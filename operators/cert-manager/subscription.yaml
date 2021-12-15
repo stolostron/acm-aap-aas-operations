@@ -4,7 +4,7 @@ metadata:
   name: cert-manager
   namespace: openshift-operators
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   channel: stable
   installPlanApproval: Automatic
