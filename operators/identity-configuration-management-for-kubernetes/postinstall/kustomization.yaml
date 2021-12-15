@@ -11,5 +11,5 @@ resources:
 
 secretGenerator:
 - name: github-oauth-clientsecret
-  files:
+  envs:
     - github-clientsecret.secret
