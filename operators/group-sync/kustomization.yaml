@@ -16,5 +16,6 @@ patchesJson6902:
       value: 'open-cluster-management'
 
 resources:
+  - operatorgroup.yaml
   - subscription.yaml
   - github-group-sync.yaml
