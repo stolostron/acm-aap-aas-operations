@@ -7,12 +7,12 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   providers:
-    - github:
+    - name: github
+      github:
         organization: open-cluster-management
         credentialsSecret:
           name: github-group-sync
           namespace: group-sync-operator
-      name: github
   schedule: 0/10 * * * *
 status:
   conditions:

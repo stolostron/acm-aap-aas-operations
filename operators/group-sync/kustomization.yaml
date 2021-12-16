@@ -3,17 +3,17 @@ kind: Kustomization
 
 namespace: group-sync-operator
 
-# patchesJson6902:
-# - target:
-#     kind: GroupSync
-#     group: redhatcop.redhat.io
-#     version: v1alpha1
-#     name: github-groupsync
-#     namespace: group-sync-operator
-#   patch: |-
-#     - op: replace
-#       path: /spec/providers/0/organization
-#       value: 'open-cluster-management'
+patchesJson6902:
+- target:
+    kind: GroupSync
+    group: redhatcop.redhat.io
+    version: v1alpha1
+    name: github-groupsync
+    namespace: group-sync-operator
+  patch: |-
+    - op: replace
+      path: /spec/providers/0/github/organization
+      value: 'open-cluster-management'
 
 resources:
   - namespace.yaml
