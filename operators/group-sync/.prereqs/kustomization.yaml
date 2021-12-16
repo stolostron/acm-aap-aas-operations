@@ -4,6 +4,9 @@ kind: Kustomization
 generatorOptions:
   disableNameSuffixHash: true
 
+resources:
+  - namespace.yaml
+
 secretGenerator:
 - name: github-group-sync
   namespace: group-sync-operator
