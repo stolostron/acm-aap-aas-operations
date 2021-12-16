@@ -18,3 +18,4 @@ patchesJson6902:
 resources:
   - namespace.yaml
   - subscription.yaml
+  - github-group-sync.yaml
