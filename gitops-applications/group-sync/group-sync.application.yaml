@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: group-sync
+  namespace: openshift-gitops
+spec:
+  destination:
+    name: in-cluster
+  project: default
+  source:
+    path: operators/group-sync
+    repoURL: 'https://github.com/open-cluster-management/acm-aap-aas-operations'
+    targetRevision: main
+  syncPolicy:
+    automated:
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 15 # number of failed sync attempt retries; unlimited number of attempts if less than 0
+      backoff:
+        duration: 15s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+        factor: 2 # a factor to multiply the base duration after each failed retry
+        maxDuration: 5m # the maximum amount of time allowed for the backoff strategy
+  ignoreDifferences:
+  - group: redhatcop.redhat.io
+    kind: GroupSync
+    name: github-groupsync
+    namespace: group-sync-operator
+    jsonPointers:
+    - /spec/providers
+    - /status
