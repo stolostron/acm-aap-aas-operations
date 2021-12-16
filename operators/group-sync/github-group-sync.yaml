@@ -3,7 +3,8 @@ kind: GroupSync
 metadata:
   name: github-groupsync
   namespace: group-sync-operator
-  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   providers:
     - github:
