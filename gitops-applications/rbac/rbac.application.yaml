@@ -8,7 +8,8 @@ spec:
     name: in-cluster
   project: default
   source:
-    path: operators/rbac
+    path: rbac
+    recurse: true
     repoURL: 'https://github.com/open-cluster-management/acm-aap-aas-operations'
     targetRevision: main
   syncPolicy:
