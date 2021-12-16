@@ -6,3 +6,4 @@ metadata:
 spec:
   targetNamespaces:
   - group-sync-operator
+  
