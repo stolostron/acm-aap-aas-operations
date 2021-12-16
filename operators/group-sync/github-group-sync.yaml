@@ -13,6 +13,12 @@ spec:
         credentialsSecret:
           name: github-group-sync
           namespace: group-sync-operator
+    - name: github
+      github:
+        organization: identitatem
+        credentialsSecret:
+          name: github-group-sync
+          namespace: group-sync-operator
   schedule: 0/10 * * * *
 status:
   conditions:
