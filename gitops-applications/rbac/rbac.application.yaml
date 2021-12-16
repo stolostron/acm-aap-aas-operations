@@ -9,7 +9,8 @@ spec:
   project: default
   source:
     path: rbac
-    recurse: true
+    directory:
+      recurse: true
     repoURL: 'https://github.com/open-cluster-management/acm-aap-aas-operations'
     targetRevision: main
   syncPolicy:
