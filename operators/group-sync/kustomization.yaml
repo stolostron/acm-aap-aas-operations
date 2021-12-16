@@ -13,7 +13,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/providers/0/organization
-      value: 'open-cluster-management
+      value: 'open-cluster-management'
 
 resources:
   - namespace.yaml
