@@ -11,4 +11,8 @@ resources:
 secretGenerator:
 - name: thanos-object-storage
   files:
-    - thanos.yaml.secret
+    - thanos.yaml.secret\
+- name: multiclusterhub-operator-pull-secret
+  envs:
+  - multiclusterhub-operator-pull-secret.secret
+  type: kubernetes.io/dockerconfigjson
