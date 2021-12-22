@@ -20,11 +20,3 @@ spec:
           name: github-group-sync
           namespace: group-sync-operator
   schedule: 0/10 * * * *
-status:
-  conditions:
-    - lastTransitionTime: '2021-12-16T00:20:20Z'
-      message: Awaiting next reconciliation
-      reason: Successful
-      status: 'True'
-      type: ReconcileSuccess
-  lastSyncSuccessTime: '2021-12-16T00:20:20Z'
