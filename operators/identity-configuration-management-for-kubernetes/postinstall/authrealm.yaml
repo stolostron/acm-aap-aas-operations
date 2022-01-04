@@ -19,4 +19,4 @@ spec:
         clientSecret:
           name: github-oauth-clientsecret
         organizations:
-        - open-cluster-management
+        - stolostron
