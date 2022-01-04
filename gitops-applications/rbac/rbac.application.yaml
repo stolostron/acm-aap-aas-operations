@@ -11,7 +11,7 @@ spec:
     path: rbac
     directory:
       recurse: true
-    repoURL: 'https://github.com/open-cluster-management/acm-aap-aas-operations'
+    repoURL: 'https://github.com/stolostron/acm-aap-aas-operations'
     targetRevision: main
   syncPolicy:
     automated:
