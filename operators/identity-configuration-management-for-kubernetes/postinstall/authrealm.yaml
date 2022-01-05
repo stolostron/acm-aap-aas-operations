@@ -15,7 +15,7 @@ spec:
       mappingMethod: add
       type: GitHub
       github:
-        clientID: "<CLIENT_ID>"
+        clientID: "<CLIENT_ID>" 
         clientSecret:
           name: github-oauth-clientsecret
         organizations:
