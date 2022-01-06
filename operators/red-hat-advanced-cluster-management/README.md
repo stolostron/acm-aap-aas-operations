@@ -1,17 +1,13 @@
-# Deploying this App
+# Red Hat Advanced Cluster Management for Kubernetes
 
-This application will deploy the Ansible Automation Platform 2.Y operator via a subscription and then deploy the Automation Controller and Automation Hub components.  You can configure these resources by editing their yaml before deploying this direcotry as an application in ArgoCD.  
+This application will deploy the Red Hat Advanced Cluster Management for Kubernetes operator.  
 
-To deploy this folder as an application, you **have to apply prerequisites first**.  
+## Applying Prereqs
 
-## Prereqs
+First, you need to provide an OCP pull secret (multiclusterhub-operator-pull-secret) on your cluster as follows:
+1. `cp multiclusterhub-operator-pull-secret.secret.example multiclusterhub-operator-pull-secret.secret` and edit the file to contain your raw OCP pull secret contents
+2. `oc apply -k ./prereqs`
 
-Before you configure this application, you need to set up an S3 bucket for your RWX storage provider (if you wish to use this storage type, which I recommend for AWS-based clusters), create the operator's namespace, and create a secret to provide access to this S3 bucket.  This process is documented in the [prereqs README](.prereqs/README.md).  
+## Deploying this Application
 
-## Application
-
-Once you've fulfilled the prereqs, you can configure this application like usual in ArgoCD - but you can **only** configure an application for this folder in non-recursive mode.  ArgoCD doesn't support recursive mode _and_ Kustomize, which is used by this folder.  
-
-Make sure to edit the [subscription.yaml](./subscription.yaml) to point to the correct startingCSV, channel, etc.  
-
-Once you make any edits you want to the subscription, channel, and yamls and you're off to the races!  
+To deploy this application, simply `oc apply -k ./gitops-applications/red-hat-advanced-cluster-management` from the root of this project (after configuring your github.secret as described in the [README](../../gitops-applications/red-hat-advanced-cluster-management/README.md)).  

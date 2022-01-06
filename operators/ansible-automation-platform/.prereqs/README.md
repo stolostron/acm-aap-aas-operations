@@ -6,5 +6,4 @@ To prepare for the rollout of this operator to the cluster, you need to do the f
 1. Ensure that the prereqs kustomize and the ansible-automation-platform kustomize `namespace` entries match.  
 2. Log in to the cluster where you wish to deploy this app (to deploy AAP with AutomationHub).  
 3. `cp env.secret.example env.secret` and fill out the details.  Create an S3 bucket in the account pointed to by the access keys with default settings.  
-4. `oc apply -k .` in this folder to create the secret and take note of the secret name.
-5. Update `../automationhub.yaml`'s s3 secret name to the created secret's name and commit back to your working version of this repo.  
+4. `oc apply -k .` in this folder to create the secret.  
