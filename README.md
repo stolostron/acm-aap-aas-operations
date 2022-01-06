@@ -16,4 +16,4 @@ The recommended order is as follows:
 5. Deploy MultiClusterObservability.  The Observability prereqs and install instructions can be found in the [MCO GitOps applicaton README](./operators/multiclusterobservability/README.md).
 6. Deploy Identity Configuration Management for Kubernetes.  The IDP Config Management prereqs and postinstall instruciton can be found in the [IDP Config Management GitOps application README](./operators/identity-configuration-management-for-kubernetes/README.md).  
 7. [OPTIONAL] Deploy Ansible Automation Platform to the Hub.  The AAP prereqs and install instructions can be found in the [AAP GitOps application README](./operators/ansible-automation-platform/README.md).  
-8. [OPTIONAL] Deploy RBAC configurations to the hub.  To accomplish this, simply `oc apply -k ./gitops-applications/rbac` (after configuring your github.secret as described in the [README](../../gitops-applications/rbac/README.md)).  
+8. [OPTIONAL] Deploy RBAC configurations to the hub.  To accomplish this, simply `oc apply -k ./gitops-applications/rbac` (after configuring your github.secret as described in the [README](./gitops-applications/rbac/README.md)).  
