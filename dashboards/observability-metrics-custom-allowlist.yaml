@@ -1,0 +1,33 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: observability-metrics-custom-allowlist
+  namespace: open-cluster-management-observability
+data:
+  metrics_list.yaml: |
+    names:
+      - awx_system_info
+      - awx_organizations_total
+      - awx_users_total 
+      - awx_teams_total
+      - awx_inventories_total 
+      - awx_projects_total
+      - awx_job_templates_total
+      - awx_workflow_job_templates_total
+      - awx_hosts_total
+      - awx_schedules_total
+      - awx_sessions_total
+      - awx_running_jobs_total
+      - awx_pending_jobs_total
+      - awx_status_total
+      - awx_instance_capacity
+      - awx_instance_cpu
+      - awx_instance_memory
+      - awx_instance_info
+      - awx_instance_launch_type_total
+      - awx_instance_status_total
+      - awx_instance_consumed_capacity
+      - awx_instance_remaining_capacity
+      - awx_license_instance_total
+      - awx_license_instance_free
+
