@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: grafana-dev-post-sync
+  namespace: open-cluster-management-observability
+  labels:
+    name: setup-grafana-dev
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      serviceAccountName: setup-grafana-dev
+      containers:
+      - name: grafana-dev-post-sync
+        image: quay.io/ocm-observability/setup-grafana-dev:v2.4
+        imagePullPolicy: Always
+        command: ["/bin/sh"]
+        args: ["-c", "/tmp/pre-sync-hook.sh"]
+      restartPolicy: Never
+  backoffLimit: 3
