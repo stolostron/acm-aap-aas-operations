@@ -1,0 +1,15 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: 'open-cluster-management:subscription-admin'
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: aap-aas-demo-admin
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: 'system:serviceaccounts:default'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: 'open-cluster-management:subscription-admin'
