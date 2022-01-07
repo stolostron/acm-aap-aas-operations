@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+  name: grafana-dev
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: open-cluster-management-observability
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: operators/grafana-dev
+    repoURL: 'https://github.com/stolostron/acm-aap-aas-operations'
+    targetRevision: main
+  syncPolicy:
+    automated: {}
+    syncOptions:
+    - CreateNamespace=true
