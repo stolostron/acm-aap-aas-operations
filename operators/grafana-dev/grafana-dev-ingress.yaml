@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.open-cluster-management.io/rewrite-target: /
+    kubernetes.io/ingress.class: ingress-open-cluster-management
+  name: grafana-dev
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: grafana-dev
+            port:
+              number: 3001
+        path: /grafana-dev
+        pathType: ImplementationSpecific
