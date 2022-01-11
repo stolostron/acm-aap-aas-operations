@@ -9,7 +9,7 @@ generatorOptions:
 namespace: openshift-gitops
 
 resources:
-- acm-channel.application.yaml
+- acm-aap.application.yaml
 
 secretGenerator:
 - name: aap-aas-repo-config-access
