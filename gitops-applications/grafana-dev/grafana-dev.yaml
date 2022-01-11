@@ -14,6 +14,8 @@ spec:
     repoURL: 'https://github.com/stolostron/acm-aap-aas-operations'
     targetRevision: main
   syncPolicy:
-    automated: {}
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
     - CreateNamespace=true
