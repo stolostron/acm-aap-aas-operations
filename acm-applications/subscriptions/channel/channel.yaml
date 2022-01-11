@@ -1,0 +1,8 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  name: aap-adoption-test
+  namespace: acm-applications
+spec:
+  type: GitHub
+  pathname: https://github.com/stolostron/acm-aap-aas-operations.git

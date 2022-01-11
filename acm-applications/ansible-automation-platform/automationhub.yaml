@@ -1,0 +1,26 @@
+apiVersion: automationhub.ansible.com/v1beta1
+kind: AutomationHub
+metadata:
+  name: automation-hub
+  namespace: ansible-automation-platform
+spec:
+  file_storage_access_mode: ReadWriteMany
+  file_storage_size: 100Gi
+  image_pull_policy: IfNotPresent
+  image_pull_secret: redhat-operators-pull-secret
+  ingress_type: none
+  loadbalancer_port: 80
+  loadbalancer_protocol: http
+  object_storage_azure_secret: automation-hub-object-storage
+  pulp_settings:
+    ansible_api_hostname: https://hub-m8la8g32.eastus.cloudapp.azure.com
+    content_origin: https://hub-m8la8g32.eastus.cloudapp.azure.com
+    galaxy_feature_flags:
+      execution_environments: "True"
+  route_tls_termination_mechanism: Edge
+  storage_type: Azure
+  worker:
+    replicas: 2
+    resource_requirements:
+      limits:
+        memory: 5Gi

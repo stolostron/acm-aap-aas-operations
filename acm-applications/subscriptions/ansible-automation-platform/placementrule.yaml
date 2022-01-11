@@ -1,0 +1,17 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: ansible-automation-platform-deploy
+  namespace: ansible-automation-platform-operator
+  labels:
+    app: ansible-automation-platform
+spec:
+  clusterConditions:
+    - type: ManagedClusterConditionAvailable
+      status: "True"
+  #clusters:
+  #- name: cluster1
+  clusterSelector:
+    matchLabels:
+      ansible-automation-platform: "true"
+  #clusterReplicas: 1  #Apply to how many matched clusters, default is ALL

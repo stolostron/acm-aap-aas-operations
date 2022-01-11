@@ -1,0 +1,34 @@
+apiVersion: automationcontroller.ansible.com/v1beta1
+kind: AutomationController
+metadata:
+  labels:
+    app.kubernetes.io/component: automationcontroller
+    app.kubernetes.io/managed-by: automationcontroller-operator
+    app.kubernetes.io/name: automation-controller
+    app.kubernetes.io/operator-version: ""
+    app.kubernetes.io/part-of: automation-controller
+  name: automation-controller
+  namespace: ansible-automation-platform
+spec:
+  admin_user: admin
+  create_preload_data: true
+  ee_pull_credentials_secret: automation-controller-ee-pull-credentials
+  extra_settings:
+  - setting: SESSION_COOKIE_NAME
+    value: '"awxsessionid"'
+  garbage_collect_secrets: false
+  image_pull_policy: IfNotPresent
+  image_pull_secret: redhat-operators-pull-secret
+  ingress_type: none
+  loadbalancer_port: 80
+  loadbalancer_protocol: http
+  nodeport_port: 30080
+  projects_persistence: false
+  projects_storage_access_mode: ReadWriteMany
+  projects_storage_size: 8Gi
+  replicas: 1
+  route_tls_termination_mechanism: Edge
+  security_context_settings:
+    runAsGroup: 0
+    runAsUser: 1000
+  task_privileged: false

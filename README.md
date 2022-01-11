@@ -2,7 +2,7 @@
 
 This repository contains artifacts, OpenShift GitOps applications, policy, conrfiguration, dashboards, and more - all involved with operating the ACM hub management layer on top of the AAPaaS offering.  
 
-## Deploying a New Hub Using this Repository
+## Deploying Hub Services on a New Cluster
 
 This repository is currenlty a semi-manual deploy process, and will continue to require manual steps until we configure a shared vault instance for secret storage and injection.  
 
@@ -17,3 +17,11 @@ The recommended order is as follows:
 6. Deploy Identity Configuration Management for Kubernetes.  The IDP Config Management prereqs and postinstall instruciton can be found in the [IDP Config Management GitOps application README](./operators/identity-configuration-management-for-kubernetes/README.md).  
 7. [OPTIONAL] Deploy Ansible Automation Platform to the Hub.  The AAP prereqs and install instructions can be found in the [AAP GitOps application README](./operators/ansible-automation-platform/README.md).  
 8. [OPTIONAL] Deploy RBAC configurations to the hub.  To accomplish this, simply `oc apply -k ./gitops-applications/rbac` (after configuring your github.secret as described in the [README](./gitops-applications/rbac/README.md)).  
+
+## Deploying ACM Applications and Policies on the Hub to Configure Managed Clusters
+
+Once you have a new hub online, you can start bringing managed cluster components under the ACM Hub's management. This will involve deploying hub-side configurations (via OpenShift GitOps) which will create ACM Applications and Policies and push configurations to the managed cluster.  
+
+To deploy these configurations, do the following:
+1. Deploy the ACM Application channel - this construct defines a source for artifacts for an ACM application.  In this case, the channel will point at this repository!  This GitOps application doesn't have any prereqs, so simply `oc apply -k ./gitops-applications/acm-channel`.  
+2. Deploy the ACM AAP Application itself, this references the channel you created earlier.  This is also a simple, no-prereqs, GitOps deploy!  Simply `oc apply -k ./gitops-applications/acm-aap-application`.  `oc label managedcluster <managed-cluster-name> ansible-automation-platform="true"` for all managed clusters you wish to deploy the AAP application to.  
