@@ -10,7 +10,7 @@ metadata:
     apps.open-cluster-management.io/reconcile-option: replace
     apps.open-cluster-management.io/github-branch: main
 spec:
-  channel: acm-applications/aap-adoption-test
+  channel: acm-applications/acm-applications
   placement:
     placementRef:
       name: ansible-automation-platform-deploy
