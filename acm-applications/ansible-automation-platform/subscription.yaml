@@ -5,7 +5,7 @@ metadata:
   namespace: operators
 spec:
   channel: stable-2.1-cluster-scoped
-  installPlanApproval: Manual
+  installPlanApproval: Automatic
   name: ansible-automation-platform-operator
   source: redhat-operators
   sourceNamespace: olm
