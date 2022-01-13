@@ -1,3 +1,4 @@
 ## Ignore user-generated secrets for some pre-reqs
 *env.secret
 *.secret
+gitops-applications/alertManager/alertmanager.yaml
