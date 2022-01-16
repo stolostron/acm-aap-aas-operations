@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-logging
+  namespace: openshift-gitops
+  labels:
+    project: acm-sre
+spec:
+  destination:
+    name: in-cluster
+  project: default
+  source:
+    path: operators/cluster-logging/overlays/aap
+    repoURL: 'https://github.com/stolostron/acm-aap-aas-operations'
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

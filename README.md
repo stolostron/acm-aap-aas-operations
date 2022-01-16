@@ -17,7 +17,8 @@ The recommended order is as follows:
 6. Deploy Identity Configuration Management for Kubernetes.  The IDP Config Management prereqs and postinstall instruciton can be found in the [IDP Config Management GitOps application README](./operators/identity-configuration-management-for-kubernetes/README.md).  
 7. [OPTIONAL] Deploy Ansible Automation Platform to the Hub.  The AAP prereqs and install instructions can be found in the [AAP GitOps application README](./operators/ansible-automation-platform/README.md).  
 8. [OPTIONAL] Deploy RBAC configurations to the hub.  To accomplish this, simply `oc apply -k ./gitops-applications/rbac` (after configuring your github.secret as described in the [README](./gitops-applications/rbac/README.md)).  
-
+9. [OPTIONAL] Deploy cluster-logging on the hub to foreward logs to ELK stack. `oc apply -k ./gitops-application/cluster-logging`. Once you setup github.secrets in previous steps, the repo is already registered with Argo.
+ 
 ## Deploying ACM Applications and Policies on the Hub to Configure Managed Clusters
 
 Once you have a new hub online, you can start bringing managed cluster components under the ACM Hub's management. This will involve deploying hub-side configurations (via OpenShift GitOps) which will create ACM Applications and Policies and push configurations to the managed cluster.  

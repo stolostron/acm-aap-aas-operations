@@ -1,0 +1,10 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: cluster-logging
+  namespace: openshift-logging 
+spec:
+  channel: "stable-5.1"
+  installPlanApproval: Manual
+  startingCSV: cluster-logging.5.1.6-18

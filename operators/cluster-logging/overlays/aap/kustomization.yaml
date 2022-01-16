@@ -1,0 +1,7 @@
+bases:
+- ../../base
+
+namespace: openshift-logging
+
+patchesStrategicMerge:
+- subscription.yaml
