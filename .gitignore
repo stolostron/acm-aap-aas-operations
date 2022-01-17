@@ -2,3 +2,5 @@
 *env.secret
 *.secret
 gitops-applications/alertManager/alertmanager.yaml
+.history
+*/**/.history
