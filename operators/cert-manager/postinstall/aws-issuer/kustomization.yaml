@@ -14,15 +14,13 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/acme/solvers/1/dns01/route53/accessKeyID
-      value: 'AKIASGQYJOPGMN7U335N'
-
-namespace: cert-manager
+      value: '<AWS_ACCESS_KEY_ID>'
 
 resources:
-- azure.public.clusterissuer.yaml
+- aws.public.clusterissuer.yaml
 
 secretGenerator:
-- name: azuredns-config
+- name: aws-creds
   namespace: openshift-operators
   envs:
-    - azure.secret
+    - aws.secret
