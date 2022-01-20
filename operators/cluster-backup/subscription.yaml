@@ -1,0 +1,16 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/oadp-operator.openshift-adp: ""
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: oadp-operator
+  namespace: openshift-adp
+spec:
+  channel: beta
+  installPlanApproval: Automatic
+  name: oadp-operator
+  source: community-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: oadp-operator.v0.4.2
