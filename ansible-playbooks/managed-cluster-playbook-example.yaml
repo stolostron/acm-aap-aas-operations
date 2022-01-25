@@ -1,0 +1,29 @@
+- name: "Creating namespace {{ namespace_name }} on {{ target_hosts }} host group"
+  hosts: "{{ target_hosts }}"
+  connection: local
+  tasks:
+  - name: "Get ClusterProxy URL for {{ hostvars[inventory_hostname].cluster_name }}"
+    ocmplus.cm.cluster_proxy_addon:
+      hub_kubeconfig: "{{ lookup('env', 'K8S_AUTH_KUBECONFIG') }}"
+      managed_cluster: "{{ hostvars[inventory_hostname].cluster_name }}"
+      wait: True
+      timeout: 60
+    register: cluster_proxy_addon
+  - name: "Get managed ServiceAccount token for {{ hostvars[inventory_hostname].cluster_name }}"
+    ocmplus.cm.managed_serviceaccount_addon:
+      hub_kubeconfig: "{{ lookup('env', 'K8S_AUTH_KUBECONFIG') }}"
+      managed_cluster: "{{ hostvars[inventory_hostname].cluster_name }}"
+      wait: True
+      timeout: 60
+    register: managed_serviceaccount_addon
+  - name: "Creating namespace {{ namespace_name }} on {{ hostvars[inventory_hostname].cluster_name }}"
+    kubernetes.core.k8s:
+      state: present
+      host: "{{ cluster_proxy_addon.cluster_url }}"
+      validate_certs: no
+      api_key: "{{managed_serviceaccount_addon.token}}"
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: "{{ namespace_name }}"
