@@ -18,7 +18,7 @@ The recommended order is as follows:
 7. [OPTIONAL] Deploy Ansible Automation Platform to the Hub.  The AAP prereqs and install instructions can be found in the [AAP GitOps application README](./operators/ansible-automation-platform/README.md).
 8. [OPTIONAL] Deploy RBAC configurations to the hub.  To accomplish this, simply `oc apply -k ./gitops-applications/rbac` (after configuring your github.secret as described in the [README](./gitops-applications/rbac/README.md)).
 9. [OPTIONAL] Deploy cluster-logging on the hub to foreward logs to ELK stack. `oc apply -k ./gitops-application/cluster-logging`. Once you setup github.secrets in previous steps, the repo is already registered with Argo.
-10 [OPTIONAL] Deploy `cluster-backup-operator` on the hub the instruction can be found in [`cluster-backup-operator` README](./operators/cluster-backup/README.md))
+10. [OPTIONAL] Deploy `cluster-backup-operator` on the hub the instruction can be found in [`cluster-backup-operator` README](./operators/cluster-backup/README.md))
 
 ## Deploying ACM Applications and Policies on the Hub to Configure Managed Clusters
 
