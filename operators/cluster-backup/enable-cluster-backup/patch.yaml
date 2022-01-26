@@ -1,3 +1,0 @@
-- op: replace
-  path: /spec/backupStorageLocations/0/objectStorage/bucket
-  value: <S3_BUCKET>
