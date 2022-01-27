@@ -30,8 +30,8 @@ data:
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "id": 23,
-      "iteration": 1642692300658,
+      "id": 7,
+      "iteration": 1643209670107,
       "links": [],
       "panels": [
         {
@@ -168,7 +168,8 @@ data:
                     "value": 80
                   }
                 ]
-              }
+              },
+              "unit": "none"
             },
             "overrides": []
           },
@@ -178,7 +179,7 @@ data:
             "x": 12,
             "y": 1
           },
-          "id": 18,
+          "id": 10,
           "options": {
             "legend": {
               "calcs": [],
@@ -192,13 +193,15 @@ data:
           "targets": [
             {
               "exemplar": true,
-              "expr": "awx_status_total{cluster=\"$cluster\",status=~\"pending|running\"}",
+              "expr": "awx_status_total{cluster=\"$cluster\",status=~\"error|failed\"}",
+              "hide": false,
               "interval": "",
               "legendFormat": "{{status}}",
               "refId": "A"
             }
           ],
-          "title": "Traffic - Jobs",
+          "title": "Error Rate - Jobs",
+          "transformations": [],
           "type": "timeseries"
         },
         {
@@ -249,8 +252,7 @@ data:
                     "value": 80
                   }
                 ]
-              },
-              "unit": "none"
+              }
             },
             "overrides": []
           },
@@ -260,7 +262,7 @@ data:
             "x": 0,
             "y": 9
           },
-          "id": 10,
+          "id": 18,
           "options": {
             "legend": {
               "calcs": [],
@@ -274,14 +276,13 @@ data:
           "targets": [
             {
               "exemplar": true,
-              "expr": "awx_status_total{cluster=\"$cluster\",status=~\"error|failed\"}",
+              "expr": "awx_status_total{cluster=\"$cluster\",status=~\"pending|running\"}",
               "interval": "",
               "legendFormat": "{{status}}",
               "refId": "A"
             }
           ],
-          "title": "Error Rate - Jobs",
-          "transformations": [],
+          "title": "Traffic - Jobs",
           "type": "timeseries"
         },
         {
@@ -368,7 +369,7 @@ data:
           "type": "timeseries"
         },
         {
-          "collapsed": false,
+          "collapsed": true,
           "datasource": null,
           "gridPos": {
             "h": 1,
@@ -377,438 +378,439 @@ data:
             "y": 17
           },
           "id": 15,
-          "panels": [],
+          "panels": [
+            {
+              "datasource": null,
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 18
+              },
+              "id": 2,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "single"
+                }
+              },
+              "targets": [
+                {
+                  "exemplar": true,
+                  "expr": "awx_hosts_total{cluster=\"$cluster\"}",
+                  "interval": "",
+                  "legendFormat": "{{type}}",
+                  "refId": "A"
+                }
+              ],
+              "title": "AAP Hosts",
+              "type": "timeseries"
+            },
+            {
+              "datasource": null,
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 18
+              },
+              "id": 13,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "single"
+                }
+              },
+              "targets": [
+                {
+                  "exemplar": true,
+                  "expr": "sum(kube_pod_info{cluster=\"$cluster\", namespace=\"ansible-automation-platform\"})",
+                  "interval": "",
+                  "legendFormat": "{{cluster}} PodCount",
+                  "refId": "A"
+                }
+              ],
+              "title": "Saturation - Tower Pod Counts",
+              "type": "timeseries"
+            },
+            {
+              "datasource": null,
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 26
+              },
+              "id": 12,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "single"
+                }
+              },
+              "targets": [
+                {
+                  "exemplar": true,
+                  "expr": "awx_users_total{cluster=\"$cluster\"}",
+                  "interval": "",
+                  "legendFormat": "",
+                  "refId": "A"
+                },
+                {
+                  "exemplar": true,
+                  "expr": "awx_sessions_total{cluster=\"$cluster\"}",
+                  "hide": false,
+                  "interval": "",
+                  "legendFormat": "{{type}} Sessions",
+                  "refId": "B"
+                }
+              ],
+              "title": "User Interation",
+              "type": "timeseries"
+            },
+            {
+              "datasource": null,
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 34
+              },
+              "id": 24,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "single"
+                }
+              },
+              "targets": [
+                {
+                  "exemplar": true,
+                  "expr": "awx_status_total{cluster=\"$cluster\",status!=\"successful\"}",
+                  "interval": "",
+                  "legendFormat": "{{status}}",
+                  "refId": "A"
+                }
+              ],
+              "title": "Traffic - Jobs",
+              "type": "timeseries"
+            },
+            {
+              "datasource": null,
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 42
+              },
+              "id": 23,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "single"
+                }
+              },
+              "targets": [
+                {
+                  "exemplar": true,
+                  "expr": "awx_instance_consumed_capacity{cluster=\"$cluster\"}",
+                  "interval": "",
+                  "legendFormat": "Consumed",
+                  "refId": "A"
+                },
+                {
+                  "exemplar": true,
+                  "expr": "awx_instance_remaining_capacity{cluster=\"$cluster\"}",
+                  "hide": false,
+                  "interval": "",
+                  "legendFormat": "Remaining",
+                  "refId": "B"
+                },
+                {
+                  "exemplar": true,
+                  "expr": "awx_instance_capacity{cluster=\"$cluster\"}",
+                  "hide": false,
+                  "interval": "",
+                  "legendFormat": "Total Capacity",
+                  "refId": "C"
+                }
+              ],
+              "title": "Saturation - Instance Capacity",
+              "type": "timeseries"
+            }
+          ],
           "title": "Additional Information",
           "type": "row"
-        },
-        {
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 18
-          },
-          "id": 2,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "single"
-            }
-          },
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "awx_hosts_total{cluster=\"$cluster\"}",
-              "interval": "",
-              "legendFormat": "{{type}}",
-              "refId": "A"
-            }
-          ],
-          "title": "AAP Hosts",
-          "type": "timeseries"
-        },
-        {
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 18
-          },
-          "id": 13,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "single"
-            }
-          },
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "sum(kube_pod_info{cluster=\"$cluster\", namespace=\"ansible-automation-platform\"})",
-              "interval": "",
-              "legendFormat": "{{cluster}} PodCount",
-              "refId": "A"
-            }
-          ],
-          "title": "Saturation - Tower Pod Counts",
-          "type": "timeseries"
-        },
-        {
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 26
-          },
-          "id": 12,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "single"
-            }
-          },
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "awx_users_total{cluster=\"$cluster\"}",
-              "interval": "",
-              "legendFormat": "",
-              "refId": "A"
-            },
-            {
-              "exemplar": true,
-              "expr": "awx_sessions_total{cluster=\"$cluster\"}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "{{type}} Sessions",
-              "refId": "B"
-            }
-          ],
-          "title": "User Interation",
-          "type": "timeseries"
-        },
-        {
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 34
-          },
-          "id": 24,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "single"
-            }
-          },
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "awx_status_total{cluster=\"$cluster\",status!=\"successful\"}",
-              "interval": "",
-              "legendFormat": "{{status}}",
-              "refId": "A"
-            }
-          ],
-          "title": "Traffic - Jobs",
-          "type": "timeseries"
-        },
-        {
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 42
-          },
-          "id": 23,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "single"
-            }
-          },
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "awx_instance_consumed_capacity{cluster=\"$cluster\"}",
-              "interval": "",
-              "legendFormat": "Consumed",
-              "refId": "A"
-            },
-            {
-              "exemplar": true,
-              "expr": "awx_instance_remaining_capacity{cluster=\"$cluster\"}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "Remaining",
-              "refId": "B"
-            },
-            {
-              "exemplar": true,
-              "expr": "awx_instance_capacity{cluster=\"$cluster\"}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "Total Capacity",
-              "refId": "C"
-            }
-          ],
-          "title": "Saturation - Instance Capacity",
-          "type": "timeseries"
         }
       ],
       "refresh": "5m",
@@ -820,9 +822,9 @@ data:
           {
             "allValue": null,
             "current": {
-              "selected": true,
-              "text": "cicd-aap-aas-azure-eastus2",
-              "value": "cicd-aap-aas-azure-eastus2"
+              "selected": false,
+              "text": "cicd-aap-aas-ansible-c-eastus",
+              "value": "cicd-aap-aas-ansible-c-eastus"
             },
             "datasource": null,
             "definition": "label_values(cluster)",
@@ -854,5 +856,5 @@ data:
       "timezone": "",
       "title": "AAP Golden Signals Dashboard - by Tenant",
       "uid": "OZlnN-hnz",
-      "version": 12
+      "version": 7
     }
