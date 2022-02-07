@@ -1,0 +1,60 @@
+data_dir: /vector-data-dir
+api:
+  enabled: true
+  address: 127.0.0.1:8686
+  playground: false
+sources:
+  kubernetes_logs:
+    type: kubernetes_logs
+    extra_label_selector: "app.kubernetes.io/name=automation-controller"
+transforms:
+  log_remap:
+    type: remap
+    inputs:
+      - kubernetes_logs
+    source: . = .message
+  log_filter:
+    type: filter
+    inputs:
+      - log_remap
+    condition: match!(.message, r'GET /api/v2/metrics[/]? HTTP/1.1')
+  apache_log:
+    type: remap
+    inputs:
+      - log_filter
+    source: . = parse_apache_log!(.message, "combined")
+  non_200_log:
+    type: filter
+    inputs:
+      - apache_log
+    condition: .status != 200
+  response_metric:
+    type: log_to_metric
+    inputs:
+      - non_200_log
+    metrics:
+      - type: counter
+        field: status
+        name: automation_controller_response_total
+        tags:
+          cluster: __CLUSTER_NAME__
+          host: "{{host}}"
+          method: "{{method}}"
+          status: "{{status}}"
+sinks:
+  prometheus_remote_write:
+    type: prometheus_remote_write
+    inputs:
+      - response_metric
+    endpoint: https://__ACM_OBSERVATORIUM_API_HOST__/api/metrics/v1/default/api/v1/receive
+    tls:
+      ca_file: /tlscerts/ca/ca.crt
+      crt_file: /tlscerts/certs/tls.crt
+      key_file: /tlscerts/certs/tls.key
+  stdout:
+    type: console
+    inputs:
+      - non_200_log
+      - response_metric
+    encoding:
+      codec: json
