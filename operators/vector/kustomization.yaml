@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vector
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+- clusterrole.yaml
+- clusterrolebinding.yaml
+- daemonset.yaml
+- sa.yaml
+- service-headless.yaml
+- svc.yaml
+
+configMapGenerator:
+- name: vector
+  files:
+  - agent.yaml
+
+secretGenerator:
+- name: managed-cluster-cert
+  files:
+  - ca.crt
+- name: client-cert
+  files:
+  - tls.crt
+  - tls.key

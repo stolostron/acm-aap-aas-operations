@@ -1,0 +1,15 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: thanos-ruler-custom-rules
+  namespace: open-cluster-management-observability
+data:
+  custom_rules.yaml: |
+    groups:
+    - name: automation-controller-web-health
+      rules:
+      - alert: automation_controller_response_error
+        expr: automation_controller_response_total{status="500"} > 3
+        for: 1m
+        labels:
+          severity: warning
