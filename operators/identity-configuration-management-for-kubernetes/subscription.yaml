@@ -9,5 +9,5 @@ spec:
   channel: alpha
   installPlanApproval: Automatic
   name: idp-mgmt-operator
-  source: identity-configuration-management-for-kubernetes-catalogsource
-  sourceNamespace: idp-mgmt-config
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
