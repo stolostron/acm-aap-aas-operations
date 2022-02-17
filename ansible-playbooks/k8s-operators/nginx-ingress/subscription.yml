@@ -1,0 +1,13 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: nginx-ingress-operator
+  namespace: operators
+spec:
+  channel: alpha
+  installPlanApproval: Manual
+  name: nginx-ingress-operator
+  source: certified-operators
+  sourceNamespace: olm
+status:
+  installedCSV: nginx-ingress-operator.v0.5.0

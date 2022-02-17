@@ -1,0 +1,19 @@
+- name: "Manage Operators"
+  hosts: "{{ target_hosts }}"
+  connection: local
+  gather_facts: false
+  tasks:
+    - block: 
+        - include_tasks: ../roles/k8s-cluster-access/tasks/get-access.yml
+        - include_role: 
+            name: ../roles/k8s-operator-mgmt
+          ignore_errors: yes
+          with_items:
+            - "../k8s-operators/automation-test"
+            # - "../operators/ansible-automation-platform-operator"
+            # - "../operators/cert-manager"
+            # - "../operators/keycloak-operator"
+            # - "../operators/nginx-ingress-operator"
+      always:
+        - include_tasks: ../roles/k8s-cluster-access/tasks/remove-access.yml
+          ignore_errors: yes

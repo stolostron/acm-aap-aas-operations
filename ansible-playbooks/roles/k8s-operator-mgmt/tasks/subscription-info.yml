@@ -1,0 +1,37 @@
+- name: "get subscription info"
+  kubernetes.core.k8s_info:
+    host: "{{ cluster_proxy.cluster_url }}"
+    validate_certs: no
+    api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
+    api_version: "{{ subscription_fact.apiVersion }}"
+    kind: "{{ subscription_fact.kind }}"
+    name: "{{ subscription_fact.metadata.name }}"
+    namespace: "{{ subscription_fact.metadata.namespace }}"
+  register: k8s_info
+  until: >
+    (k8s_info.failed == false) and
+    (k8s_info.resources[0].status.installPlanRef | default("") != "")
+  retries: 10
+  delay: 10
+
+- name: set subscription_info
+  set_fact:
+    subscription_info: "{{ k8s_info.resources[0] }}"
+
+- name: "detect subscription ResolutionFailed"
+  fail:
+    msg: 
+      - "subscription ResolutionFailed"
+      - "reason: {{ subscription_info | community.general.json_query('status.conditions[?type==`ResolutionFailed`].reason') | first }}"
+      - "message: {{ subscription_info | community.general.json_query('status.conditions[?type==`ResolutionFailed`].message') | first }}"
+  when: (subscription_info | community.general.json_query('status.conditions[?type==`ResolutionFailed`].status') | first | default("")) == "True"
+
+- name: debug
+  debug:
+    msg:
+      - "operator: {{ subscription_info.metadata.name }}"
+      - "installPlanApproval: {{ subscription_info.spec.installPlanApproval | default(Automatic) }}"
+      - "installplan: {{ subscription_info.status.installplanRef | default('installplan does not exist')}}"
+
+
+

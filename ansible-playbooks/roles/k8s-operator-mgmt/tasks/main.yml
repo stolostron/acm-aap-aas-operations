@@ -1,0 +1,24 @@
+- name: "load namespace_fact from {{ item }}/namespace.yml"
+  include_vars:
+    file: "{{ item }}/namespace.yml"
+    name: namespace_fact
+- debug:
+    msg: "namespace_fact: {{ namespace_fact }}"
+
+- name: "load operatorgroup_fact from {{ item }}/operatorgroup.yml"
+  include_vars:
+    file: "{{ item }}/operatorgroup.yml"
+    name: operatorgroup_fact
+- debug:
+    msg: "operatorgroup_fact: {{ operatorgroup_fact }}"
+
+- name: "load subscription_fact from {{ item }}/subscription.yml"
+  include_vars:
+    file: "{{ item }}/subscription.yml"
+    name: subscription_fact
+- debug:
+    msg: "subscription_fact: {{ subscription_fact }}"
+
+- include_tasks: ensure-operator-config.yml
+- include_tasks: ensure-operator-version.yml
+
