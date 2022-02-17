@@ -1,0 +1,25 @@
+- name: "Setup environment for automation-test"
+  hosts: "{{ target_hosts }}"
+  connection: local
+  gather_facts: false
+  tasks:
+    - include_tasks: ../roles/k8s-cluster-access/tasks/get-access.yml
+    - name: "load namespace_fact from ../k8s-operators/automation-test/namespace.yml"
+      include_vars:
+        file: "../k8s-operators/automation-test/namespace.yml"
+        name: namespace_fact
+    - debug:
+        msg: "namespace_fact: {{ namespace_fact }}"
+    - name: "ensure namespace {{ namespace_fact.metadata.name }} does not exist"
+      kubernetes.core.k8s:
+        host: "{{ cluster_proxy.cluster_url }}"
+        validate_certs: no
+        api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
+        state: absent
+        definition: "{{ namespace_fact }}"
+        wait: yes
+      register: result
+      until: result.failed == false
+      retries: 10
+      delay: 10
+    - include_tasks: ../roles/k8s-cluster-access/tasks/remove-access.yml

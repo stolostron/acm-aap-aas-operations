@@ -4,3 +4,4 @@
 gitops-applications/alertManager/alertmanager.yaml
 .history
 */**/.history
+ansible-playbooks/kubeconfig

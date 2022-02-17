@@ -1,0 +1,30 @@
+- name: "set installplan_fact"
+  set_fact:
+    installplan_fact:
+      apiVersion: "{{ subscription_info.status.installPlanRef.apiVersion }}"
+      kind: "{{ subscription_info.status.installPlanRef.kind }}"
+      metadata:
+        name: "{{ subscription_info.status.installPlanRef.name }}"
+        namespace: "{{ subscription_info.status.installPlanRef.namespace }}"
+- name: "get installplan info"
+  kubernetes.core.k8s_info:
+    host: "{{ cluster_proxy.cluster_url }}"
+    validate_certs: no
+    api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
+    api_version: "{{ installplan_fact.apiVersion }}"
+    kind: "{{ installplan_fact.kind }}"
+    name: "{{ installplan_fact.metadata.name }}"
+    namespace: "{{ installplan_fact.metadata.namespace }}"
+  register: k8s_info
+  until: k8s_info.failed == false
+  retries: 10
+  delay: 10
+- name: set installplan_info
+  set_fact:
+    installplan_info: "{{ k8s_info.resources[0] }}"
+- name: debug
+  debug:
+    msg:
+      - "installplan.metadata.name: {{ installplan_info.metadata.name }}"
+      - "installplan.metadata.namespace: {{ installplan_info.metadata.namespace }}"
+      - "installplan.spec: {{ installplan_info.spec }}"
