@@ -1,0 +1,114 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: alertmgr-conf-policy
+  namespace: open-cluster-management-observability
+  annotations:
+    policy.open-cluster-management.io/standards: NIST-CSF
+    policy.open-cluster-management.io/categories: PR.IP Information Protection Processes and Procedures
+    policy.open-cluster-management.io/controls: PR.IP-1 Baseline Configuration
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: alertmgr-conf-policy
+        spec:
+          namespaceSelector:
+            exclude:
+              - kube-*
+            include:
+              - open-cluster-management-observability
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: alertmanager-config
+                stringData:
+                  alertmanager.yaml: |
+                    global:
+                      slack_api_url: _SLACK_API_URL_
+
+                    route:
+                      receiver: default-receiver
+                      group_by: ['alertname', 'cluster']
+                      repeat_interval: 30ms
+                      routes:
+                      - receiver: "empty"
+                        match:
+                          alertname: Watchdog
+                      - receiver: 'pagerduty-acm-aoc-critical'
+                        match:
+                          severity: 'critical'
+                      - receiver: 'pagerduty-acm-aoc-warning'
+                        match:
+                          severity: 'warning'
+                      - receiver: default-receiver
+
+                    receivers:
+                      - name: "empty"
+                      - name: default-receiver
+                        slack_configs:
+                        - channel: forum-acm-aap-alerts
+                          actions:
+                            - name: "links"
+                              text: "Grafana :grafana:"
+                              type: "button"
+                              url: '{{`https://_ACM_CONSOLE_URL_/grafana/explore?orgId=1&left=["now-1h","now","Observatorium",{"expr":"ALERTS{alertname=\"{{ .CommonLabels.alertname }}\",cluster=\"{{ .CommonLabels.cluster }}\"}","context":"explore"},{"mode":"Metrics"},{"ui":[true,true,true,"none"]}]`}}'
+                          footer: |
+                            "{{`{{ .CommonLabels.cluster }}`}}"
+                          mrkdwn_in:
+                            - text
+                            - actions
+                          text: |-
+                            "{{`{{ range .Alerts }}`}}"
+                              :failed: - *Alerts:* "{{`{{ .Annotations.summary }}`}}"
+                              :green_book: - *Description:* "{{`{{ .Annotations.description }}`}}"
+                              :clipboard: - *Details:*
+                              "{{`{{ range .Labels.SortedPairs }} • *{{ .Name }}:* {{ .Value }} {{ printf "\n" }} {{ end }}`}}"
+                            "{{`{{ end }}`}}"
+                          title: "{{`[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }} ({{ .CommonLabels.severity }})`}}"
+                          title_link: http://_ALERTMANAGER_URL/#/alerts
+                      - name: 'pagerduty-acm-aoc-critical'
+                        pagerduty_configs:
+                        - service_key: _SERVICE_KEY_
+                      - name: 'pagerduty-acm-aoc-warning'
+                        pagerduty_configs:
+                        - service_key: _SERVICE_KEY_
+          remediationAction: inform
+          severity: low
+  remediationAction: enforce
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-alertmgr-conf-policy
+  namespace: open-cluster-management-observability
+placementRef:
+  name: placement-alertmgr-conf-policy
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: alertmgr-conf-policy
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-alertmgr-conf-policy
+  namespace: open-cluster-management-observability
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - local-cluster
