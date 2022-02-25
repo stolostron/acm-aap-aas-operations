@@ -1,0 +1,45 @@
+
+- include_tasks: subscription-info.yml
+
+- name: debug
+  debug:
+    msg: "{{ subscription_info | community.general.json_query('status.conditions[?type==`ResolutionFailed`].status') }}"
+
+- name: "set desired_version fact using subscription_fact"
+  set_fact:
+    desired_version: "{{ subscription_fact.status.installedCSV | regex_search('.v[0-9].+') | regex_search('[0-9].+') }}"
+
+- include_tasks: installplan-info.yml
+
+- name: "set installplan_version fact"
+  set_fact:
+    installplan_version: "{{ installplan_info.spec.clusterServiceVersionNames[0] | regex_search('.v[0-9].+') | regex_search('[0-9].+') }}"
+- debug:
+    msg:
+      - "installplan_version: {{installplan_version}}"
+      - "desired_version: {{desired_version}}"
+
+- name: "approve installplan"
+  kubernetes.core.k8s:
+    host: "{{ cluster_proxy.cluster_url }}"
+    validate_certs: no
+    api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
+    state: patched
+    api_version: "{{ installplan_info.apiVersion }}"
+    kind: "{{ installplan_info.kind}}"
+    name: "{{ installplan_info.metadata.name }}"
+    namespace: "{{ installplan_info.metadata.namespace }}"
+    definition:
+      spec:
+        approved: true
+  when: (installplan_version is version(desired_version, operator='<=')) and
+        (installplan_info.spec.approved == false)
+
+- name: "delay"
+  wait_for:
+    timeout: 5
+  when: (installplan_version is version(desired_version, operator='<='))
+
+- name: "loop untile reach desire version"
+  include_tasks: ensure-operator-version.yml
+  when: (installplan_version is version(desired_version, operator='<='))

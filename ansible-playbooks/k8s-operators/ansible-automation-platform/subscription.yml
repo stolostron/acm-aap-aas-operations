@@ -1,0 +1,14 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ansible-automation-platform-operator
+  namespace: operators
+spec:
+  channel: stable-2.1-cluster-scoped
+  installPlanApproval: Manual
+  name: ansible-automation-platform-operator
+  source: redhat-operators
+  sourceNamespace: olm
+status:
+  installedCSV: aap-operator.v2.1.1-0.1642617585
+
