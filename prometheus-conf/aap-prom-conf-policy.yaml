@@ -1,0 +1,107 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: prom-conf-policy
+  namespace: open-cluster-management-addon-observability
+  annotations:
+    policy.open-cluster-management.io/standards: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/categories: NIST SP 800-53
+    policy.open-cluster-management.io/controls: CM Configuration Management
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: prom-conf-policy
+      spec:
+        namespaceSelector:
+          exclude:
+            - kube-*
+          include:
+            - open-cluster-management-addon-observability
+        object-templates:    
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ServiceAccount
+              metadata:
+                name: kubectlclient
+                namespace: open-cluster-management-addon-observability  
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: ClusterRoleBinding
+              metadata:
+                name: cluster-admin-kubectlclient-sa-crb
+              roleRef:
+                name: cluster-admin
+                apiGroup: rbac.authorization.k8s.io
+                kind: ClusterRole
+              subjects:
+                - name: kubectlclient
+                  kind: ServiceAccount
+                  namespace: open-cluster-management-addon-observability  
+          - complianceType: musthave
+            objectDefinition:
+                apiVersion: batch/v1beta1
+                kind: CronJob
+                metadata:
+                  name: aap-configure-prom
+                  namespace: open-cluster-management-addon-observability
+                spec:
+                  schedule: "*/10 * * * *"
+                  jobTemplate:
+                    spec:
+                      template:
+                        spec:
+                          containers:
+                          - name: aap-configure-prom
+                            image: quay.io/ocm-observability/aap-configure-prom:v2.4
+                            imagePullPolicy: Always
+                            command: ["/bin/sh"]
+                            args: ["-c", "/tmp/configure-aks-prom.sh"]
+                            resources:
+                              limits:
+                                cpu: 100m
+                                memory: 100Mi
+                              requests:
+                                cpu: 10m
+                                memory: 10Mi
+                          restartPolicy: OnFailure
+                          serviceAccount: kubectlclient
+                          serviceAccountName: kubectlclient
+        remediationAction: inform
+        severity: low
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-prom-conf-policy
+  namespace: open-cluster-management-addon-observability
+placementRef:
+  name: placement-prom-conf-policy
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: prom-conf-policy
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-prom-conf-policy
+  namespace: open-cluster-management-addon-observability
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - local-cluster
