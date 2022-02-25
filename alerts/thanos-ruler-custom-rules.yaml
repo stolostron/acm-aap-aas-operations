@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: thanos-ruler-custom-rules
+  namespace: open-cluster-management-observability
+data:
+  custom_rules.yaml: |
+    groups:
+    - name: aap-health
+      rules:
+      - alert: AutomationControllerResponseError
+        annotations:
+          summary: AAP controller in {{$labels.namespace}} response error (status="500") is more than 3 over 1 minutes
+        expr: automation_controller_response_total{status="500"} > 3
+        for: 1m
+        labels:
+          severity: warning
+      - alert: AAPPodRestartingTooMuch
+        annotations:
+          summary: AAP Pod in {{$labels.namespace}} restart more than 10 times over 30 minutes
+        expr: sum(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform"}) > 10
+        for: 30m
+        labels:
+          severity: warning
+      - alert: AAPPodFrequentlyRestarting
+        annotations:
+          summary: AAP Pod in {{$labels.namespace}} is restarting {{ printf "%.2f" $value }} times over 5 minutes
+        expr: rate(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform"}[5m]) * 300 > 0
+        for: 5m
+        labels:
+          severity: critical
+      - alert: AAPPodContainerTerminated
+        annotations:
+          summary: AAP Pod in {{$labels.namespace}} has been in terminated state for longer than 10 minutes
+        expr: kube_pod_container_status_terminated_reason{reason=~"OOMKilled|Error|ContainerCannotRun", namespace="ansible-automation-platform"} > 1
+        for: 10m
+        labels:
+          severity: critical
+      - alert: AAPPodNotReady
+        annotations:
+          summary: AAP Pod in {{$labels.namespace}} exists, but is not running over 5 minutes
+        expr: kube_pod_status_ready{namespace="ansible-automation-platform"} != 1
+        for: 5m
+        labels:
+          severity: critical
+      - alert: AAPDeploymentError
+        annotations:
+          summary: AAP Deployment in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
+        expr: kube_deployment_status_replicas_available{namespace="ansible-automation-platform"} != kube_deployment_spec_replicas{namespace="ansible-automation-platform"}
+        for: 5m
+        labels:
+          severity: warning
+      - alert: AAPStatefulSetError
+        annotations:
+          summary: AAP StatefulSet in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
+        expr: kube_statefulset_status_replicas_available{namespace="ansible-automation-platform"} != kube_statefulset_replicas{namespace="ansible-automation-platform"}
+        for: 5m
+        labels:
+          severity: warning
