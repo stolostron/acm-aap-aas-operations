@@ -28,6 +28,7 @@ spec:
                 kind: Secret
                 metadata:
                   name: alertmanager-config
+                  namespace: open-cluster-management-observability
                 stringData:
                   alertmanager.yaml: |
                     global:
