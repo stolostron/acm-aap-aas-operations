@@ -39,19 +39,17 @@ spec:
                       group_by: ['alertname', 'cluster']
                       repeat_interval: 30ms
                       routes:
-                      - receiver: "empty"
-                        match:
-                          alertname: Watchdog
-                      - receiver: 'pagerduty-acm-aoc-critical'
-                        match:
-                          severity: 'critical'
-                      - receiver: 'pagerduty-acm-aoc-warning'
-                        match:
-                          severity: 'warning'
                       - receiver: default-receiver
+                        matchers:
+                        - severity=warning
+                      - receiver: 'pagerduty-acm-aoc-critical'
+                        matchers:
+                        - severity=critical
+                      - receiver: 'pagerduty-acm-aoc-warning'
+                        matchers:
+                        - severity=warning
 
                     receivers:
-                      - name: "empty"
                       - name: default-receiver
                         slack_configs:
                         - channel: forum-acm-aap-alerts
