@@ -37,17 +37,17 @@ spec:
                     route:
                       receiver: default-receiver
                       group_by: ['alertname', 'cluster']
-                      repeat_interval: 30ms
+                      repeat_interval: 30m
                       routes:
-                      - receiver: default-receiver
-                        matchers:
-                        - severity=warning
-                      - receiver: 'pagerduty-acm-aoc-critical'
-                        matchers:
-                        - severity=critical
-                      - receiver: 'pagerduty-acm-aoc-warning'
-                        matchers:
-                        - severity=warning
+                        - matchers:
+                            - severity=~"warning|critical"
+                          receiver: default-receiver
+                        - matchers:
+                            - severity="critical"
+                          receiver: pagerduty-acm-aoc-critical
+                        - matchers:
+                            - severity="warning"
+                          receiver: pagerduty-acm-aoc-warning
 
                     receivers:
                       - name: default-receiver
