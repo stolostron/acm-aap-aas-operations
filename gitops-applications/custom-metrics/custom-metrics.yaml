@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aap-custom-metrics
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: metrics
+    repoURL: https://github.com/stolostron/acm-aap-aas-operations
+    targetRevision: main
+  syncPolicy:
+    automated: {}
