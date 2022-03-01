@@ -42,6 +42,7 @@ spec:
                         - matchers:
                             - severity=~"warning|critical"
                           receiver: default-receiver
+                          continue: true
                         - matchers:
                             - severity="critical"
                           receiver: pagerduty-acm-aoc-critical
