@@ -1,9 +1,9 @@
 
 - include_tasks: subscription-info.yml
 
-- name: debug
-  debug:
-    msg: "{{ subscription_info | community.general.json_query('status.conditions[?type==`ResolutionFailed`].status') }}"
+- name: "set csv_prefix fact"
+  set_fact:
+    csv_prefix: "{{ subscription_fact.status.installedCSV | split('.') | first}}"
 
 - name: "set desired_version fact using subscription_fact"
   set_fact:
@@ -11,9 +11,18 @@
 
 - include_tasks: installplan-info.yml
 
+- name: "set installplan_csv fact"
+  set_fact:
+    installplan_csv: "{{ installplan_info | json_query(installplan_csv_query) | first }}"
+  vars:
+    installplan_csv_query: "spec.clusterServiceVersionNames[?contains(@, `{{ csv_prefix }}`)]"
+
+- debug:
+    msg: "installplan_csv: {{ installplan_csv }}"
+
 - name: "set installplan_version fact"
   set_fact:
-    installplan_version: "{{ installplan_info.spec.clusterServiceVersionNames[0] | regex_search('.v[0-9].+') | regex_search('[0-9].+') }}"
+    installplan_version: "{{ installplan_csv | regex_search('.v[0-9].+') | regex_search('[0-9].+') }}"
 - debug:
     msg:
       - "installplan_version: {{installplan_version}}"
@@ -32,6 +41,9 @@
     definition:
       spec:
         approved: true
+  until: result.failed == false
+  retries: 10
+  delay: 10
   when: (installplan_version is version(desired_version, operator='<=')) and
         (installplan_info.spec.approved == false)
 
@@ -40,6 +52,32 @@
     timeout: 5
   when: (installplan_version is version(desired_version, operator='<='))
 
+# there's a edge condition that this doesn't handle!
+# if the desired_version is not reachable 
+# for example: 
+# - version available: 0.1.0 -> 0.2.0 -> 0.4.0
+# - desire version: 0.5.0
+# this will stuck at an infinit loop!
+# original idea was use state = 'AtLatestKnown' to exit
+# problem is that 'AtLatestKnown' could be an intermediate state in OLM!
+
 - name: "loop untile reach desire version"
   include_tasks: ensure-operator-version.yml
-  when: (installplan_version is version(desired_version, operator='<='))
+  when: >
+    (installplan_version is version(desired_version, operator='<')) and
+    (subscription_info.status.state != 'AtLatestKnown') and
+    (subscription_info.status.state != 'UpgradeFailed')
+
+# - name: "fail to reach desire version"
+#   fail:
+#     msg: 
+#       - "subscription name: {{ subscription_info.metadata.name }}"
+#       - "subscription namespace: {{ subscription_info.metadata.namespace }}"
+#       - "desire version: {{ desired_version }}"
+#       - "currentCSV: {{ subscription_info.status.currentCSV | default('') }}"
+#       - "installedCSV: {{ subscription_info.status.installedCSV | default('') }}"
+#       - "subscription state: {{ subscription_info.status.state | default('') }}"
+#   when: >
+#     (subscription_info.status.state != 'AtLatestKnown') or
+#     (subscription_info.status.state != 'UpgradeFailed')
+  

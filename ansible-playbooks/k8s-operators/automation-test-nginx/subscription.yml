@@ -1,0 +1,14 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: automation-test-nginx
+  namespace: automation-test
+spec:
+  channel: alpha
+  installPlanApproval: Manual
+  name: nginx-ingress-operator
+  source: certified-operators
+  sourceNamespace: olm
+  startingCSV: nginx-ingress-operator.v0.4.0
+status:
+  installedCSV: nginx-ingress-operator.v0.6.0

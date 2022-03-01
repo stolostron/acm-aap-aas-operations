@@ -22,8 +22,7 @@
 - name: set installplan_info
   set_fact:
     installplan_info: "{{ k8s_info.resources[0] }}"
-- name: debug
-  debug:
+- debug:
     msg:
       - "installplan.metadata.name: {{ installplan_info.metadata.name }}"
       - "installplan.metadata.namespace: {{ installplan_info.metadata.namespace }}"
