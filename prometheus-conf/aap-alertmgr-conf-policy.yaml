@@ -36,7 +36,7 @@ spec:
 
                     route:
                       receiver: default-receiver
-                      group_by: ['alertname', 'cluster']
+                      group_by: ['alertname', 'cluster', 'pod']
                       repeat_interval: 30m
                       routes:
                         - matchers:
