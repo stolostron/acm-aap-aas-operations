@@ -1,0 +1,14 @@
+apiVersion: operators.coreos.com/v1alpha1 
+kind: Subscription 
+metadata: 
+  name: automation-test-etcd 
+  namespace: automation-test
+spec: 
+  channel: singlenamespace-alpha 
+  name: etcd 
+  source: operatorhubio-catalog 
+  sourceNamespace: olm
+  installPlanApproval: Manual
+  startingCSV: etcdoperator.v0.9.2
+status:
+  installedCSV: etcdoperator.v0.9.5

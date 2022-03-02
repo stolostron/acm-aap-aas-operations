@@ -1,5 +1,5 @@
 - name: "Get ClusterProxy URL"
-  ocmplus.cm.cluster_proxy_addon:
+  ocmplus.cm.cluster_proxy:
     hub_kubeconfig: "{{ lookup('env', 'K8S_AUTH_KUBECONFIG') }}"
     managed_cluster: "{{ hostvars[inventory_hostname].cluster_name }}"
     wait: yes
@@ -12,14 +12,14 @@
     managed_cluster: "{{ hostvars[inventory_hostname].cluster_name }}"
     wait: yes
     timeout: 60
-    ttl_seconds_after_creation:  3600
+    ttl_seconds_after_creation:  "{{ ttl | default('3600')}}"
   register: managed_serviceaccount
 - name: "Configure ServiceAccount RBAC"
   ocmplus.cm.managed_serviceaccount_rbac:
     hub_kubeconfig: "{{ lookup('env', 'K8S_AUTH_KUBECONFIG') }}"
     managed_cluster: "{{ hostvars[inventory_hostname].cluster_name }}"
     managed_serviceaccount_name: "{{ managed_serviceaccount.managed_serviceaccount.name }}"
-    rbac_template: ../k8s-rbac/cluster-admin
+    rbac_template: "{{ rbac_template }}"
     wait: yes
     timeout: 60
   register: result

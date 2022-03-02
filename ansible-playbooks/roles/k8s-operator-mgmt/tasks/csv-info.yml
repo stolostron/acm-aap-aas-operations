@@ -40,8 +40,7 @@
 - name: set installed_csv_info
   set_fact:
     installed_csv_info: "{{ k8s_info.resources[0] | default(installed_csv_fact) }}"
-- name: debug
-  debug:
+- debug:
     msg:
       - "current_csv_info.spec.version:   {{ current_csv_info.spec.version | default('does not exist')}}"
       - "installed_csv_info.spec.version: {{ installed_csv_info.spec.version | default('does not exist')}}"

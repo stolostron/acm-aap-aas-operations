@@ -1,14 +1,14 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: nginx-ingress-operator
+  name: keycloak-operator
   namespace: automation-test
 spec:
   channel: alpha
   installPlanApproval: Manual
-  name: nginx-ingress-operator
-  source: certified-operators
+  name: keycloak-operator
+  source: operatorhubio-catalog
   sourceNamespace: olm
-  startingCSV: nginx-ingress-operator.v0.1.0
+  startingCSV: keycloak-operator.v16.0.0
 status:
-  installedCSV: nginx-ingress-operator.v0.4.0
+  installedCSV: keycloak-operator.v16.0.0
