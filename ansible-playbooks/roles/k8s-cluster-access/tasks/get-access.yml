@@ -1,5 +1,5 @@
 - name: "Get ClusterProxy URL"
-  ocmplus.cm.cluster_proxy_addon:
+  ocmplus.cm.cluster_proxy:
     hub_kubeconfig: "{{ lookup('env', 'K8S_AUTH_KUBECONFIG') }}"
     managed_cluster: "{{ hostvars[inventory_hostname].cluster_name }}"
     wait: yes
