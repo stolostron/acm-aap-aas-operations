@@ -11,4 +11,4 @@ spec:
   installPlanApproval: Manual
   startingCSV: etcdoperator.v0.9.2
 status:
-  installedCSV: etcdoperator.v0.9.5
+  installedCSV: etcdoperator.v0.9.4

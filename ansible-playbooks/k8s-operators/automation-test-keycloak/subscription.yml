@@ -11,4 +11,4 @@ spec:
   sourceNamespace: olm
   startingCSV: keycloak-operator.v16.0.0
 status:
-  installedCSV: keycloak-operator.v16.0.0
+  installedCSV: keycloak-operator.v17.0.0

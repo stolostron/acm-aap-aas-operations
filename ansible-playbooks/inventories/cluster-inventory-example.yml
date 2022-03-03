@@ -20,3 +20,6 @@ cluster_groups:
   - ansible-automation-platform=true
   - cloud=Azure
   - environment=prod
+- name: kind-clusters
+  label_selectors:
+  - name=kind-cluster

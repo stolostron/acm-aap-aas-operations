@@ -41,7 +41,9 @@
     definition:
       spec:
         approved: true
-  until: result.failed == false
+  until: > 
+    (result.failed == false) and
+    (result.stauts != 502)
   retries: 10
   delay: 10
   when: (installplan_version is version(desired_version, operator='<=')) and
@@ -60,12 +62,16 @@
 # this will stuck at an infinit loop!
 # original idea was use state = 'AtLatestKnown' to exit
 # problem is that 'AtLatestKnown' could be an intermediate state in OLM!
+- debug:
+    msg:
+      - "subscription_info.status.state: {{ subscription_info.status.state }}"
+      - "installplan_version: {{installplan_version}}"
+      - "desired_version: {{desired_version}}"
 
 - name: "loop untile reach desire version"
   include_tasks: ensure-operator-version.yml
   when: >
     (installplan_version is version(desired_version, operator='<')) and
-    (subscription_info.status.state != 'AtLatestKnown') and
     (subscription_info.status.state != 'UpgradeFailed')
 
 # - name: "fail to reach desire version"
