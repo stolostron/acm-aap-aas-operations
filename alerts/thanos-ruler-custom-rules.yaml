@@ -28,8 +28,8 @@ data:
         annotations:
           description: AAP Pod in {{$labels.namespace}} is restarting {{ printf "%.2f" $value }} times over 1 minutes
           summary: AAP Pod in {{$labels.namespace}} frequently restarting
-        expr: increase(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform"}[1m]) > 0
-        for: 1m
+        expr: increase(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform"}[1m]) > 3
+        for: 2m
         labels:
           severity: critical
       - alert: AAPPodContainerTerminated
