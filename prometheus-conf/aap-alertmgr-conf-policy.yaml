@@ -36,12 +36,13 @@ spec:
 
                     route:
                       receiver: default-receiver
-                      group_by: ['alertname', 'cluster']
+                      group_by: ['alertname', 'cluster', 'pod']
                       repeat_interval: 30m
                       routes:
                         - matchers:
                             - severity=~"warning|critical"
                           receiver: default-receiver
+                          continue: true
                         - matchers:
                             - severity="critical"
                           receiver: pagerduty-acm-aoc-critical
