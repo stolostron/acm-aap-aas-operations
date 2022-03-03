@@ -43,7 +43,7 @@
         approved: true
   until: > 
     (result.failed == false) and
-    (result.stauts != 502)
+    (result.stauts | default(0) != 502)
   retries: 10
   delay: 10
   when: (installplan_version is version(desired_version, operator='<=')) and
