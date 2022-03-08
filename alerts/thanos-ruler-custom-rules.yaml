@@ -36,7 +36,7 @@ data:
         annotations:
           description: AAP Pod in {{$labels.namespace}} has been in terminated state for longer than 10 minutes
           summary: AAP Pod in {{$labels.namespace}} has been in terminated state
-        expr: kube_pod_container_status_terminated_reason{reason=~"OOMKilled|Error|ContainerCannotRun", namespace="ansible-automation-platform"} > 1
+        expr: kube_pod_container_status_terminated_reason{reason=~"OOMKilled|Error|ContainerCannotRun", namespace="ansible-automation-platform"} > 0
         for: 10m
         labels:
           severity: critical
