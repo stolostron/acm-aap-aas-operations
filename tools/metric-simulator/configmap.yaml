@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metric-simulator
+data:
+  config.yml: |
+    metrics:
+      - name: kube_pod_container_status_restarts_total
+        help: number of container restarts per container
+        type: counter
+        label_keys: [cluster, namespace, pod, container]
+        sequences:
+          - label_values: [c1, n1, p1, c1]
+            interval: 10
+            value: 0
+          - label_values: [c2, n2, p2, c2]
+            interval: 30
+            value: 0
+      - name: kube_pod_container_resource_requests_memory_bytes
+        help: pod resource requests memory
+        type: gauge
+        label_keys: [cluster, namespace, pod, container]
+        sequences:
+          - label_values: [c1, n1, p1, c1]
+            interval: 10
+            value: 10
+            operation: add
+          - label_values: [c2, n2, p2, c2]
+            interval: 20
+            value: 200
+            operation: add
+          - label_values: [c3, n3, p3, c3]
+            interval: 30
+            max_value: 3000
+            value: 30
+            operation: sub
+      - name: kube_pod_status_phase
+        help: pod status phase
+        type: gauge
+        label_keys: [cluster, namespace, pod, container]
+        sequences:
+          - label_values: [c1, n1, p1, c1]
+            interval: 10
+            value: 1
+          - label_values: [c2, n2, p2, c2]
+            interval: 20
+            value: 1
