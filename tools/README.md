@@ -1,10 +1,10 @@
-# tools
+# Tools
 
-## [metric simulator](./metric-simulator)
+## [Metric simulator](./metric-simulator)
 
 Metric simulator is used to generate the Prometheus metrics, then we can create some fake metrics to trigger alerts to ensure the whole monitoring solution is work well.
 
-### [metric conf](./metric-simulator/metric-config.yaml)
+### [Metric configuration](./metric-simulator/metric-config.yaml)
 
 There is an example for metrics configuration:
 
@@ -69,6 +69,6 @@ sequences.operation | the operation that will be applied, it only will be used w
 - Histogram (**TODO**)
 - Summary (**TODO**)
 
-## [unhealthy-deploy.yaml](./unhealthy-deploy.yaml)
+## [Unhealthy deployment](./unhealthy-deploy.yaml)
 
 we can use this unhealthy deployment to simulate a unhealthy AAP Pods, and then to trigger the AAP alert.
