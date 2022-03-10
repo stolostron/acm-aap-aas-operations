@@ -37,6 +37,9 @@ metrics:
 Use this metric configuration, metric simulator should generate the following metrics:
 
 ```
+$ export METRIC_CONFIG=metric-config.yaml
+$ ./metric-simulator
+$ curl localhost:8080/metrics
 # HELP kube_pod_container_status_restarts_total number of container restarts per container
 # TYPE kube_pod_container_status_restarts_total counter
 kube_pod_container_status_restarts_total{cluster="c1",container="c1",namespace="n1",pod="p1"} 2
