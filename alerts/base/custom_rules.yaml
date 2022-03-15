@@ -3,12 +3,13 @@ groups:
   rules:
   - alert: AutomationControllerResponseError
     annotations:
-      description: AAP controller in {{$labels.namespace}} response error (status="500") is more than 3 over 1 minutes
+      description: AAP controller in {{$labels.namespace}} response error (status="500") is more than 3 over 5 minutes
       summary: AAP controller in {{$labels.namespace}} response error
     expr: automation_controller_response_total{status="500"} > 3
-    for: 1m
+    for: 5m
     labels:
       severity: warning
+      team: aap-sre
   - alert: AAPPodRestartingTooMuch
     annotations:
       description: AAP Pod in {{$labels.namespace}} restart more than 10 times over 10 minutes
@@ -17,6 +18,7 @@ groups:
     for: 10m
     labels:
       severity: warning
+      team: acm-sre
   - alert: AAPPodFrequentlyRestarting
     annotations:
       description: AAP Pod in {{$labels.namespace}} is restarting {{ printf "%.2f" $value }} times over 2 minutes
@@ -24,7 +26,8 @@ groups:
     expr: increase(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform"}[1m]) > 3
     for: 2m
     labels:
-      severity: critical
+      severity: warning
+      team: acm-sre
   - alert: AAPPodContainerTerminated
     annotations:
       description: AAP Pod in {{$labels.namespace}} has been in terminated state for longer than 10 minutes
@@ -33,6 +36,7 @@ groups:
     for: 10m
     labels:
       severity: critical
+      team: acm-sre
   - alert: AAPPodNotReady
     annotations:
       description: AAP Pod in {{$labels.namespace}} has been in a non-ready state for longer than 15 minutes
@@ -41,6 +45,7 @@ groups:
     for: 0m
     labels:
       severity: critical
+      team: acm-sre
   - alert: AAPDeploymentReplicasMismatch
     annotations:
       description: AAP Deployment in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
@@ -48,7 +53,8 @@ groups:
     expr: kube_deployment_status_replicas_available{namespace="ansible-automation-platform"} != kube_deployment_spec_replicas{namespace="ansible-automation-platform"}
     for: 5m
     labels:
-      severity: warning
+      severity: critical
+      team: acm-sre
   - alert: AAPStatefulSetReplicasMismatch
     annotations:
       description: AAP StatefulSet in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
@@ -56,4 +62,5 @@ groups:
     expr: kube_statefulset_status_replicas_available{namespace="ansible-automation-platform"} != kube_statefulset_replicas{namespace="ansible-automation-platform"}
     for: 5m
     labels:
-      severity: warning
+      severity: critical
+      team: acm-sre

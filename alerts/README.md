@@ -8,7 +8,7 @@ Now we provide the following alerts for AAP monitoring:
 
 Alert | Description
 ---  | ------
-AutomationControllerResponseError | AAP controller in `ansible-automation-platform` namespace response error (status="500") is more than 3 over 1 minutes. To enable this alert, we should install vector to AAP AKS cluster to collect AAP controller log events and push to ACM Hub. For more information, please refer to [this doc](https://github.com/songleo/acm-aap-aas-operations/tree/add-alerts-metrics/operators/vector#readme)
+AutomationControllerResponseError | AAP controller in `ansible-automation-platform` namespace response error (status="500") is more than 3 over 5 minutes. To enable this alert, we should install vector to AAP AKS cluster to collect AAP controller log events and push to ACM Hub. For more information, please refer to [this doc](https://github.com/songleo/acm-aap-aas-operations/tree/add-alerts-metrics/operators/vector#readme)
 AAPPodRestartingTooMuch | AAP Pod in `ansible-automation-platform` namespace restart more than 10 times over 10 minutes
 AAPPodFrequentlyRestarting | AAP Pod in `ansible-automation-platform` namespace is restarting {{ printf "%.2f" $value }} times over 2 minutes
 AAPPodContainerTerminated | AAP Pod in `ansible-automation-platform` namespace has been in terminated state for longer than 10 minutes
