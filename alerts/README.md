@@ -18,4 +18,4 @@ AAPStatefulSetReplicasMismatch | AAP StatefulSet in `ansible-automation-platform
 
 ## Adding an alert
 
-If you want to add an alert based on collected metrics. Please following [this guide](https://github.com/stolostron/sre-doc/blob/main/alert/alert-field-definition.md) to define a new alert and make sure you have the required fields for alert.
+If you want to add an alert based on collected metrics. Please following [this guide](https://github.com/stolostron/sre-doc/blob/main/alert-guide/alert-field-definition.md) to define a new alert and make sure you have the required fields for alert.
