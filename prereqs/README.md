@@ -6,6 +6,6 @@ You can't start rolling out OpenShift GitOps applications for Operators and Conf
 
 To deploy the operator and configuration in this repo:
 1. Log in to the target cluster
-2. `oc apply -f ./openshift-gitops-operator`
+2. `oc apply -k ./openshift-gitops-operator`
 3. Wait for the OpenShift GitOps Operator to signal ready (monitoring via the UI or `oc get operators`)
-4. `oc apply -f ./openshift-gitops-configuration`
+4. `oc apply -k ./openshift-gitops-configuration`
