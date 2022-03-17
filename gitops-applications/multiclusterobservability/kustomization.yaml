@@ -10,8 +10,3 @@ namespace: openshift-gitops
 
 resources:
 - multiclusterobservability.yaml
-
-secretGenerator:
-- name: aap-aas-repo-config-access
-  envs:
-  - github.secret
