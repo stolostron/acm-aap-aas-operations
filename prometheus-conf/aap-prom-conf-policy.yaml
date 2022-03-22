@@ -101,7 +101,7 @@ spec:
       type: ManagedClusterConditionAvailable
   clusterSelector:
     matchExpressions:
-      - key: name
+      - key: vendor
         operator: In
         values:
-          - local-cluster
+          - AKS

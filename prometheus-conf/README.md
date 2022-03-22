@@ -8,7 +8,7 @@ This application will deploy the policy to configure the Prometheus and Alertman
   ```
     clusterSelector:
     matchExpressions:
-        - key: name
+        - key: vendor
         operator: In
         values:
             - AKS
@@ -35,3 +35,24 @@ configure the following parameters:
   ```
 
 - `_SERVICE_KEY_`: Your pagerduty service key
+
+If your ACM Hub cluster is private and enabled the cluster scope proxy, you need to configure the HTTP proxy to the `slack_configs` section. To check your proxy:
+
+```
+$ kubectl get proxy -o yaml | grep httpProxy
+    httpProxy: http://your.proxy.url:3128
+    httpProxy: http://your.proxy.url:3128
+```
+Then configure the HTTP proxy to the `slack_configs` section:
+
+```
+...
+
+receivers:
+  - name: default-receiver
+    slack_configs:
+    - channel: forum-acm-aap-alerts
+      http_config:
+        proxy_url: http://your.proxy.url:3128
+...
+```
