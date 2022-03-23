@@ -28,7 +28,7 @@ spec:
               apiVersion: rbac.authorization.k8s.io/v1
               kind: ClusterRoleBinding
               metadata:
-                name: aap-awx-metrics
+                name: aap-prom-conf
               roleRef:
                 apiGroup: rbac.authorization.k8s.io
                 kind: ClusterRole
@@ -37,27 +37,16 @@ spec:
                 - kind: ServiceAccount
                   name: prometheus-k8s
                   namespace: open-cluster-management-addon-observability
+                - kind: ServiceAccount
+                  name: kubectl-client
+                  namespace: open-cluster-management-addon-observability
           - complianceType: musthave
             objectDefinition:
               apiVersion: v1
               kind: ServiceAccount
               metadata:
-                name: kubectlclient
-                namespace: open-cluster-management-addon-observability  
-          - complianceType: musthave
-            objectDefinition:
-              apiVersion: rbac.authorization.k8s.io/v1
-              kind: ClusterRoleBinding
-              metadata:
-                name: cluster-admin-kubectlclient-sa-crb
-              roleRef:
-                name: cluster-admin
-                apiGroup: rbac.authorization.k8s.io
-                kind: ClusterRole
-              subjects:
-                - name: kubectlclient
-                  kind: ServiceAccount
-                  namespace: open-cluster-management-addon-observability  
+                name: kubectl-client
+                namespace: open-cluster-management-addon-observability
           - complianceType: musthave
             objectDefinition:
                 apiVersion: batch/v1beta1
@@ -85,8 +74,8 @@ spec:
                                 cpu: 10m
                                 memory: 10Mi
                           restartPolicy: OnFailure
-                          serviceAccount: kubectlclient
-                          serviceAccountName: kubectlclient
+                          serviceAccount: kubectl-client
+                          serviceAccountName: kubectl-client
         remediationAction: inform
         severity: low
 ---
