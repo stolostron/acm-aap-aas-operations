@@ -45,9 +45,11 @@ spec:
                           continue: true
                         - matchers:
                             - severity="critical"
+                            - team="acm-sre"
                           receiver: pagerduty-acm-aoc-critical
                         - matchers:
                             - severity="warning"
+                            - team="acm-sre"
                           receiver: pagerduty-acm-aoc-warning
 
                     receivers:
