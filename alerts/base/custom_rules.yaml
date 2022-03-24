@@ -10,6 +10,7 @@ groups:
     labels:
       severity: warning
       team: aap-sre
+      runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AutomationControllerResponseError.md
   - alert: AAPPodRestartingTooMuch
     annotations:
       description: AAP Pod in {{$labels.namespace}} restart more than 10 times over 10 minutes
@@ -19,6 +20,7 @@ groups:
     labels:
       severity: warning
       team: acm-sre
+      runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPPodRestartingTooMuch.md
   - alert: AAPPodFrequentlyRestarting
     annotations:
       description: AAP Pod in {{$labels.namespace}} is restarting {{ printf "%.2f" $value }} times over 2 minutes
@@ -28,6 +30,7 @@ groups:
     labels:
       severity: warning
       team: acm-sre
+      runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPPodFrequentlyRestarting.md
   - alert: AAPPodContainerTerminated
     annotations:
       description: AAP Pod in {{$labels.namespace}} has been in terminated state for longer than 10 minutes
@@ -37,6 +40,7 @@ groups:
     labels:
       severity: critical
       team: acm-sre
+      runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPPodContainerTerminated.md
   - alert: AAPPodNotReady
     annotations:
       description: AAP Pod in {{$labels.namespace}} has been in a non-ready state for longer than 15 minutes
@@ -46,6 +50,7 @@ groups:
     labels:
       severity: critical
       team: acm-sre
+      runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPPodNotReady.md
   - alert: AAPDeploymentReplicasMismatch
     annotations:
       description: AAP Deployment in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
@@ -55,6 +60,7 @@ groups:
     labels:
       severity: critical
       team: acm-sre
+      runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPDeploymentReplicasMismatch.md
   - alert: AAPStatefulSetReplicasMismatch
     annotations:
       description: AAP StatefulSet in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
@@ -64,3 +70,4 @@ groups:
     labels:
       severity: critical
       team: acm-sre
+      runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPStatefulSetReplicasMismatch.md
