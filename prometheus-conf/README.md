@@ -20,7 +20,7 @@ This application will deploy the policy to configure the Prometheus and Alertman
 
 configure the following parameters:
 
-- `_SLACK_API_URL_`: Your slack api url
+- `_SLACK_API_URL_`: Your global slack api url, you can overwrite it via set the `slack_configs[].api_url`, for example, set the `_AOC_SLACK_API_URL_` to overwrite the global setting
 
 - `_ACM_CONSOLE_URL_`: Your ACM console url, run this command to get it:
   ```
