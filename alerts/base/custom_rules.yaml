@@ -1,16 +1,6 @@
 groups:
-- name: aap-health
+- name: AnsibleAutomationPlatform
   rules:
-  - alert: AutomationControllerResponseError
-    annotations:
-      description: AAP controller in {{$labels.namespace}} response error (status="500") is more than 3 over 5 minutes
-      summary: AAP controller in {{$labels.namespace}} response error
-    expr: automation_controller_response_total{status="500"} > 3
-    for: 5m
-    labels:
-      severity: warning
-      team: aap-sre
-      runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AutomationControllerResponseError.md
   - alert: AAPPodRestartingTooMuch
     annotations:
       description: AAP Pod in {{$labels.namespace}} restart more than 10 times over 10 minutes
