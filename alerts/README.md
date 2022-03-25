@@ -14,7 +14,6 @@ AAPPodFrequentlyRestarting | AAP Pod in `ansible-automation-platform` namespace 
 AAPPodNotReady | AAP Pod in `ansible-automation-platform` namespace has been in a non-ready state for longer than 15 minutes
 AAPPodRestartingTooMuch | AAP Pod in `ansible-automation-platform` namespace restart more than 10 times over 10 minutes
 AAPStatefulSetReplicasMismatch | AAP StatefulSet in `ansible-automation-platform` namespace actual number of replicas is inconsistent with the set number of replicas over 5 minutes
-AutomationControllerResponseError | AAP controller in `ansible-automation-platform` namespace response error (status="500") is more than 3 over 5 minutes. To enable this alert, we should install vector to AAP AKS cluster to collect AAP controller log events and push to ACM Hub. For more information, please refer to [this doc](https://github.com/stolostron/acm-aap-aas-operations/tree/main/operators/vector)
 
 ## Adding an alert
 
