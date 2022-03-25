@@ -1,0 +1,138 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ansible_playbook_python}}"
+  collections:
+    - kubernetes.core
+  vars:
+    optional_vars_file: "{{ playbook_dir }}/../vars/external_vars.yml.secret"
+    overlay: base
+  tasks:
+    - include_vars: "{{ optional_vars_file }}"
+      when: optional_vars_file is file
+
+    - name: Check connection to cluster
+      shell: |
+        TERM=dumb oc cluster-info
+
+    - name: Deploy Openshift-Gitops Operator
+      shell: |
+        oc apply -k ../../prereqs/openshift-gitops-operator
+
+    - name: Wait for controller
+      shell: |
+        oc wait --for=condition=ready pod -l app.kubernetes.io/name=openshift-gitops-application-controller -n openshift-gitops --timeout=60s
+
+    - name: Deploy Openshift-Gitops Operator
+      shell: |
+        oc apply -k ../../prereqs/openshift-gitops-configuration
+
+    - name: Create temporary build directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: acm
+      register: tempdir
+
+    - name: Create temporary build directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: obs
+      register: tempdir_obs
+
+    - name: Create temporary build directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: github
+      register: tempdir_github
+
+    - name: Create temporary build directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: aap
+      register: tempdir_aap
+
+    - name: Generate temp kustomize folder {{ tempdir.path }}
+      template:
+        src: "{{ item }}"
+        dest: "{{ tempdir.path }}/{{ item | basename | regex_replace('\\.example$', '') }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/../prereq-secrets/acm/*"
+
+    - name: Generate temp kustomize folder {{ tempdir_obs.path }}
+      template:
+        src: "{{ item }}"
+        dest: "{{ tempdir_obs.path }}/{{ item | basename | regex_replace('\\.example$', '') }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/../prereq-secrets/observability/*"
+
+    - name: Generate temp kustomize folder {{ tempdir_github.path }}
+      template:
+        src: "{{ item }}"
+        dest: "{{ tempdir_github.path }}/{{ item | basename | regex_replace('\\.example$', '') }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/../prereq-secrets/argocd-repository-access/*"
+
+    - name: Generate temp kustomize folder {{ tempdir_aap.path }}
+      template:
+        src: "{{ item }}"
+        dest: "{{ tempdir_aap.path }}/{{ item | basename | regex_replace('\\.example$', '') }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/../prereq-secrets/aap-s3-bucket/*"
+
+    - name: Create kubernetes resources from the tempdir
+      kubernetes.core.k8s:
+        definition: "{{ lookup('kubernetes.core.kustomize', dir=item) }}"
+      loop:
+        - "{{ tempdir.path }}"
+        - "{{ tempdir_obs.path }}"
+        - "{{ tempdir_github.path }}"
+        - "{{ tempdir_aap.path }}"
+
+    - name: Deploy ACM Argo Application
+      shell: |
+        oc apply -k "{{ playbook_dir }}/../../gitops-applications/red-hat-advanced-cluster-management/{{ overlay }}"
+    
+    - name: Deploy Observability Argo Application
+      shell: |
+        oc apply -k "{{ playbook_dir }}/../../gitops-applications/multiclusterobservability/{{ overlay }}"
+
+    - name: Deploy Ansible Automation Platform
+      shell: |
+        oc apply -k "{{ playbook_dir }}/../../gitops-applications/ansible-automation-platform/{{ overlay }}"
+
+    - name: Pause 20s for AAP secrets
+      pause:
+        seconds: 20
+        
+    - name: Get AAP bits
+      shell: |
+        oc get secret aap-automation-hub-admin-password -n ansible-automation-platform -ojsonpath='{.data.password}' | base64 --decode
+      register: aap_password
+
+    - name: Get AAP bits
+      shell: |
+        oc get secret aap-automation-controller-admin-password -n ansible-automation-platform -ojsonpath='{.data.password}' | base64 --decode
+      register: aap_controller_password
+
+    - name: Debug AAP Credentials
+      debug:
+        msg: 
+        - "AAP Hub Password: {{ aap_password.stdout | trim }}"
+        - "AAP Controller Password: {{ aap_controller_password.stdout | trim }}"
+
+    - name: "Remove directory {{ item }}"
+      ansible.builtin.file:
+        path: item
+        state: absent
+      loop:
+        - "{{ tempdir.path }}"
+        - "{{ tempdir_obs.path }}"
+        - "{{ tempdir_github.path }}"
+        - "{{ tempdir_aap.path }}"
+
+    # - name: "Apply Alert Manager Policy and Prometheus Policies"
+    #   shell: |
+    #     oc apply -k ../prometheus-conf/overlays/aap-aas-hubs-l6b6c
+    #   register: output
