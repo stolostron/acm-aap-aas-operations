@@ -4,6 +4,8 @@ KUBECTL_URL = "https://storage.googleapis.com/kubernetes-release/release/v1.10.1
 
 KUBECTL_CMD := $(shell PATH=$(FAKEPATH) command -v kubectl 2> /dev/null)
 
+ARGOCD_NAMESPACE = argocd
+
 .PHONY: check-kubectl
 check-kubectl:
 ifndef KUBECTL_CMD
@@ -18,20 +20,20 @@ get-cli:
 
 .PHONY: install-argocd
 install-argocd:
-	kubectl apply -k ./cluster-bootstrap/argocd-apps/argocd -n argocd
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/argocd -n $(ARGOCD_NAMESPACE)
 
 .PHONY: install-acm
 install-acm:
-	kubectl apply -k ./cluster-bootstrap/argocd-apps/acm -n argocd
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/acm -n $(ARGOCD_NAMESPACE)
 
 .PHONY: install-observability
 install-observability:
-	kubectl apply -k ./cluster-bootstrap/argocd-apps/multicluster-observability -n argocd
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/multicluster-observability -n $(ARGOCD_NAMESPACE)
 
 .PHONY: prometheus-config
 prometheus-config:
-	kubectl apply -k ./cluster-bootstrap/argocd-apps/prometheus-config -n argocd
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/prometheus-config -n $(ARGOCD_NAMESPACE)
 
 .PHONY: install-grafana-dev
 install-grafana-dev:
-	kubectl apply -k ./cluster-bootstrap/argocd-apps/grafana-dev -n argocd	
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/grafana-dev -n $(ARGOCD_NAMESPACE)	
