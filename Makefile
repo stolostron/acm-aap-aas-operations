@@ -18,15 +18,16 @@ get-cli:
 
 .PHONY: install-argocd
 install-argocd:
-	kubectl apply -k ./argocd/base -n argocd
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/argocd -n argocd
 
 .PHONY: install-acm
 install-acm:
-	kubectl apply -k ./acm -n argocd
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/acm -n argocd
 
-.PHONY: install-obs
+.PHONY: install-observability
 install-obs:
-	kubectl apply -k ./observability -n argocd
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/multicluster-observability -n argocd
 
-.PHONY: install
-install: install-argocd install-acm install-obs
+.PHONY: prometheus-config
+install-obs:
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/prometheus-config -n argocd
