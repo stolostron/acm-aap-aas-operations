@@ -25,9 +25,13 @@ install-acm:
 	kubectl apply -k ./cluster-bootstrap/argocd-apps/acm -n argocd
 
 .PHONY: install-observability
-install-obs:
+install-observability:
 	kubectl apply -k ./cluster-bootstrap/argocd-apps/multicluster-observability -n argocd
 
 .PHONY: prometheus-config
-install-obs:
+prometheus-config:
 	kubectl apply -k ./cluster-bootstrap/argocd-apps/prometheus-config -n argocd
+
+.PHONY: install-grafana-dev
+install-grafana-dev:
+	kubectl apply -k ./cluster-bootstrap/argocd-apps/grafana-dev -n argocd	
