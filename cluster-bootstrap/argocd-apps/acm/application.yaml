@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: multiclusterobservability
+  name: acm
   namespace: argocd
 spec:
   destination:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/multicluster-observability/overlay/thanos-aws
-    repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
-    targetRevision: gitops
+    path: cluster-bootstrap/acm/overlay/release-2.4
+    repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
+    targetRevision: main
     plugin:
       name: argocd-vault-plugin-kustomize
   syncPolicy:
