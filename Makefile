@@ -18,6 +18,10 @@ get-cli:
 	@curl -sS $(KUBECTL_URL) > ${KUBECTL_BIN}
 	@chmod +x ${KUBECTL_BIN}
 
+.PHONY: lint
+lint:
+	yamllint -d yamllint_conf.yaml .
+
 .PHONY: install-argocd
 install-argocd:
 	kubectl apply -k ./cluster-bootstrap/argocd-apps/argocd -n $(ARGOCD_NAMESPACE)
