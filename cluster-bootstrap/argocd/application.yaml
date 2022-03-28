@@ -9,8 +9,6 @@ spec:
   source:
     repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
     path: argocd/base
-    directory:
-      recurse: true
     targetRevision: gitops
   destination:
     namespace: argocd

@@ -11,8 +11,6 @@ spec:
     path: cluster-bootstrap/acm/overlay/release-2.4
     repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
     targetRevision: gitops
-    directory:
-      recurse: true
     plugin:
       name: argocd-vault-plugin-kustomize
   syncPolicy:
