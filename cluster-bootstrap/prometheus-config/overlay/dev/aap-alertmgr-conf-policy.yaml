@@ -4,4 +4,4 @@ metadata:
   name: alertmgr-conf-policy
   namespace: open-cluster-management-observability
   annotations:
-    avp.kubernetes.io/path: "/sre/data/dev-prom-config"
+    avp.kubernetes.io/path: "/sre-dev/data/prom-config"
