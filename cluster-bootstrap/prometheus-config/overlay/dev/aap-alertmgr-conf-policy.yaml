@@ -1,0 +1,7 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: alertmgr-conf-policy
+  namespace: open-cluster-management-observability
+  annotations:
+    avp.kubernetes.io/path: "/sre/data/dev-prom-config"

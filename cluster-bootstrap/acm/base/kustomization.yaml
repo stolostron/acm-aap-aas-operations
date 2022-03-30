@@ -5,7 +5,5 @@ namespace: open-cluster-management
 
 resources:
 - namespace.yaml
-- multiclusterhub-operator-pull-secret.yaml
-- subscription.yaml
 - operatorgroup.yaml
 - multiclusterhub.yaml

@@ -2,6 +2,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-- argocd-namespace.yaml
-- argocd-vault-plugin-secret.yaml
-- repository.yaml
+- argocd.yaml
+- rolebinding.yaml
+- private-repo-access.yaml
