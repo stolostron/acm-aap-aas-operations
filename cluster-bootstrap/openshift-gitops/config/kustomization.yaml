@@ -4,4 +4,3 @@ kind: Kustomization
 resources:
 - argocd.yaml
 - rolebinding.yaml
-- private-repo-access.yaml
