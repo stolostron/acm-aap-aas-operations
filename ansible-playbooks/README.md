@@ -66,3 +66,40 @@ delete the `automation-test` namespace on all selected cluster
 ```
 ansible-playbook playbooks/automation-test-reset.yml -i inventories/cluster-inventory-example.yml -e target_hosts=dev-azure-aap
 ```
+
+
+# Importing AKS Clusters
+
+This is the first example playbook to import an aks cluster using `az aks command invoke` and standard priviledged service account on RHACM.
+
+- a version that uses the generic import manifests
+- a version that leverages direct aks k8s api connection (no aks command invoke)
+
+To import with this playbook:
+
+1. you need to be in the AOC subscription.
+2. you need to have oc command into the ACM-DEV cluster.
+
+3. run these commands...
+```bash
+git clone ...
+cd acm-aap-aas-operations/ansible-playbooks
+
+# create the vars file and populate with your aks information
+ansible-playbook playbooks/import-aap-aks.yml -e @vars/default.yml
+```
+
+## Add a vars file
+
+In this first iteration, we reference the target aks cluster with the variables.
+The ACM hub cluster information can be static. Here, I create this file callled default.yml and put it into vars.
+This default.yml need not be checked in.
+
+```yaml
+cluster_name: aks-...-centralus
+AKS_MRG: mrg-...-preview-20220331094426
+AKS_RG: aks-...-centralus
+AKS_SUB: e47e6908-...
+HUB_RG: acm-dev-6wbm8-rg
+HUB_SUB: 4da397a2-...
+```
