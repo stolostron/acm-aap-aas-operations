@@ -1,0 +1,8 @@
+- hosts: localhost
+  connection: local
+  become: false
+  tasks:
+  - include_role:
+      name: ../roles/connect-aks-to-acm-hub
+  - include_role:
+      name: ../roles/import-managedcluster-default-invoke

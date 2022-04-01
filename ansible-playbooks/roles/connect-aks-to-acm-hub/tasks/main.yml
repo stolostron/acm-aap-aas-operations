@@ -1,0 +1,128 @@
+---
+
+- name: Create private endpoint
+  command: |
+    az network vnet list --subscription {{ AKS_SUB }} -g {{ AKS_MRG }} --query [].name -o tsv --only-show-errors
+  register: aksvnet_out
+
+- name: set fact
+  set_fact:
+    AKS_VNET: '{{ aksvnet_out.stdout }}'
+
+- name: Get AKS subnet
+  shell: |-
+    az network vnet subnet list --resource-group {{ AKS_MRG }}  --subscription {{ AKS_SUB }} --vnet-name {{ AKS_VNET }} --query [].name -o tsv --only-show-errors | grep 'aks'
+  register: akssubnet_out
+
+- name: set fact
+  set_fact:
+    AKS_SUBNET: '{{ akssubnet_out.stdout }}'
+
+- name: Get HUB DNS Zone
+  command: |-
+    az network private-dns zone list --subscription {{ HUB_SUB }} -g {{ HUB_RG }} --query [].name -o tsv --only-show-errors
+  register: hubpdnsz_out
+
+- name: set fact
+  set_fact:
+    HUB_PDNSZ: '{{ hubpdnsz_out.stdout }}'
+
+- name: Create AKS Private DNS Zone
+  shell: |-
+    az network private-dns zone create \
+      -n "{{ HUB_PDNSZ }}" \
+      -g "{{ AKS_MRG }}" \
+      --subscription {{ AKS_SUB }} --only-show-errors
+
+    az network private-dns link vnet create -n "{{ HUB_PDNSZ }}-link" \
+      -g "{{ AKS_MRG }}" \
+      -z "{{ HUB_PDNSZ }}" \
+      -v "{{ AKS_VNET }}" \
+      --subscription {{ AKS_SUB }} \
+      -e true --only-show-errors
+
+    az network vnet subnet update \
+      --name "{{ AKS_SUBNET }}" \
+      --resource-group "{{ AKS_MRG }}" \
+      --subscription "{{ AKS_SUB }}" \
+      --vnet-name "{{ AKS_VNET }}" \
+      --disable-private-endpoint-network-policies true --only-show-errors
+
+- name: Get Hub Private Link Info
+  command: |-
+    az network private-link-service list --subscription "{{ HUB_SUB }}" --query [].name -o tsv
+  register: plink_list
+
+- name: Create Private Link
+  shell: |-
+    plid=$(az network private-link-service show --name "{{ item }}" --resource-group "{{ HUB_RG }}" --subscription "{{ HUB_SUB }}" --query id --output tsv)
+    # echo "hub private link id: ${plid}"
+    az network private-endpoint create --name "{{ item }}-pe" \
+      --connection-name "{{ item }}-cn" \
+      --private-connection-resource-id "${plid}" \
+      --resource-group  "{{ AKS_MRG }}" \
+      --subscription "{{ AKS_SUB }}" \
+      --subnet "{{ AKS_SUBNET }}" \
+      --vnet-name "{{ AKS_VNET }}" --only-show-errors \
+      --manual-request true
+  with_items: "{{ plink_list.stdout.split('\n') }}"
+  ignore_errors: true
+
+- name: Get Private Endpoint list
+  command: |-
+    az network private-endpoint list --resource-group "{{ AKS_MRG }}" --subscription "{{ AKS_SUB }}"  --query [].name -o tsv
+
+# - name: Nic
+#   command: |-
+#     az network private-endpoint show -n "{{ item }}" \
+#       --resource-group "{{ AKS_MRG }}" \
+#       --subscription "{{ AKS_SUB }}" \
+#       --query networkInterfaces[*].id -o tsv
+#   with_items: 
+#   - apps-privatelink-pe
+#   register: nic_out
+
+# - name: NicIP
+#   command: |-
+#     az network nic show --ids "{{ item.stdout }}" --query ipConfigurations[*].privateIpAddress -o tsv
+#   with_items: "{{ nic_out['results'] }}"
+
+- name: AKS - Adding private-dns record A - apps
+  shell: |-
+    appsNic=$(az network private-endpoint show -n "{{ item }}" --resource-group "{{ AKS_MRG }}" --subscription "{{ AKS_SUB }}" --query networkInterfaces[*].id -o tsv)
+
+    appsNicIP=$(az network nic show --ids "${appsNic}" --query ipConfigurations[*].privateIpAddress -o tsv)
+    
+    az network private-dns record-set a add-record \
+      --ipv4-address "${appsNicIP}" \
+      --record-set-name '*.apps' \
+      --resource-group "{{ AKS_MRG }}" \
+      --subscription "{{ AKS_SUB }}" \
+      -z "{{ HUB_PDNSZ }}" \
+      --only-show-errors
+  with_items:
+  - apps-privatelink-pe
+  ignore_errors: true
+
+- name: AKS - Adding private-dns record A - api
+  shell: |-
+    apiNic=$(az network private-endpoint show -n "{{ item }}" --resource-group "{{ AKS_MRG }}" --subscription "{{ AKS_SUB }}" --query networkInterfaces[*].id -o tsv)
+
+    apiNicIP=$(az network nic show --ids "${apiNic}" --query ipConfigurations[*].privateIpAddress -o tsv)
+    
+    az network private-dns record-set a add-record \
+      --ipv4-address "${apiNicIP}" \
+      --record-set-name 'api' \
+      --resource-group "{{ AKS_MRG }}" \
+      --subscription "{{ AKS_SUB }}" \
+      -z "{{ HUB_PDNSZ }}" --only-show-errors
+    
+    az network private-dns record-set a add-record \
+      --ipv4-address "${apiNicIP}" --record-set-name 'api-int' \
+      --resource-group "{{ AKS_MRG }}" \
+      --subscription "{{ AKS_SUB }}" \
+      -z "{{ HUB_PDNSZ }}" \
+      --only-show-errors
+  with_items:
+  - api-privatelink-pe
+  ignore_errors: true
