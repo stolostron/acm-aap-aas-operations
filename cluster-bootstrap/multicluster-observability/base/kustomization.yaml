@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: open-cluster-management-observability
+
+resources:
+- deploy/namespace.yaml
+- deploy/multiclusterhub-operator-pull-secret.yaml
+- deploy/multiclusterobservability.yaml
+- custom-alerts/aap-alerts.yaml
+- custom-metrics/custom-metrics.yaml
+- dashboard/clusters-by-alert.yaml
+- dashboard/alerts-by-cluster.yaml
+- dashboard/alert-analysis.yaml
+- dashboard/aap-golden-signals-by-tenant.yaml

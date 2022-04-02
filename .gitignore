@@ -5,3 +5,5 @@ gitops-applications/alertManager/alertmanager.yaml
 .history
 */**/.history
 ansible-playbooks/kubeconfig
+*.DS_Store
+*.vscode
