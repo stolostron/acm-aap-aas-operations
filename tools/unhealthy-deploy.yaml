@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unhealthy-deploy
+  labels:
+    app: aap
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aap
+  template:
+    metadata:
+      labels:
+        app: aap
+    spec:
+      containers:
+      - name: liveness
+        image: k8s.gcr.io/busybox
+        args:
+        - /bin/sh
+        - -c
+        - touch /tmp/healthy; sleep 3; rm -rf /tmp/healthy; sleep 3600
+        livenessProbe:
+          exec:
+            command:
+            - cat
+            - /tmp/healthy
+          initialDelaySeconds: 2
+          periodSeconds: 2

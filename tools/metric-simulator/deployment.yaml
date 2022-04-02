@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: metric-simulator
+  name: metric-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metric-simulator
+  template:
+    metadata:
+      labels:
+        app: metric-simulator
+    spec:
+      containers:
+      - image: quay.io/ocm-observability/metric-simulator:v1.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: METRIC_CONFIG
+          value: /conf/config.yml
+        - name: METRIC_PORT
+          value: "8080"
+        name: metric-simulator
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        volumeMounts:
+        - name: config
+          mountPath: /conf/
+      - image: quay.io/coreos/configmap-reload:v0.0.1
+        args:
+        - -webhook-url=http://localhost:8080/-/reload
+        - -volume-dir=/conf/
+        - -webhook-method=GET
+        name: config-reloader
+        resources:
+          limits:
+            cpu: 5m
+            memory: 50Mi
+          requests:
+            cpu: 5m
+            memory: 50Mi
+        volumeMounts:
+        - name: config
+          mountPath: /conf/
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: metric-simulator
