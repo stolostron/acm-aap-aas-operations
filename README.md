@@ -2,7 +2,7 @@
 
 This repository contains artifacts, OpenShift GitOps applications, policy, conrfiguration, dashboards, and more - all involved with operating the ACM hub management layer on top of the AAPaaS offering.
 
-## Deploying Hub Services on a New Cluster(Deprecated. Please reference to the GipOps deployment [here](./cluster-bootstrap/README.md))
+## Deploying Hub Services on a New Cluster(Deprecated. Please reference to the GitOps deployment [here](./cluster-bootstrap/README.md))
 
 This repository is currenlty a semi-manual deploy process, and will continue to require manual steps until we configure a shared vault instance for secret storage and injection.
 
