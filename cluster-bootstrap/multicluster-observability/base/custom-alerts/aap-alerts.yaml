@@ -22,7 +22,7 @@ data:
         labels:
           severity: warning
           team: acm-sre
-          runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPPodRestartingTooMuch.md
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodRestartingTooMuch.md
       - alert: AAPPodFrequentlyRestarting
         annotations:
           description: AAP Pod in {{$labels.namespace}} is restarting {{ printf "%.2f" $value }} times over 2 minutes
@@ -32,7 +32,7 @@ data:
         labels:
           severity: warning
           team: acm-sre
-          runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPPodFrequentlyRestarting.md
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodFrequentlyRestarting.md
       - alert: AAPPodContainerTerminated
         annotations:
           description: AAP Pod in {{$labels.namespace}} has been in terminated state for longer than 10 minutes
@@ -42,7 +42,7 @@ data:
         labels:
           severity: critical
           team: acm-sre
-          runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPPodContainerTerminated.md
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodContainerTerminated.md
       - alert: AAPPodNotReady
         annotations:
           description: AAP Pod in {{$labels.namespace}} has been in a non-ready state for longer than 15 minutes
@@ -52,7 +52,7 @@ data:
         labels:
           severity: critical
           team: acm-sre
-          runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPPodNotReady.md
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodNotReady.md
       - alert: AAPDeploymentReplicasMismatch
         annotations:
           description: AAP Deployment in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
@@ -62,7 +62,7 @@ data:
         labels:
           severity: critical
           team: acm-sre
-          runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPDeploymentReplicasMismatch.md
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPDeploymentReplicasMismatch.md
       - alert: AAPStatefulSetReplicasMismatch
         annotations:
           description: AAP StatefulSet in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
@@ -72,4 +72,4 @@ data:
         labels:
           severity: critical
           team: acm-sre
-          runbook: https://github.com/stolostron/sre-doc/blob/main/runbook/AAPStatefulSetReplicasMismatch.md
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPStatefulSetReplicasMismatch.md
