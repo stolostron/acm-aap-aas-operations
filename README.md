@@ -27,3 +27,28 @@ Once you have a new hub online, you can start bringing managed cluster component
 To deploy these configurations, do the following:
 1. Deploy the ACM Application channel - this construct defines a source for artifacts for an ACM application.  In this case, the channel will point at this repository!  This GitOps application requries that you create a pull secret for private repos using the instrucitons found in the [acm-channel README](./acm-applications/subscriptions/.prereqs/README.md).  Once the secret has been created, simply `oc apply -k ./gitops-applications/acm-channel`.
 2. Deploy the ACM AAP Application itself, this references the channel you created earlier.  This is also a simple, no-prereqs, GitOps deploy!  Simply `oc apply -k ./gitops-applications/acm-aap-application`.  `oc label managedcluster <managed-cluster-name> ansible-automation-platform="true"` for all managed clusters you wish to deploy the AAP application to.
+
+## Install pre-commit for repository secret detect in your local
+
+1. Install `pre-commit` framework following the doc [here](https://pre-commit.com/#installation)
+2. Install `detect-secrets` following the doc [here](https://github.com/Yelp/detect-secrets#installation)
+3. Run `pre-commit install` to install the git hook scripts in your local `.git`
+
+Now secret detect will run automatically on git commit! Detailed configuration and baseline defined in `.secrets.baseline` file.
+
+**Notes**: If Detect secrets failed during your git commit like following: 
+```
+    Detect secrets...........................................................Failed
+    - hook id: detect-secrets
+    - exit code: 1
+
+    ERROR: Potential secrets about to be committed to git repo!
+
+    Secret Type: Secret Keyword
+    Location:    fileName.yaml:10
+```
+
+Actions need to take:
+* Check the specific location in the file as the error info indicated to double check if it is a real secret leak. 
+* If not, run `detect-secrets scan --baseline .secrets.baseline` to update the baseline.
+* Commit again with your all updates and `.secrets.baseline`  
