@@ -15,6 +15,20 @@ printf "=====================Waiting for Openshift Gitops start up and running..
 kubectl wait --for=condition=Ready pods --all -n openshift-gitops
 echo "=====================Openshift Gitops deploy successful!"
 
+printf "=====================Patch Openshift Gitops Subscription to enable default instance which will prevent the custom instance we created to be deleted by operator ...\n"
+oc patch subs openshift-gitops-operator -n openshift-operators --type=json --patch '
+[
+  {
+    "path": "/spec/config/env/0",
+    "op": "replace",
+    "value": {
+      "name": "DISABLE_DEFAULT_ARGOCD_INSTANCE",
+      "value": "false"
+    }
+  }
+]
+'
+
 printf "=====================Use the following info to login Openshift Gitops web console:\n"
 printf "Web console URL: "
 kubectl get route openshift-gitops-server -n openshift-gitops -o 'jsonpath={.spec.host}'
