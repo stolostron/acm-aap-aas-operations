@@ -16,3 +16,27 @@ metadata:
 spec:
   hubAcceptsClient: true
   leaseDurationSeconds: 60
+---
+apiVersion: agent.open-cluster-management.io/v1
+kind: KlusterletAddonConfig
+metadata:
+  name: {{ cluster_name }}
+  namespace: {{ cluster_name }}
+spec:
+  applicationManager:
+    enabled: true
+  certPolicyController:
+    enabled: true
+  clusterLabels:
+    cloud: auto-detect
+    name: {{ cluster_name }}
+    vendor: auto-detect
+  clusterName: {{ cluster_name }}
+  clusterNamespace: {{ cluster_name }}
+  iamPolicyController:
+    enabled: true
+  policyController:
+    enabled: true
+  proxyConfig: {}
+  searchCollector:
+    enabled: true
