@@ -76,7 +76,7 @@ spec:
     scopes: '[groups]'
   repo:
     image: quay.io/ocm-observability/argovault
-    mountsatoken: true
+    version: v1.0
     resources:
       limits:
         cpu: '1'
@@ -84,8 +84,6 @@ spec:
       requests:
         cpu: 250m
         memory: 256Mi
-    serviceaccount: vplugin
-    version: v1.0
     env:
       - name: VAULT_ADDR
         value: <VAULT_ADDRESS>
