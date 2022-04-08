@@ -1,0 +1,31 @@
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  become: false
+  tasks:
+  
+  - name: Gathering pending api-privatelink service private endpoint
+    command: |-
+        az network private-link-service  show --subscription {{ HUB_SUB }} -g {{ HUB_RG }} -n api-privatelink --query "privateEndpointConnections[].{Name: name, Status: privateLinkServiceConnectionState.status} | [?Status=='Pending'].Name" -o tsv
+    register: pending_api_plnk_pes
+
+  - set_fact:
+      api_plinksvc_pe:  "{{ pending_api_plnk_pes.stdout }}"
+
+
+  - name: Gathering pending apps-privatelink service private endpoint
+    command: |-
+        az network private-link-service  show --subscription {{ HUB_SUB }} -g {{ HUB_RG }} -n apps-privatelink --query "privateEndpointConnections[].{Name: name, Status: privateLinkServiceConnectionState.status} | [?Status=='Pending'].Name" -o tsv
+    register: pending_apps_plnk_pes
+
+  - set_fact:
+      apps_plinksvc_pe:  "{{ pending_apps_plnk_pes.stdout }}"
+
+  - name: approving apps-privatelink service
+    command: |-
+        az network private-link-service connection update --name {{ apps_plinksvc_pe }} -g {{ HUB_RG }} --subscription {{ HUB_SUB }} --service-name apps-privatelink --connection-status 'Approved' --description 'Approved by AAP'
+
+
+  - name: approving api-privatelink service
+    command: |-
+        az network private-link-service connection update --name {{ api_plinksvc_pe }} -g {{ HUB_RG }} --subscription {{ HUB_SUB }} --service-name api-privatelink --connection-status 'Approved' --description 'Approved by AAP'

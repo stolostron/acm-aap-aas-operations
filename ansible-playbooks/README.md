@@ -7,7 +7,7 @@
 use to generate kubeconfig for the target clusters
 artifacts for configuring the RBAC for the service account is located at [k8s-rbac](k8s-rbac/)
 
-currently the playbook is hard coded to use RBAC artifacts that are defined in 
+currently the playbook is hard coded to use RBAC artifacts that are defined in
 [k8s-rbac/cluster-admin](k8s-rbac/cluster-admin/)
 
 **TODO:** allow specification of RBAC file/directory as var
@@ -40,7 +40,7 @@ the desire state for the operators is located in [k8s-operators](k8s-operators/)
 
 to set which operators the playbook will manage modify this section in the playbook
 ```
-        - include_role: 
+        - include_role:
             name: ../roles/k8s-operator-mgmt
           ignore_errors: yes
           with_items:
@@ -86,7 +86,7 @@ git clone ...
 cd acm-aap-aas-operations/ansible-playbooks
 
 # create the vars file and populate with your aks information
-ansible-playbook playbooks/import-aap-aks.yml -e @vars/default.yml
+ansible-playbook playbooks/import-aap-aks.yml -e "@default.yml"
 ```
 
 ## Add a vars file
@@ -98,7 +98,7 @@ This default.yml need not be checked in.
 ```yaml
 cluster_name: aks-...-centralus
 AKS_MRG: mrg-...-preview-20220331094426
-AKS_RG: aks-...-centralus
+AKS_NAME: aks-...-centralus
 AKS_SUB: e47e6908-...
 HUB_RG: acm-dev-6wbm8-rg
 HUB_SUB: 4da397a2-...

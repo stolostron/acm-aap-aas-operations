@@ -7,3 +7,4 @@ gitops-applications/alertManager/alertmanager.yaml
 ansible-playbooks/kubeconfig
 *.DS_Store
 *.vscode
+ansible-playbooks/default.yml
