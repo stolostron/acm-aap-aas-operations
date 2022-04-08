@@ -21,12 +21,12 @@
   shell: |-
     oc get secret {{ cluster_name }}-import -n {{ cluster_name }} -ojsonpath='{.data.crds\.yaml}' | base64 --decode > {{ tempdir.path }}/01_import.yaml
     oc get secret {{ cluster_name }}-import -n {{ cluster_name }} -ojsonpath='{.data.import\.yaml}' | base64 --decode > {{ tempdir.path }}/04_import.yaml
-  
+
 - name: Switch to Managed Cluster and Apply Import Blob
   shell: |-
     IMPORT_BLOB=$(cat {{ tempdir.path }}/{{ item }} | base64 -w 0)
     az aks command invoke --resource-group {{ AKS_MRG }} \
-      --name {{ AKS_RG }} \
+      --name {{ AKS_NAME }} \
       --subscription {{ AKS_SUB }} \
       --command "echo $IMPORT_BLOB | base64 --decode | kubectl apply -f -"
   with_items:
@@ -39,7 +39,7 @@
     oc get managedcluster {{ cluster_name }} -n {{ cluster_name }} -o yaml
     az aks command invoke \
       --resource-group {{ AKS_MRG }} \
-      --name {{ AKS_RG }} \
+      --name {{ AKS_NAME }} \
       --subscription {{ AKS_SUB }} \
       --command "kubectl get ns; kubectl get pods -n open-cluster-management-agent"
   register: hubspoke_out
@@ -63,11 +63,10 @@
   shell: |-
     IMPORT_BLOB=$(cat {{ tempdir.path }}/{{ item }} | base64 -w 0)
     az aks command invoke --resource-group {{ AKS_MRG }} \
-      --name {{ AKS_RG }} \
+      --name {{ AKS_NAME }} \
       --subscription {{ AKS_SUB }} \
       --command "echo $IMPORT_BLOB | base64 --decode | kubectl delete -f -"
   with_items:
     - 01_import.yaml
     - 04_import.yaml
   when: detach is defined
-
