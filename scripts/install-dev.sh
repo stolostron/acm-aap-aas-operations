@@ -13,7 +13,7 @@ sleep 10
 
 printf "=====================Waiting for Openshift Gitops start up and running...\n"
 kubectl wait --for=condition=Ready pods --all -n openshift-gitops
-echo "=====================Openshift Gitops deploy successful!"
+printf "=====================Openshift Gitops deploy successful!\n"
 
 printf "=====================Patch Openshift Gitops Subscription to enable default instance which will prevent the custom instance we created to be deleted by operator ...\n"
 kubectl patch subs openshift-gitops-operator -n openshift-operators --type=json --patch '
@@ -37,8 +37,6 @@ printf "# admin.username\n"
 printf "admin\n"
 oc extract secret/openshift-gitops-cluster -n openshift-gitops --to=-
 
-echo ""
-
 printf "=====================Create ACM Argocd application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/acm -n openshift-gitops
 sleep 10
@@ -54,4 +52,4 @@ printf "=====================Create Prometheus config Argocd application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/prometheus-config
 sleep 10
 
-echo "Cluster bootstrap completed with ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics!"
+printf "Cluster bootstrap completed with ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics!"
