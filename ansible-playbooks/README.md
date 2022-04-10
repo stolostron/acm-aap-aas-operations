@@ -84,6 +84,8 @@ To import with this playbook:
 ```bash
 git clone ...
 cd acm-aap-aas-operations/ansible-playbooks
+make venv
+source venv/bin/activate
 
 # create the vars file and populate with your aks information
 ansible-playbook playbooks/import-aap-aks.yml -e "@default.yml"

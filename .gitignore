@@ -8,3 +8,4 @@ ansible-playbooks/kubeconfig
 *.DS_Store
 *.vscode
 ansible-playbooks/default.yml
+ansibe-playbooks/venv/
