@@ -75,6 +75,8 @@ spec:
       g, aap-aas-demo-admin, role:admin
     scopes: '[groups]'
   repo:
+    image: quay.io/ocm-observability/argovault
+    version: v1.0
     resources:
       limits:
         cpu: '1'
@@ -82,27 +84,6 @@ spec:
       requests:
         cpu: 250m
         memory: 256Mi
-    initContainers:
-      - command:
-          - /bin/sh
-          - '-c'
-          - >-
-            curl -v  -LJ --tls-max 1.2
-            https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v1.8.0/argocd-vault-plugin_1.8.0_linux_amd64
-            -o argocd-vault-plugin && chmod -v +x argocd-vault-plugin
-        image: 'registry.redhat.io/ubi8/ubi:latest'
-        name: install-vault
-        volumeMounts:
-          - mountPath: /vault-plugin
-            name: vault-plugin
-        workingDir: /vault-plugin
-    volumeMounts:
-      - mountPath: /usr/local/bin/argocd-vault-plugin
-        name: vault-plugin
-        subPath: argocd-vault-plugin
-    volumes:
-      - emptyDir: {}
-        name: vault-plugin
     env:
       - name: VAULT_ADDR
         value: <VAULT_ADDRESS>
