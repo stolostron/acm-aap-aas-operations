@@ -19,10 +19,30 @@ generate_url_secret()
   rm -f ./alertmanager_url.txt
 }
 
+if [[ "$1" == true ]] ; then
+  printf 'Generating a secret that conatins proxy URL for Alert Manager config usage in private cluster...\n'
+  HTTP_PROXY_URL=$(kubectl get proxy -o=jsonpath='{.items[0].spec.httpProxy}')
+
+  if [ -z "$HTTP_PROXY_URL" ]; then
+    printf 'Error: Can not find http proxy configed in current private cluster\n'
+    exit 1
+  if
+
+  echo $HTTP_PROXY_URL > ./url.txt
+  kubectl create secret generic proxy-url -n openshift-gitops --from-file=URL=./url.txt
+  rm -f ./url.txt
+  printf 'Secret generat successful!\n'
+fi
+
 printf 'Generating a secret that conatins acm & alert manager URL for Alert Manager config usage later...\n'
 generate_url_secret
 printf 'Secret generat successful!\n'
 
 printf "=====================Create Alert manager config Argocd application ...\n"
-kubectl apply -k ./cluster-bootstrap/argocd-apps/alert-manager-config
+if [[ "$1" == true ]] ; then
+  kubectl apply -k ./cluster-bootstrap/argocd-apps/alert-manager-config/private
+else
+  kubectl apply -k ./cluster-bootstrap/argocd-apps/alert-manager-config
+fi
+
 printf "Alert Manager configuration created!"

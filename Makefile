@@ -28,5 +28,12 @@ deploy-dev:
 deploy-alert-manager-config-dev:
 	sh ./scripts/install-alertmanager-config-dev.sh
 
+.PHONY: deploy-alert-manager-config-dev-private
+deploy-alert-manager-config-dev-private:
+	sh ./scripts/install-alertmanager-config-dev.sh true
+
 .PHONY: deploy-dev-all
 deploy-dev-all: deploy-dev deploy-alert-manager-config-dev
+
+.PHONY: deploy-dev-all-private
+deploy-dev-all: deploy-dev deploy-alert-manager-config-dev-private
