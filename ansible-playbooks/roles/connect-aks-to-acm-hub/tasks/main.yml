@@ -18,15 +18,6 @@
   set_fact:
     AKS_SUBNET: '{{ akssubnet_out.stdout }}'
 
-- name: Get HUB DNS Zone
-  command: |-
-    az network private-dns zone list --subscription {{ HUB_SUB }} -g {{ HUB_RG }} --query [].name -o tsv --only-show-errors
-  register: hubpdnsz_out
-
-- name: set fact
-  set_fact:
-    HUB_PDNSZ: '{{ hubpdnsz_out.stdout }}'
-
 - name: Create AKS Private DNS Zone
   shell: |-
     az network private-dns zone create \
