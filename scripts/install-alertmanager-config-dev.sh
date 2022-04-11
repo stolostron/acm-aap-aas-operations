@@ -26,7 +26,7 @@ if [[ "$1" == true ]] ; then
   if [ -z "$HTTP_PROXY_URL" ]; then
     printf 'Error: Can not find http proxy configed in current private cluster\n'
     exit 1
-  if
+  fi
 
   echo $HTTP_PROXY_URL > ./url.txt
   kubectl create secret generic proxy-url -n openshift-gitops --from-file=URL=./url.txt
