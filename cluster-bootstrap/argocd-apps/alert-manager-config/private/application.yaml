@@ -16,13 +16,6 @@ spec:
   syncPolicy:
     automated:
       prune: false
+      selfHeal: true
     syncOptions:
-      - RespectIgnoreDifferences=true
       - CreateNamespace=true
-  ignoreDifferences:
-  - group: "policy.open-cluster-management.io"
-    kind: "Policy"
-    name: alertmgr-conf-policy
-    namespace: open-cluster-management-observability
-    jsonPointers:
-    - /spec/policy-templates
