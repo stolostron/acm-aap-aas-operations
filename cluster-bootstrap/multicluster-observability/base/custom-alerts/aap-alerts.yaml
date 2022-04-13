@@ -22,6 +22,7 @@ data:
         labels:
           severity: warning
           team: acm-sre
+          service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodRestartingTooMuch.md
       - alert: AAPPodFrequentlyRestarting
         annotations:
@@ -32,6 +33,7 @@ data:
         labels:
           severity: warning
           team: acm-sre
+          service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodFrequentlyRestarting.md
       - alert: AAPPodContainerTerminated
         annotations:
@@ -42,6 +44,7 @@ data:
         labels:
           severity: critical
           team: acm-sre
+          service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodContainerTerminated.md
       - alert: AAPPodNotReady
         annotations:
@@ -52,6 +55,7 @@ data:
         labels:
           severity: critical
           team: acm-sre
+          service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodNotReady.md
       - alert: AAPDeploymentReplicasMismatch
         annotations:
@@ -62,6 +66,7 @@ data:
         labels:
           severity: critical
           team: acm-sre
+          service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPDeploymentReplicasMismatch.md
       - alert: AAPStatefulSetReplicasMismatch
         annotations:
@@ -72,4 +77,5 @@ data:
         labels:
           severity: critical
           team: acm-sre
+          service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPStatefulSetReplicasMismatch.md
