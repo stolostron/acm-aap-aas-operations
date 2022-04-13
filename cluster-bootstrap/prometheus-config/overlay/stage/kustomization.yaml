@@ -5,5 +5,3 @@ namespace: open-cluster-management-observability
 
 resources:
 - ../../base
-- multiclusterhub-operator-pull-secret.yaml
-- thanos-storage-aws-secret.yaml

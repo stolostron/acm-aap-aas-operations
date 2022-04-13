@@ -8,7 +8,7 @@ spec:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/acm/overlay/dev-release-2.4
+    path: cluster-bootstrap/acm/overlay/stage
     repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
     targetRevision: main
     plugin:
