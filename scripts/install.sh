@@ -2,10 +2,15 @@
 
 printf "=====================Create Openshift Gitops Subscription...\n"
 kubectl apply -k ./cluster-bootstrap/openshift-gitops/deploy
-sleep 10
+sleep 20
+
+printf "=====================Waiting for Openshift Gitops start up and running...\n"
+kubectl wait --for=condition=Ready pods --all -n openshift-gitops --timeout=5m
+printf "=====================Openshift Gitops deploy successful!\n"
 
 printf "=====================Create and config Openshift Gitops instance with Vault plugin configed...\n"
 kubectl apply -k ./cluster-bootstrap/openshift-gitops/config
+sleep 20
 
 printf "=====================Waiting for Openshift Gitops start up and running...\n"
 kubectl wait --for=condition=Ready pods --all -n openshift-gitops --timeout=5m
