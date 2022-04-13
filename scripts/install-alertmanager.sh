@@ -19,7 +19,7 @@ generate_url_secret()
   rm -f ./alertmanager_url.txt
 }
 
-if [[ "$1" == true ]] ; then
+if [[ "$2" == true ]] ; then
   printf 'Generating a secret that conatins proxy URL for Alert Manager config usage in private cluster...\n'
   HTTP_PROXY_URL=$(kubectl get proxy -o=jsonpath='{.items[0].spec.httpProxy}')
 
@@ -39,10 +39,10 @@ generate_url_secret
 printf 'Secret generat successful!\n'
 
 printf "=====================Create Alert manager config Argocd application ...\n"
-if [[ "$1" == true ]] ; then
-  kubectl apply -k ./cluster-bootstrap/argocd-apps/alert-manager-config/private
+if [[ "$2" == true ]] ; then
+  kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config/private
 else
-  kubectl apply -k ./cluster-bootstrap/argocd-apps/alert-manager-config
+  kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config
 fi
 
 printf "Alert Manager configuration created!"
