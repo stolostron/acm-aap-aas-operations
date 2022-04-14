@@ -6,27 +6,51 @@ This folder contains the artifacts with configuration and related Argocd applica
 
 
 ### Prerequisites:
-Make sure all secrets(path and key) are put in Vault before the deployment. Please refer to the secret definition doc here:
+Please check the following doc which contains the tokens need to use during the cluster bootstrap deployment.
 https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/edit
 
 
 ### Deployment:
-1. Replace the `VAULT_ADDRESS` and `VAULT_TOKEN` in `cluster-bootstrap/openshift-gitops/config/argocd.yaml` with the Vault service address and auth token which are available in above doc.
-2. Run `make deploy-dev-all`.
+1. Replace the `VAULT_ADDRESS` and `VAULT_TOKEN` in `cluster-bootstrap/openshift-gitops/config/argocd.yaml` with the Vault service address and auth token from above doc.
+   Please note that to used the correct env values for your deployment. 
+   * Dev is for demo and development env usage. 
+   * Stage is staging env.
+2. Deploy the stacks:
+   * Run `deploy-dev` and `deploy-alert-manager-dev` to bootstrap stacks in a public cluster for development usage.
+   * Run `deploy-dev` and `deploy-alert-manager-dev-private` to bootstrap stacks in a private cluster for development usage.
+   * Run `deploy-stage` and `deploy-alert-manager-stage` to bootstrap stacks in stage environment.
 
 
-### Configrations layout:
+### Configurations layout:
     cluster-bootstrap
-    ├── alert-manager-config
-    │   └── base
-    │       └── alertmgr-policy-conf.yaml    # Alert manager policy configration
-    ├── grafana-dev
-    │   └── base                             # Grafana dev instance configration
+    ├── acm                                 # Deploy ACM
+    │   ├── base
+    │   └── overlay
+    │       ├── dev                            
+    │       └── stage                     
+    ├── alert-manager-config                # Alert manager policy configuration
+    │   ├── base
+    │   └── overlay
+    │       ├── dev                            
+    │       ├── dev-private                 # Add http proxy for slack alerts forwards
+    │       └── stage
+    ├── grafana-dev                         # Grafana dev instance configuration
+    │   ├── base   
+    │   └── overlay
+    │       ├── dev  
+    │       ├── dev-managed-premium 
+    │       └── stage                             
     ├── multicluster-observability
-    │   └── base
-    │       ├── custom-alerts                # Custom alerts configration
-    │       ├── custom-metrics               # Custom metrics configration
-    │       ├── dashboard                    # Custom Grafana dashboard configration
-    │       └── deploy                       # Multicluster observability configration
-    └── prometheus-config                    
-        └── base                             # Prometheus configration
+    │   ├── base
+    │   │   ├── custom-alerts                # Custom alerts configuration
+    │   │   ├── custom-metrics               # Custom metrics configuration
+    │   │   ├── dashboard                    # Custom Grafana dashboard configuration
+    │   │   └── deploy                       # Multicluster observability configuration
+    │   └── overlay  
+    │       ├── dev
+    │       └── stage  
+    └── prometheus-config                    # Prometheus configuration
+        ├── base                             
+        └── overlay  
+            ├── dev
+            └── stage
