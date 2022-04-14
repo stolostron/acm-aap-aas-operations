@@ -13,8 +13,8 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
 ### Deployment:
 1. Replace the `VAULT_ADDRESS` and `VAULT_TOKEN` in `cluster-bootstrap/openshift-gitops/config/argocd.yaml` with the Vault service address and auth token from above doc.
    Please note that to used the correct env values for your deployment. 
-   * Dev is for demo and development env usage. 
-   * Stage is for staging env.
+   * Dev is for development env usage. 
+   * Stage is for staging env usage.
 2. Deploy the stacks:
    * Run `make deploy-dev` and `make deploy-alert-manager-dev` to bootstrap stacks in a public cluster for development usage.
    * Run `make deploy-dev` and `make deploy-alert-manager-dev-private` to bootstrap stacks in a private cluster for development usage.
