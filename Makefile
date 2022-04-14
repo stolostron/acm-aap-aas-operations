@@ -22,18 +22,20 @@ lint:
 
 .PHONY: deploy-dev
 deploy-dev:
-	sh ./scripts/install-dev.sh
+	sh ./scripts/install.sh dev
 
-.PHONY: deploy-alert-manager-config-dev
-deploy-alert-manager-config-dev:
-	sh ./scripts/install-alertmanager-config-dev.sh
+.PHONY: deploy-stage
+deploy-stage:
+	sh ./scripts/install.sh stage
 
-.PHONY: deploy-alert-manager-config-dev-private
-deploy-alert-manager-config-dev-private:
-	sh ./scripts/install-alertmanager-config-dev.sh true
+.PHONY: deploy-alert-manager-dev
+deploy-alert-manager-dev:
+	sh ./scripts/install-alertmanager.sh dev
 
-.PHONY: deploy-dev-all
-deploy-dev-all: deploy-dev deploy-alert-manager-config-dev
+.PHONY: deploy-alert-manager-dev-private
+deploy-alert-manager-dev-private:
+	sh ./scripts/install-alertmanager-config-dev.sh dev true
 
-.PHONY: deploy-dev-all-private
-deploy-dev-all: deploy-dev deploy-alert-manager-config-dev-private
+.PHONY: deploy-alert-manager-stage
+deploy-alert-manager-stage:
+	sh ./scripts/install-alertmanager.sh stage true

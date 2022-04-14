@@ -5,7 +5,6 @@ namespace: open-cluster-management-observability
 
 resources:
 - deploy/namespace.yaml
-- deploy/multiclusterhub-operator-pull-secret.yaml
 - deploy/multiclusterobservability.yaml
 - custom-alerts/aap-alerts.yaml
 - custom-metrics/custom-metrics.yaml

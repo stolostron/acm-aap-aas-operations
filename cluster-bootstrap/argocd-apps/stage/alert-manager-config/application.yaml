@@ -1,21 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: grafana-dev
+  name: alert-manager-config
   namespace: openshift-gitops
 spec:
   destination:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/grafana-dev/overlay/dev-2.4.2-SNAPSHOT-gp2
+    path: cluster-bootstrap/alert-manager-config/overlay/stage
     repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
     targetRevision: main
     plugin:
       name: argocd-vault-plugin-kustomize
   syncPolicy:
     automated:
-      prune: true
+      prune: false
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
