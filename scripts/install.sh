@@ -2,7 +2,10 @@
 
 printf "=====================Create Openshift Gitops Subscription...\n"
 kubectl apply -k ./cluster-bootstrap/openshift-gitops/deploy
-sleep 20
+
+while [[ $(kubectl get ns openshift-gitops --no-headers --ignore-not-found | wc -l) -eq 0 ]]; 
+    do echo "Waiting for openshift-gitops namespace to be created" && sleep 30;
+done
 
 printf "=====================Waiting for Openshift Gitops start up and running...\n"
 kubectl wait --for=condition=Ready pods --all -n openshift-gitops --timeout=5m
@@ -10,9 +13,9 @@ printf "=====================Openshift Gitops deploy successful!\n"
 
 printf "=====================Create and config Openshift Gitops instance with Vault plugin configed...\n"
 kubectl apply -k ./cluster-bootstrap/openshift-gitops/config
-sleep 20
+sleep 10
 
-printf "=====================Waiting for Openshift Gitops start up and running...\n"
+printf "=====================Waiting for configured Gitops repo server up and running...\n"
 kubectl wait --for=condition=Ready pods --all -n openshift-gitops --timeout=5m
 printf "=====================Openshift Gitops deploy successful!\n"
 
