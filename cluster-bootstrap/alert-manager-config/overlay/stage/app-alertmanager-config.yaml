@@ -46,6 +46,7 @@ spec:
                           continue: true
                         - matchers:
                             - severity=~"warning|critical"
+                            - service="aap"
                           receiver: aoc-receiver
                           continue: true
                         - matchers:
