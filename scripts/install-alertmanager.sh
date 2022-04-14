@@ -39,10 +39,6 @@ generate_url_secret
 printf 'Secret generat successful!\n'
 
 printf "=====================Create Alert manager config Argocd application ...\n"
-if [[ "$2" == true ]] ; then
-  kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config/private
-else
-  kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config
-fi
+kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config
 
 printf "Alert Manager configuration created!"
