@@ -49,6 +49,7 @@ patchesJson6902:
       value: 'az.aoc.lab'
 
 resources:
-- ../../base
 - azure.secret.yaml
 - azure.public.clusterissuer.yaml
+- api.certificate.yaml
+- apps.certificate.yaml
