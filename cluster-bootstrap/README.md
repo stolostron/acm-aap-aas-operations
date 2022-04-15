@@ -16,9 +16,9 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
    * Dev is for development env usage. 
    * Stage is for staging env usage.
 2. Deploy the stacks:
-   * Run `make deploy-dev` and `make deploy-alert-manager-dev` to bootstrap stacks in a public cluster for development usage.
-   * Run `make deploy-dev` and `make deploy-alert-manager-dev-private` to bootstrap stacks in a private cluster for development usage.
-   * Run `make deploy-stage` and `make deploy-alert-manager-stage` to bootstrap stacks in stage environment.
+   * For bootstrap development env, run `make deploy-dev`.
+   * For bootstrap development env based on private cluster, run `deploy-dev-private`.
+   * For bootstrap stage env, run `make deploy-stage`.
 
 
 ### Configurations layout:
@@ -27,14 +27,19 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   ├── base
     │   └── overlay
     │       ├── dev                            
-    │       └── stage                     
-    ├── alert-manager-config                # Alert manager policy configuration
+    │       └── stage        
+    ├── cert-manager                        # Deploy Cert manager
+    │   ├── base      
+    │   └── overlay
+    │       ├── dev                            
+    │       └── stage                
+    ├── alert-manager-config                # Deploy Alert manager policy configuration
     │   ├── base
     │   └── overlay
     │       ├── dev                            
     │       ├── dev-private                 # Add http proxy for slack alerts forwards
     │       └── stage
-    ├── grafana-dev                         # Grafana dev instance configuration
+    ├── grafana-dev                         # Deploy Grafana dev instance configuration
     │   ├── base   
     │   └── overlay
     │       ├── dev  
@@ -45,11 +50,11 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   │   ├── custom-alerts                # Custom alerts configuration
     │   │   ├── custom-metrics               # Custom metrics configuration
     │   │   ├── dashboard                    # Custom Grafana dashboard configuration
-    │   │   └── deploy                       # Multicluster observability configuration
+    │   │   └── deploy                       # Deploy Multicluster observability
     │   └── overlay  
     │       ├── dev
     │       └── stage  
-    └── prometheus-config                    # Prometheus configuration
+    └── prometheus-config                    # Deploy Prometheus configuration
         ├── base                             
         └── overlay  
             ├── dev
