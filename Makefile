@@ -20,8 +20,8 @@ get-cli:
 lint:
 	yamllint -d yamllint_conf.yaml .
 
-.PHONY: deploy-dev-stacks
-deploy-dev-stacks:
+.PHONY: deploy-stacks-dev
+deploy-stacks-dev:
 	sh ./scripts/install.sh dev
 
 .PHONY: deploy-stacks-stage

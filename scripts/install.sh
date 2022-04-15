@@ -20,7 +20,7 @@ kubectl wait --for=condition=Ready pods --all -n openshift-gitops --timeout=5m
 printf "=====================Openshift Gitops deploy successful!\n"
 
 printf "=====================Use the following info to login Openshift Gitops web console:\n"
-printf "Web console URL: "
+printf "Web console URL: https://"
 kubectl get route openshift-gitops-server -n openshift-gitops -o 'jsonpath={.spec.host}'
 printf "\n"
 printf "# admin.username\n"
