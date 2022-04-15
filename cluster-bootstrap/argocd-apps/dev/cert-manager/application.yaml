@@ -8,9 +8,9 @@ spec:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/cert-manager/overlay/dev
-    repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
-    targetRevision: main
+    path: cluster-bootstrap/cert-manager/base
+    repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
+    targetRevision: cert-manager
     plugin:
       name: argocd-vault-plugin-kustomize
   syncPolicy:
