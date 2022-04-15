@@ -11,10 +11,10 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/dnsNames/0
-      value: 'apps.demo-aws-495-g5qwd.demo.red-chesterfield.com'
+      value: 'apps.demo-aws-495-7nspt.demo.red-chesterfield.com'
     - op: replace
       path: /spec/dnsNames/1
-      value: '*.apps.demo-aws-495-g5qwd.demo.red-chesterfield.com'
+      value: '*.apps.demo-aws-495-7nspt.demo.red-chesterfield.com'
 - target:
     kind: Certificate
     group: cert-manager.io
@@ -24,7 +24,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/dnsNames/0
-      value: 'api.apps.demo-aws-495-g5qwd.demo.red-chesterfield.com'
+      value: 'api.apps.demo-aws-495-7nspt.demo.red-chesterfield.com'
 - target:
     kind: ClusterIssuer
     group: cert-manager.io
