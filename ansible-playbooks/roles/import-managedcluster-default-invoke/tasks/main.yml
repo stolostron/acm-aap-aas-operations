@@ -26,7 +26,7 @@
   shell: |-
     IMPORT_BLOB=$(cat {{ tempdir.path }}/{{ item }} | base64 -w 0)
     az aks command invoke --resource-group {{ AKS_MRG }} \
-      --name {{ AKS_NAME }} \
+      --name {{ cluster_name }} \
       --subscription {{ AKS_SUB }} \
       --command "echo $IMPORT_BLOB | base64 --decode | kubectl apply -f -"
   with_items:
@@ -39,7 +39,7 @@
     oc get managedcluster {{ cluster_name }} -n {{ cluster_name }} -o yaml
     az aks command invoke \
       --resource-group {{ AKS_MRG }} \
-      --name {{ AKS_NAME }} \
+      --name {{ cluster_name }} \
       --subscription {{ AKS_SUB }} \
       --command "kubectl get ns; kubectl get pods -n open-cluster-management-agent"
   register: hubspoke_out
@@ -63,7 +63,7 @@
   shell: |-
     IMPORT_BLOB=$(cat {{ tempdir.path }}/{{ item }} | base64 -w 0)
     az aks command invoke --resource-group {{ AKS_MRG }} \
-      --name {{ AKS_NAME }} \
+      --name {{ cluster_name }} \
       --subscription {{ AKS_SUB }} \
       --command "echo $IMPORT_BLOB | base64 --decode | kubectl delete -f -"
   with_items:
