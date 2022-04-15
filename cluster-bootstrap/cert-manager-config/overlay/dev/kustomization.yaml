@@ -25,16 +25,6 @@ patchesJson6902:
     - op: replace
       path: /spec/dnsNames/0
       value: 'api.apps.demo-aws-495-7nspt.demo.red-chesterfield.com'
-- target:
-    kind: ClusterIssuer
-    group: cert-manager.io
-    version: v1
-    name: public-issuer
-    namespace: cert-manager
-  patch: |-
-    - op: replace
-      path: /spec/acme/solvers/1/dns01/route53/accessKeyID
-      value: '<AWS_ACCESS_KEY_ID>'
 
 resources:
 - ../../base

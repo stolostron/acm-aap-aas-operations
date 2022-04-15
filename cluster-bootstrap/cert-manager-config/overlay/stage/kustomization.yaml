@@ -1,5 +1,54 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+patchesJson6902:
+- target:
+    kind: Certificate
+    group: cert-manager.io
+    version: v1
+    name: apps-domain-tls-cert
+    namespace: openshift-ingress
+  patch: |-
+    - op: replace
+      path: /spec/dnsNames/0
+      value: 'apps.acm-dev.az.aoc.lab'
+    - op: replace
+      path: /spec/dnsNames/1
+      value: '*.apps.acm-dev.az.aoc.lab'
+- target:
+    kind: Certificate
+    group: cert-manager.io
+    version: v1
+    name: api-domain-tls-cert
+    namespace: openshift-config
+  patch: |-
+    - op: replace
+      path: /spec/dnsNames/0
+      value: 'api.apps.acm-dev.az.aoc.lab'
+- target:
+    kind: ClusterIssuer
+    group: cert-manager.io
+    version: v1
+    name: public-issuer
+    namespace: cert-manager
+  patch: |-
+    - op: replace
+      path: /spec/acme/solvers/1/dns01/azureDNS/clientID
+      value: 'dc22ed4f-cbdd-49fc-beb1-ea3f282b50ee'
+    - op: replace
+      path: /spec/acme/solvers/1/dns01/azureDNS/subscriptionID
+      value: 'c7130a18-cbc9-4b44-9307-1f56446fb730'
+    - op: replace
+      path: /spec/acme/solvers/1/dns01/azureDNS/tenantID
+      value: '6047c7e9-b2ad-488d-a54e-dc3f6be6a7ee'
+    - op: replace
+      path: /spec/acme/solvers/1/dns01/azureDNS/resourceGroupName
+      value: 'openshift4-terraform'
+    - op: replace
+      path: /spec/acme/solvers/1/dns01/azureDNS/hostedZoneName
+      value: 'az.aoc.lab'
+
 resources:
 - ../../base
+- azure.secret.yaml
+- azure.public.clusterissuer.yaml

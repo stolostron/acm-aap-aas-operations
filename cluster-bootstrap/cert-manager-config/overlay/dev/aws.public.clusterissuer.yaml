@@ -3,6 +3,9 @@ kind: ClusterIssuer
 metadata:
   name: public-issuer
   namespace: cert-manager
+  annotations:
+    avp.kubernetes.io/path: "/sre-dev/data/cert-issuer"
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   acme:
     email: acm-cicd@redhat.com
@@ -19,7 +22,7 @@ spec:
     - dns01:
         cnameStrategy: Follow
         route53:
-          accessKeyID: NOT_MY_ACCESS_KEY
+          accessKeyID: <AWS_ACCESS_KEY_ID>
           region: us-east-1
           secretAccessKeySecretRef:
             key: aws_secret_access_key
