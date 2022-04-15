@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: acm
+  name: cert-manager
   namespace: openshift-gitops
 spec:
   destination:
@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     path: cluster-bootstrap/cert-manager/overlay/dev
-    repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
+    repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
     targetRevision: cert-manager
     plugin:
       name: argocd-vault-plugin-kustomize
