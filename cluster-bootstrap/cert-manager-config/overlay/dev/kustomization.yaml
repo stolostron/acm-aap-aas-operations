@@ -3,6 +3,29 @@ kind: Kustomization
 
 patchesJson6902:
 - target:
+    kind: Certificate
+    group: cert-manager.io
+    version: v1
+    name: apps-domain-tls-cert
+    namespace: openshift-ingress
+  patch: |-
+    - op: replace
+      path: /spec/dnsNames/0
+      value: 'apps.demo-aws-495-7nspt.demo.red-chesterfield.com'
+    - op: replace
+      path: /spec/dnsNames/1
+      value: '*.apps.demo-aws-495-7nspt.demo.red-chesterfield.com'
+- target:
+    kind: Certificate
+    group: cert-manager.io
+    version: v1
+    name: api-domain-tls-cert
+    namespace: openshift-config
+  patch: |-
+    - op: replace
+      path: /spec/dnsNames/0
+      value: 'api.apps.demo-aws-495-7nspt.demo.red-chesterfield.com'
+- target:
     kind: ClusterIssuer
     group: cert-manager.io
     version: v1

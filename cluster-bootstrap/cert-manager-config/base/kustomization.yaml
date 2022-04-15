@@ -3,4 +3,6 @@ kind: Kustomization
 
 resources:
 - namespace.yaml
+- api.certificate.yaml
+- apps.certificate.yaml
 - private.clusterissuer.yaml
