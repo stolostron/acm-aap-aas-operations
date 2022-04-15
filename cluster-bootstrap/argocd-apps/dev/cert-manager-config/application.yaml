@@ -10,7 +10,7 @@ spec:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/cert-manager/overlay/dev
+    path: cluster-bootstrap/cert-manager-config/overlay/dev
     repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
     targetRevision: cert-manager
     plugin:
