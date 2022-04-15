@@ -3,7 +3,3 @@ kind: Kustomization
 
 resources:
 - subscription.yaml
-- namespace.yaml
-- private.clusterissuer.yaml
-- apps.certificate.yaml
-- api.certificate.yaml
