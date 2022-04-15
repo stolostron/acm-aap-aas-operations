@@ -86,9 +86,6 @@ git clone ...
 cd acm-aap-aas-operations/ansible-playbooks
 make venv
 source venv/bin/activate
-
-# create the vars file and populate with your aks information
-ansible-playbook playbooks/import-aap-aks.yml -e "@default.yml"
 ```
 
 ## Add a vars file
@@ -104,4 +101,23 @@ AKS_SUB: e47e6908-...
 HUB_RG: acm-dev-6wbm8-rg
 HUB_SUB: 4da397a2-...
 HUB_PDNSZ: hub.private.dnszone...
+```
+
+Then to create the private endpoints you should run
+
+```shell
+$ ansible-playbook  playbooks/create-private-endpoints.yml -e "@default.yml"
+```
+
+To approvate the private endpoints connection to the HUB private link service you should run
+
+```shell
+$ ansible-playbook  playbooks/create-private-endpoints.yml  -e "@default.yml"
+```
+
+And finally, to effectively import the AKS managed cluster you should run
+
+
+```shell
+$ ansible-playbook  playbooks/import-managedcluster.yml -e "@default.yml"
 ```
