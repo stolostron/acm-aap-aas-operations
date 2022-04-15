@@ -100,7 +100,6 @@ This default.yml need not be checked in.
 ```yaml
 cluster_name: aks-...-centralus
 AKS_MRG: mrg-...-preview-20220331094426
-AKS_NAME: aks-...-centralus
 AKS_SUB: e47e6908-...
 HUB_RG: acm-dev-6wbm8-rg
 HUB_SUB: 4da397a2-...
