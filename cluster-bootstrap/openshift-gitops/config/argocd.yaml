@@ -57,7 +57,7 @@ spec:
     route.openshift.io/Route:
       ignoreDifferences: |
         jsonPointers:
-        - /spec/host 
+        - /spec/host
   applicationSet:
     resources:
       limits:
