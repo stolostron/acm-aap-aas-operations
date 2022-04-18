@@ -25,6 +25,11 @@ printf "\n"
 printf "# admin.username\n"
 printf "admin\n"
 oc extract secret/openshift-gitops-cluster -n openshift-gitops --to=-
+sleep 10
+
+while [[ $(kubectl get pods -n openshift-gitops --no-headers --ignore-not-found | awk '/openshift-gitops-repo-server/' | wc -l) -ne 1 ]]; 
+    do echo "Waiting for openshift-gitops-repo-server with vault plugin start up and running" && sleep 30;
+done
 
 printf "=====================Create ACM Argocd application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/acm -n openshift-gitops
@@ -41,4 +46,4 @@ kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/prometheus-config
 printf "=====================Create Cert-manager application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/cert-manager
 
-printf "Cluster bootstrap completed with ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics!"
+printf "Cluster bootstrap completed with ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics!\n\n"

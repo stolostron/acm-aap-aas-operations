@@ -1,10 +1,10 @@
 #!/bin/bash
 
-_CSV_NAME=$(oc get sub -n openshift-operators cert-manager -ojsonpath='{.status.currentCSV}')
-
-while [[ $(oc get clusterserviceversion ${_CSV_NAME} --no-headers --ignore-not-found | wc -l) -eq 0 ]]; 
-    do echo "Waiting for csv to be created" && sleep 30;
+while [[ $(oc get sub -n openshift-operators cert-manager -ojsonpath='{.status.currentCSV}' --no-headers --ignore-not-found | wc -l) -eq 0 ]]; 
+    do echo "Waiting for cert-manager sub to be created" && sleep 30;
 done
+
+_CSV_NAME=$(oc get sub -n openshift-operators cert-manager -ojsonpath='{.status.currentCSV}')
 
 oc patch clusterserviceversion ${_CSV_NAME} \
     --type=json \
