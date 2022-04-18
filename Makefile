@@ -40,15 +40,19 @@ deploy-alert-manager-dev-private:
 deploy-alert-manager-stage:
 	sh ./scripts/install-alertmanager.sh stage true
 
-.PHONY: patch-cert-manager
-patch-cert-manager:
-	sh ./scripts/patch-certmanager.sh
+.PHONY: config-cert-manager-dev
+config-cert-manager-dev:
+	sh ./scripts/config-certmanager.sh dev
+
+.PHONY: config-cert-manager-stage
+config-cert-manager-stage:
+	sh ./scripts/config-certmanager.sh stage
 
 .PHONY: deploy-dev
-deploy-dev: deploy-stacks-dev patch-cert-manager deploy-alert-manager-dev
+deploy-dev: deploy-stacks-dev config-cert-manager-dev deploy-alert-manager-dev
 
 .PHONY: deploy-dev-private
-deploy-dev: deploy-stacks-dev patch-cert-manager deploy-alert-manager-dev-private
+deploy-dev: deploy-stacks-dev config-cert-manager-dev deploy-alert-manager-dev-private
 
 .PHONY: deploy-stage
-deploy-dev: deploy-stacks-stage patch-cert-manager deploy-alert-manager-stage
+deploy-dev: deploy-stacks-stage config-cert-manager-stage deploy-alert-manager-stage
