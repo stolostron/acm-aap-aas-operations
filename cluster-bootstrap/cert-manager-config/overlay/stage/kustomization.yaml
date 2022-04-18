@@ -3,29 +3,6 @@ kind: Kustomization
 
 patchesJson6902:
 - target:
-    kind: Certificate
-    group: cert-manager.io
-    version: v1
-    name: apps-domain-tls-cert
-    namespace: openshift-ingress
-  patch: |-
-    - op: replace
-      path: /spec/dnsNames/0
-      value: 'apps.acm-dev.az.aoc.lab'
-    - op: replace
-      path: /spec/dnsNames/1
-      value: '*.apps.acm-dev.az.aoc.lab'
-- target:
-    kind: Certificate
-    group: cert-manager.io
-    version: v1
-    name: api-domain-tls-cert
-    namespace: openshift-config
-  patch: |-
-    - op: replace
-      path: /spec/dnsNames/0
-      value: 'api.acm-dev.az.aoc.lab'
-- target:
     kind: ClusterIssuer
     group: cert-manager.io
     version: v1
@@ -51,5 +28,3 @@ patchesJson6902:
 resources:
 - azure.secret.yaml
 - azure.public.clusterissuer.yaml
-- api.certificate.yaml
-- apps.certificate.yaml
