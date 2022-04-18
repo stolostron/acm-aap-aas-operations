@@ -20,12 +20,12 @@ get-cli:
 lint:
 	yamllint -d yamllint_conf.yaml .
 
-.PHONY: deploy-dev
-deploy-dev:
+.PHONY: deploy-stacks-dev
+deploy-stacks-dev:
 	sh ./scripts/install.sh dev
 
-.PHONY: deploy-stage
-deploy-stage:
+.PHONY: deploy-stacks-stage
+deploy-stacks-stage:
 	sh ./scripts/install.sh stage
 
 .PHONY: deploy-alert-manager-dev
@@ -39,3 +39,16 @@ deploy-alert-manager-dev-private:
 .PHONY: deploy-alert-manager-stage
 deploy-alert-manager-stage:
 	sh ./scripts/install-alertmanager.sh stage true
+
+.PHONY: patch-cert-manager
+patch-cert-manager:
+	sh ./scripts/patch-certmanager.sh
+
+.PHONY: deploy-dev
+deploy-dev: deploy-stacks-dev patch-cert-manager deploy-alert-manager-dev
+
+.PHONY: deploy-dev-private
+deploy-dev: deploy-stacks-dev patch-cert-manager deploy-alert-manager-dev-private
+
+.PHONY: deploy-stage
+deploy-dev: deploy-stacks-stage patch-cert-manager deploy-alert-manager-stage
