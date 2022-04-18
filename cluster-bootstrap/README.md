@@ -17,7 +17,7 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
    * Stage is for staging env usage.
 2. Deploy the stacks:
    * For bootstrap development env, run `make deploy-dev`.
-   * For bootstrap development env based on private cluster, run `deploy-dev-private`.
+   * For bootstrap development env based on private cluster, run `make deploy-dev-private`.
    * For bootstrap stage env, run `make deploy-stage`.
 
 
@@ -32,7 +32,12 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   ├── base      
     │   └── overlay
     │       ├── dev                            
-    │       └── stage                
+    │       └── stage    
+    ├── cert-manager-config                 # Cert manager configuration with public issuer
+    │   ├── base
+    │   └── overlay
+    │       ├── dev                            
+    │       └── stage            
     ├── alert-manager-config                # Deploy Alert manager policy configuration
     │   ├── base
     │   └── overlay
