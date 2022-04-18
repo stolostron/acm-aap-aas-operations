@@ -4,8 +4,9 @@
 gitops-applications/alertManager/alertmanager.yaml
 .history
 */**/.history
-ansible-playbooks/kubeconfig
 *.DS_Store
 *.vscode
+ansible-playbooks/kubeconfig
 ansible-playbooks/default.yml
-ansibe-playbooks/venv/
+ansible-playbooks/venv/
+ansible-playbooks/vars/
