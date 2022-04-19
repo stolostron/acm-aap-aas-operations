@@ -1,0 +1,50 @@
+---
+# import spoke cluster using k8s
+#
+# vars
+# - ACM_HUB_KUBECONFIG reference the hub kubeconfig
+# - MANAGED_CLUSTER_KUBECONFIG references the spoke kubeconfig
+- set_fact:
+    cluster_name: kind-56
+
+- name: Verify ACM Hub Connection
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Node
+    kubeconfig: "{{ ACM_HUB_KUBECONFIG }}"
+  register: nodes
+
+- name: Create manifests for Namespace and Managed Cluster CR
+  kubernetes.core.k8s:
+    state: present
+    template:
+      - path: "managedcluster.yml"
+    kubeconfig: "{{ ACM_HUB_KUBECONFIG }}"
+
+- name: Create temporary SPOKE directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: spoke
+  register: tempdir
+
+- name: Extract the crd and import yaml
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ cluster_name }}-import"
+    namespace: "{{ cluster_name }}"
+    kubeconfig: "{{ ACM_HUB_KUBECONFIG }}"
+  register: importblob
+
+- set_fact:
+    importblobcrds: "{{ importblob.resources[0].data['crds.yaml'] }}"
+    importblobimport: "{{ importblob.resources[0].data['import.yaml'] }}"
+
+- name: Apply import manifests into the spoke cluster
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ item | b64decode }}"
+    kubeconfig: "{{ MANAGED_CLUSTER_KUBECONFIG }}"
+  loop:
+    - "{{ importblobcrds }}"
+    - "{{ importblobimport }}"

@@ -54,8 +54,7 @@
       --resource-group  "{{ AKS_MRG }}" \
       --subscription "{{ AKS_SUB }}" \
       --subnet "{{ AKS_SUBNET }}" \
-      --vnet-name "{{ AKS_VNET }}" --only-show-errors \
-      --manual-request true
+      --vnet-name "{{ AKS_VNET }}" --only-show-errors
   with_items: "{{ plink_list.stdout.split('\n') }}"
   ignore_errors: true
 
