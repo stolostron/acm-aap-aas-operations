@@ -77,10 +77,18 @@ This is the first example playbook to import an aks cluster using `az aks comman
 
 To import with this playbook:
 
-1. you need to be in the AOC subscription.
-2. you need to have oc command into the ACM-DEV cluster.
+1. you need to be in the AOC subscription
+```bash
+az login --tenant RHAAPDEV....
+```
 
-3. run these commands...
+2. you need to have oc command into the ACM cluster
+```bash
+oc login -u kubeadmin -p XXX -s https://api.acm.XXX:6443
+```
+
+3. run these commands
+
 ```bash
 git clone ...
 cd acm-aap-aas-operations/ansible-playbooks
@@ -91,18 +99,35 @@ source venv/bin/activate
 ansible-playbook playbooks/import-aap-aks.yml -e "@default.yml"
 ```
 
-## Add a vars file
+Use the ansible collection version of the playbook
 
-In this first iteration, we reference the target aks cluster with the variables.
-The ACM hub cluster information can be static. Here, I create this file callled default.yml and put it into vars.
-This default.yml need not be checked in.
+```bash
+# import managed application using ansible module
+# NOTE: until we add the private link from AAP to the ACM hub, we have to continue to use command-invoke
+ansible-playbook playbooks/import-aap-aks-collection.yml -e "@default.yml"
+
+# delete/cleanup to start rerun import
+ansible-playbook playbooks/import-aap-aks-collection.yml -e "@default.yml" -e delete=true
+```
+
+## Add a vars/default.yml file
+
+In this first iteration, we reference the target AKS cluster with the variables. The ACM hub cluster information can be static.
+Here, I create this file called `./vars/default.yml` and put it into vars.
+
+The `./vars/default.yml` should not be checked in.
 
 ```yaml
-cluster_name: aks-...-centralus
-AKS_MRG: mrg-...-preview-20220331094426
-AKS_NAME: aks-...-centralus
-AKS_SUB: e47e6908-...
-HUB_RG: acm-dev-6wbm8-rg
-HUB_SUB: 4da397a2-...
-HUB_PDNSZ: hub.private.dnszone...
+# file ./vars/default.yml
+#
+# hub side variables. These will mostly be static.
+HUB_RG: acm-dev-6wbm8-rg                 # resource group of the ACM hub cluster
+HUB_SUB: 4da397a2-...                    # hub scription id
+HUB_PDNSZ: hub.private.dnszone...        # private dns zone domain string
+
+# target spoke variables
+AKS_MRG: mrg-...-preview-20220331094426  # managed application resource group name
+AKS_NAME: aks-...-centralus              # AKS k8s service name
+AKS_SUB: e47e6908-...                    # subscription id of the AKS cluster
+managed_application: acmaocdevtest0418   # name of the managed application, we'll add this label to the managed cluster CR
 ```

@@ -1,0 +1,42 @@
+---
+
+- name: Verify Hub and Spoke components
+  shell: |
+    oc get managedcluster {{ AKS_NAME }} -n {{ AKS_NAME }} -o yaml
+    az aks command invoke \
+      --resource-group {{ AKS_MRG }} \
+      --name {{ AKS_NAME }} \
+      --subscription {{ AKS_SUB }} \
+      --command "kubectl get ns; kubectl get pods -n open-cluster-management-agent; kubectl get pods -n open-cluster-management-agent-addon; kubectl logs -l app=klusterlet-manifestwork-agent -n open-cluster-management-agent;"
+  register: hubspoke_out
+
+- name: debug
+  debug:
+    msg: "{{ hubspoke_out.stdout_lines }}"
+
+- name: Verify Hub and Spoke components
+  shell: |
+    az aks command invoke \
+      --resource-group {{ AKS_MRG }} \
+      --name {{ AKS_NAME }} \
+      --subscription {{ AKS_SUB }} \
+      --command "kubectl get secrets -n open-cluster-management-agent; kubectl get pods -n open-cluster-management-agent-addon"
+  register: hubspoke_out
+
+- name: debug
+  debug:
+    msg: "{{ hubspoke_out.stdout_lines }}"
+
+- name: Verify Hub and Spoke components
+  shell: |
+    az aks command invoke \
+      --resource-group {{ AKS_MRG }} \
+      --name {{ AKS_NAME }} \
+      --subscription {{ AKS_SUB }} \
+      --command "kubectl describe pods -l app=klusterlet-manifestwork-agent -n open-cluster-management-agent; kubectl get secret hub-kubeconfig-secret -n open-cluster-management-agent -o yaml;"
+  register: hubspoke_out
+
+# -l app=klusterlet-manifestwork-agent
+- name: debug
+  debug:
+    msg: "{{ hubspoke_out.stdout_lines }}"
