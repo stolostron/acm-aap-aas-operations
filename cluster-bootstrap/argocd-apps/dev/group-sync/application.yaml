@@ -8,9 +8,9 @@ spec:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/group-sync/base
-    repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
-    targetRevision: refactor
+    path: cluster-bootstrap/group-sync/overlay/dev
+    repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
+    targetRevision: main
     plugin:
       name: argocd-vault-plugin-kustomize
   syncPolicy:
