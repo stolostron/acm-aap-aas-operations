@@ -8,3 +8,4 @@ resources:
 
 patchesStrategicMerge:
 - app-alertmanager-config.yaml
+- placement-rule.yaml
