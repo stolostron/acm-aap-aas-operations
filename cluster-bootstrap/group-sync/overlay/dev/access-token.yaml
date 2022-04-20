@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-group-sync
+  namespace: group-sync-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    avp.kubernetes.io/path: "/sre-dev/data/group-sync"
+stringData:
+  token: <GITHUB_PERSONAL_ACCESS_TOKEN>
+type: Opaque
