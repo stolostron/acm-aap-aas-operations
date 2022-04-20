@@ -1,0 +1,8 @@
+---
+
+- name: Set authorized key from file
+  authorized_key:
+    user: "az-admin"
+    state: present
+    key: "{{ item.key }}"
+  with_items: "{{ public_key }}"
