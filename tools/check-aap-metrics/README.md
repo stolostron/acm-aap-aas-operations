@@ -10,7 +10,7 @@ $ ./check-the-aap-metrics.sh
 
 If you have no permission to access the AAP cluster, but the AAP cluster has been imported to the ACM, then we can use the policy to check the AAP metric.
 
-- update the policy `clusterSelector` to select your AAP cluster, for example, to check the AAP cluster `aks-aaprqnqwslvpqvqg-westus` metric:
+- update the policy `clusterSelector` to select your AAP cluster, for example, to check the AAP cluster `cicd-aap-aas-ansible-d-eastus` metric:
 
 ```
 ...
@@ -20,7 +20,7 @@ If you have no permission to access the AAP cluster, but the AAP cluster has bee
       - key: name
         operator: In
         values:
-          - aks-aaprqnqwslvpqvqg-westus
+          - cicd-aap-aas-ansible-d-eastus
 ...
 
 ```
