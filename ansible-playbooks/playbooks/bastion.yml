@@ -1,0 +1,4 @@
+- hosts: bastion
+  become: false
+  roles:
+    - role: ../roles/authorized-key
