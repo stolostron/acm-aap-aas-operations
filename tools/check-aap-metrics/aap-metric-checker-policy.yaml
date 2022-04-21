@@ -1,0 +1,103 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: metric-checker
+  namespace: open-cluster-management-addon-observability
+  annotations:
+    policy.open-cluster-management.io/standards: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/categories: NIST SP 800-53
+    policy.open-cluster-management.io/controls: CM Configuration Management
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: metric-checker
+      spec:
+        namespaceSelector:
+          exclude:
+            - kube-*
+          include:
+            - open-cluster-management-addon-observability
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: ClusterRoleBinding
+              metadata:
+                name: aap-metric-checker
+              roleRef:
+                apiGroup: rbac.authorization.k8s.io
+                kind: ClusterRole
+                name: cluster-admin
+              subjects:
+                - kind: ServiceAccount
+                  name: aap-metric-checker
+                  namespace: open-cluster-management-addon-observability
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ServiceAccount
+              metadata:
+                name: aap-metric-checker
+                namespace: open-cluster-management-addon-observability
+          - complianceType: musthave
+            objectDefinition:
+                apiVersion: batch/v1
+                kind: Job
+                metadata:
+                  name: aap-metric-checker
+                  namespace: open-cluster-management-addon-observability
+                spec:
+                  backoffLimit: 6
+                  completions: 1
+                  parallelism: 1
+                  template:
+                    metadata:
+                      name: aap-metric-checker
+                    spec:
+                      containers:
+                      - name: aap-metric-checker
+                        image: quay.io/ocm-observability/app-metric-checker:latest
+                        imagePullPolicy: Always
+                        command: ["/bin/sh"]
+                        args: ["-c", "/tmp/check-the-aap-metrics.sh"]
+                      restartPolicy: OnFailure
+                      serviceAccount: aap-metric-checker
+                      serviceAccountName: aap-metric-checker
+        remediationAction: inform
+        severity: low
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-metric-checker
+  namespace: open-cluster-management-addon-observability
+placementRef:
+  name: placement-metric-checker
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: metric-checker
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-metric-checker
+  namespace: open-cluster-management-addon-observability
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - __YOU_AAP_CLUSTER_NAME__
