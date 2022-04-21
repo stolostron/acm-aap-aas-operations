@@ -4,4 +4,5 @@ metadata:
   name: openshift-logging
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
-  
+  labels:
+    openshift.io/cluster-monitoring: "true"
