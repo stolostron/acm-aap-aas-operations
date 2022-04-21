@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-dev
+  namespace: openshift-gitops
+spec:
+  destination:
+    name: in-cluster
+  project: default
+  source:
+    path: cluster-bootstrap/cluster-logging/overlay/dev
+    repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
+    targetRevision: cluster-logging
+    plugin:
+      name: argocd-vault-plugin-kustomize
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
