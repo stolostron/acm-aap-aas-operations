@@ -1,0 +1,15 @@
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: GroupSync
+metadata:
+  name: azure-groupsync
+  namespace: group-sync-operator
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  providers:
+  - name: azure
+    azure:
+      organization: stolostron
+      credentialsSecret:
+        name: azure-group-sync
+        namespace: group-sync-operator
