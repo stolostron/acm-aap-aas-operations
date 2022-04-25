@@ -1,0 +1,10 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  name: acm-applications
+  namespace: acm-applications
+spec:
+  type: GitHub
+  pathname: https://github.com/stolostron/acm-aap-aas-operations.git
+  secretRef:
+    name: aap-aas-repo-config-access
