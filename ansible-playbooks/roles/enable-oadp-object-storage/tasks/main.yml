@@ -1,0 +1,70 @@
+---
+# configure the openshift oadp operator object storage
+#
+# vars
+# - STORAGE_CONTAINER
+# - STORAGE_RESOURCEGROUP
+# - STORAGE_ACCOUNT
+# - STORAGE_SUBSCRIPTION
+
+- name: ensure storage account exists
+  azure_rm_storageaccount:
+    resource_group: "{{ STORAGE_RESOURCEGROUP }}"
+    subscription_id: "{{ STORAGE_SUBSCRIPTION}}"
+    name: "{{ STORAGE_ACCOUNT }}"
+    type: Standard_LRS
+
+#TODO replace this with URI
+- name: retrieve the storage account key
+  shell: az storage account keys list -n {{ STORAGE_ACCOUNT }} -g {{ STORAGE_RESOURCEGROUP }} --subscription {{ STORAGE_SUBSCRIPTION }} --query [0].value -o tsv
+  register: key
+
+- set_fact:
+    STORAGE_KEY: "{{ key.stdout }}"
+
+
+- name: Ensure storage container exist
+  azure_rm_storageblob:
+    resource_group: "{{ STORAGE_RESOURCEGROUP }}"
+    storage_account_name: "{{ STORAGE_ACCOUNT }}"
+    container: "{{STORAGE_CONTAINER}}"
+
+
+- name: Create temporary file
+  ansible.builtin.tempfile:
+    state: file
+    suffix: temp
+  register: tempfile_1
+
+
+
+- name: generate storage secret
+  template:
+    src: ../roles/enable-oadp-object-storage/templates/storage.secret
+    dest: "{{ tempfile_1.path }}"
+
+
+- name: Create storage secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: cloud-credentials-azure
+        namespace: openshift-adp
+      data:
+        cloud: "{{ lookup('file',  '{{tempfile_1.path}}'  ) | b64encode }}"
+
+- name: Pause for 10 seconds for secret creation
+  pause:
+    seconds: 10
+
+
+
+- name: Create openshift oadp operator
+  kubernetes.core.k8s:
+    state: present
+    template:
+      - path: "velero.yml"

@@ -12,6 +12,7 @@ venv:
 	$(PIP) install ansible==2.10
 	$(PIP) install -r requirements-azure.txt
 	$(PIP) install kubernetes
+	${PIP) install selinux
 	$(ANSIBLE-GALAXY) collection install kubernetes.core
 
 clean-venv:
