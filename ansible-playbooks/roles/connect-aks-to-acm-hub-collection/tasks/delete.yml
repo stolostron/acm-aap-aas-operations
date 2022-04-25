@@ -33,7 +33,7 @@
     NIC_APPS: "{{ NIC_MAP.networkinterfaces | json_query(jq_nic_apps_name) }}"
     NIC_API: "{{ NIC_MAP.networkinterfaces | json_query(jq_nic_api_name) }}"
 
-- name: ensure an "A" record set with multiple records - *.apps
+- name: remove "A" record set  - *.apps
   azure.azcollection.azure_rm_privatednsrecordset:
     resource_group: "{{ AKS_MRG }}"
     relative_name: "*.apps"
@@ -47,7 +47,7 @@
     - "{{ NIC_APPS }}"
   ignore_errors: true
 
-- name: ensure an "A" record set with multiple records - api
+- name: remove "A" record set - api
   azure.azcollection.azure_rm_privatednsrecordset:
     resource_group: "{{ AKS_MRG }}"
     relative_name: "api"
@@ -61,7 +61,7 @@
     - "{{ NIC_API }}"
   ignore_errors: true
 
-- name: ensure an "A" record set with multiple records - api-int
+- name: remove "A" record set - api-int
   azure.azcollection.azure_rm_privatednsrecordset:
     resource_group: "{{ AKS_MRG }}"
     relative_name: "api-int"
@@ -75,7 +75,7 @@
     - "{{ NIC_API }}"
   ignore_errors: true
 
-- name: Create private endpoint connected to private link
+- name: Delete private endpoint connected to private link
   azure.azcollection.azure_rm_privateendpoint:
     name: "{{ item.name }}-pe"
     resource_group: "{{ AKS_MRG }}"
