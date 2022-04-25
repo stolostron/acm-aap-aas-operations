@@ -1,5 +1,0 @@
-resources:
-- namespace.yaml
-- aap-subscription.yaml
-- application.yaml
-- placementrule.yaml
