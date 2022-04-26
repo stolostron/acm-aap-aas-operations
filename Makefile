@@ -20,6 +20,9 @@ get-cli:
 lint:
 	yamllint -d yamllint_conf.yaml .
 
+kind-test:
+	@echo "TODO: create Kind test here."
+
 .PHONY: deploy-stacks-dev
 deploy-stacks-dev:
 	sh ./scripts/install.sh dev
