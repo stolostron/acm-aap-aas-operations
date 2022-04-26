@@ -57,11 +57,6 @@
       data:
         cloud: "{{ lookup('file',  '{{tempfile_1.path}}'  ) | b64encode }}"
 
-- name: Pause for 10 seconds for secret creation
-  pause:
-    seconds: 10
-
-
 
 - name: Create openshift oadp operator
   kubernetes.core.k8s:
