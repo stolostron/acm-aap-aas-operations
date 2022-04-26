@@ -27,7 +27,17 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   ├── base
     │   └── overlay
     │       ├── dev                            
-    │       └── stage        
+    │       └── stage
+    ├── acm-app                             # Deploy ansible-automation-platform through ACM application channel
+    │   ├── base
+    │   └── overlay
+    │       ├── dev                            
+    │       └── stage
+    ├── acm-channel                         # Deploy ACM application channel
+    │   ├── base
+    │   └── overlay
+    │       ├── dev                            
+    │       └── stage                
     ├── cert-manager                        # Deploy Cert manager
     │   ├── base      
     │   └── overlay
