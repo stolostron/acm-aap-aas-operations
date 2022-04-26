@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
     avp.kubernetes.io/path: "/sre-dev/data/group-sync"
-    avp.kubernetes.io/secret-version: "2"
+    avp.kubernetes.io/secret-version: "3"
 stringData:
   AZURE_TENANT_ID: <AZURE_TENANT_ID>
   AZURE_CLIENT_ID: <AZURE_CLIENT_ID>
