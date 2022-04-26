@@ -6,18 +6,62 @@ Goal of this document is document the various steps to configure the _Backup_ an
 
 An Azure storage account with a container need to be configured and supplied tofor both backup and restore, no need to be created in the same reosurce group and subscription but then the RBAC has to be changed accordingly.
 
-### Creating stroage account
+## Configure and run backup
 
-
+Enter in `Python` virtual environment
 
 ```shell
-$ az storage account create --name ${STORAGE_ACCOUNT} -l eastus --sku Standard_LRS -g ${STORAGE_RESOURCEGROUP} --subscription ${STORAGE_SUBSCRIPTION}
-$ STORAGEKEY=$(az storage account keys list --account-name ${STORAGE_ACCOUNT} -g ${STORAGE_RESOURCEGROUP} --subscription ${STORAGE_SUBSCRIPTION} --query [0].value -o tsv)
-$ cat << EOF > storage.secret
-AZURE_STORAGE_ACCOUNT_ACCESS_KEY=${STORAGEKEY}
-AZURE_CLOUD_NAME=AzurePublicCloud
-EOF
+$source venv/bin/activate
+(venv)$
+```
+
+Create the `default.yml` for ansible variables
+
+```shell
+(venv)$ cat default.yml
+HUB_RG:  ... # hub resource group
+HUB_SUB: ... # hub azure subscription
+HUB_PDNSZ: ... # hub dns zone
+
+STORAGE_RESOURCEGROUP: ... # storage resource group
+STORAGE_CONTAINER: ... # azure storage container
+STORAGE_ACCOUNT: ... # azure storage account
+STORAGE_SUBSCRIPTION: ... # azure subscription
+```
+
+then run the ansible playbook:
+
+```shell
+(venv)$ansible-playbook playbooks/enable-backup.yml  -e"@default.yml"
 ```
 
 
-oc create secret generic cloud-credentials --namespace openshift-adp --from-file cloud=storage.secret
+## Configure and run storage
+
+
+Enter in `Python` virtual environment
+
+```shell
+$source venv/bin/activate
+(venv)$
+```
+
+Create the `default.yml` for ansible variables
+
+```shell
+(venv)$ cat default.yml
+HUB_RG:  ... # hub resource group
+HUB_SUB: ... # hub azure subscription
+HUB_PDNSZ: ... # hub dns zone
+
+STORAGE_RESOURCEGROUP: ... # storage resource group
+STORAGE_CONTAINER: ... # azure storage container
+STORAGE_ACCOUNT: ... # azure storage account
+STORAGE_SUBSCRIPTION: ... # azure subscription
+```
+
+then run the ansible playbook:
+
+```shell
+(venv)$ansible-playbook playbooks/restore-hub.yml  -e"@default.yml"
+```
