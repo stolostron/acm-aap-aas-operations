@@ -19,14 +19,14 @@ Create the `default.yml` for ansible variables
 
 ```shell
 (venv)$ cat default.yml
-HUB_RG:  ... # hub resource group
-HUB_SUB: ... # hub azure subscription
-HUB_PDNSZ: ... # hub dns zone
+HUB_RG:  ... # hub resource group. It should already exist
+HUB_SUB: ... # hub azure subscription. It should already exisist
+HUB_PDNSZ: ... # hub dns zone. It should be the private DNS zone of the HUB
 
-STORAGE_RESOURCEGROUP: ... # storage resource group
-STORAGE_CONTAINER: ... # azure storage container
-STORAGE_ACCOUNT: ... # azure storage account
-STORAGE_SUBSCRIPTION: ... # azure subscription
+STORAGE_RESOURCEGROUP: ... # storage resource group. It should already exist
+STORAGE_CONTAINER: ... # azure storage container. Eventually it will be crated
+STORAGE_ACCOUNT: ... # azure storage account. Eventually it will be created
+STORAGE_SUBSCRIPTION: ... # azure subscription. It will be created it can be the subscription of the HUBs
 ```
 
 then run the ansible playbook:
@@ -36,7 +36,7 @@ then run the ansible playbook:
 ```
 
 
-## Configure and run storage
+## Configure and run restore
 
 
 Enter in `Python` virtual environment

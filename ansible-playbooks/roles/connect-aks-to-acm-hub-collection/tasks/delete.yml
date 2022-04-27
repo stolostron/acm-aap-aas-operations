@@ -12,12 +12,12 @@
     jq_nic_api_name: "[?contains(name, 'api-privatelink-pe')]"
 
 - set_fact:
-    AKS_SUBNET: "{{ vnetinfo.virtualnetworks[0].subnets | json_query(jq_name) | first }}"
+    AKS_SUBNET: "{{ vnetinfo.virtualnetworks[0].subnets  | to_json | from_json | json_query(jq_name) | first }}"
     AKS_VNET: "{{ vnetinfo.virtualnetworks[0].name }}"
 
 - name: Get private-link-services map
   command: |-
-    az network private-link-service list --subscription '{{ HUB_SUB }}' --output json
+    az network private-link-service list --subscription '{{ HUB_SUB }}' -g '{{ HUB_RG }}' --output json
   register: privatelink_map
 
 - set_fact:
@@ -30,8 +30,8 @@
   register: NIC_MAP
 
 - set_fact:
-    NIC_APPS: "{{ NIC_MAP.networkinterfaces | json_query(jq_nic_apps_name) }}"
-    NIC_API: "{{ NIC_MAP.networkinterfaces | json_query(jq_nic_api_name) }}"
+    NIC_APPS: "{{ NIC_MAP.networkinterfaces  | to_json | from_json | json_query(jq_nic_apps_name) }}"
+    NIC_API: "{{ NIC_MAP.networkinterfaces  | to_json | from_json | json_query(jq_nic_api_name) }}"
 
 - name: remove "A" record set  - *.apps
   azure.azcollection.azure_rm_privatednsrecordset:
