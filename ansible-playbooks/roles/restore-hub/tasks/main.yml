@@ -1,0 +1,46 @@
+---
+
+- name: Get Cluster information
+  kubernetes.core.k8s_cluster_info:
+        invalidate_cache: False
+  register: api_status
+
+- name: Get managed clusters
+  kubernetes.core.k8s_info:
+    api_version: cluster.open-cluster-management.io/v1
+    kind: ManagedCluster
+  register: managedcluster_list
+
+#TODO remove 'local-cluster' from mc_lists
+- set_fact:
+    mc_lists: "{{  managedcluster_list.resources | map(attribute='metadata.name') | list }}"
+
+- name: Collect AKS in subscription
+  azure_rm_aks_info:
+    subscription_id: "{{ AKS_SUB }}"
+  register: aks_list
+
+- set_fact:
+    aks_ids : "{{ aks_list.aks | json_query(jmesquery) }}"
+  vars:
+    jmesquery: "[*].{ID: id}"
+
+
+- name: cleanup AKS
+  include_tasks: ../roles/connect-aks-to-acm-hub-collection/tasks/delete.yml
+  vars:
+     AKS_NAME:  "{{  item.ID.split('/')[8] }}"
+     AKS_MRG: "{{ item.ID.split('/')[4] }}"
+  with_items:
+    - "{{ aks_ids }}"
+  when: ( item.ID.split('/')[8] in {{ mc_lists }} )
+
+
+- name: create AKS
+  include_tasks: ../roles/connect-aks-to-acm-hub-collection/tasks/create.yml
+  vars:
+     AKS_NAME:  "{{  item.ID.split('/')[8] }}"
+     AKS_MRG: "{{ item.ID.split('/')[4] }}"
+  with_items:
+    - "{{ aks_ids }}"
+  when: ( item.ID.split('/')[8] in {{ mc_lists }} )

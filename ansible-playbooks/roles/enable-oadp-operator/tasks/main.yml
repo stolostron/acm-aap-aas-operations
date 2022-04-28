@@ -1,0 +1,8 @@
+---
+# configure the openshift oadp operator
+
+- name: Create openshift oadp operator
+  kubernetes.core.k8s:
+    state: present
+    template:
+      - path: "openshift-adp.yml"
