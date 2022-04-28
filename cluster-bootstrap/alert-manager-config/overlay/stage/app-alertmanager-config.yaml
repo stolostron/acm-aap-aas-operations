@@ -61,7 +61,7 @@ spec:
                     receivers:
                       - name: default-receiver
                         slack_configs:
-                        - channel: forum-acm-aap-alerts
+                        - channel: team-acm-sre-stage-alerts
                           http_config:
                             proxy_url: {{fromSecret "openshift-gitops" "proxy-url" "URL" | base64dec}}
                           actions:

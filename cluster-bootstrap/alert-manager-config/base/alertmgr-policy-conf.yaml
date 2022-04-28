@@ -40,27 +40,38 @@ spec:
                       group_by: ['alertname', 'cluster', 'pod']
                       repeat_interval: 30m
                       routes:
-                        - matchers:
-                            - severity=~"warning|critical"
-                          receiver: default-receiver
+                        - receiver: ignored-alerts
+                          matchers:
+                            - alertname =~ "Watchdog|UpdateAvailable|ViolatedPolicyReport|AlertmanagerReceiversNotConfigured"
+                        # argo-cd bug: https://issues.redhat.com/browse/GITOPS-982
+                        # will remove it when this bug fixed
+                        - receiver: ignored-cert-manager-argo-alert
+                          matchers:
+                            - alertname = "ArgoCDSyncAlert"
+                            - name = "cert-manager"
+                        - receiver: default-receiver
+                          matchers:
+                            - severity =~ "warning|critical"
                           continue: true
-                        - matchers:
-                            - severity=~"warning|critical"
-                          receiver: aoc-receiver
+                        - receiver: aoc-receiver
+                          matchers:
+                            - severity =~ "warning|critical"
                           continue: true
-                        - matchers:
-                            - severity="critical"
-                            - team="acm-sre"
-                          receiver: pagerduty-acm-aoc-critical
-                        - matchers:
-                            - severity="warning"
-                            - team="acm-sre"
-                          receiver: pagerduty-acm-aoc-warning
+                        - receiver: pagerduty-acm-aoc-critical
+                          matchers:
+                            - severity = "critical"
+                            - team = "acm-sre"
+                        - receiver: pagerduty-acm-aoc-warning
+                          matchers:
+                            - severity = "warning"
+                            - team = "acm-sre"
 
                     receivers:
+                      - name: ignored-alerts
+                      - name: ignored-cert-manager-argo-alert
                       - name: default-receiver
                         slack_configs:
-                        - channel: acm-sre-alert-testing
+                        - channel: team-acm-sre-dev-alerts
                           actions:
                             - name: "links"
                               text: "Grafana :grafana:"
