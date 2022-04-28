@@ -60,7 +60,7 @@ spec:
                     receivers:
                       - name: default-receiver
                         slack_configs:
-                        - channel: acm-sre-alert-testing
+                        - channel: team-acm-sre-dev-alerts
                           actions:
                             - name: "links"
                               text: "Grafana :grafana:"

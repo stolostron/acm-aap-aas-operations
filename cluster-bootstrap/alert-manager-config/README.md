@@ -30,7 +30,7 @@ Then configure the HTTP proxy to the `slack_configs` section:
 receivers:
   - name: default-receiver
     slack_configs:
-    - channel: forum-acm-aap-alerts
+    - channel: team-acm-sre-stage-alerts
       http_config:
         proxy_url: http://your.proxy.url:3128
 ...
