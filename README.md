@@ -1,8 +1,9 @@
-# ACM AAPaaS Operations Repo
+# ACM AAPaaS operations
 
 This repository contains artifacts, OpenShift GitOps applications, policy, conrfiguration, dashboards, and more - all involved with operating the ACM hub management layer on top of the AAPaaS offering.
 
-## How to deploying Hub Services on a New Cluster
+## How to deploying ACM Hub services on a new cluster
+
 Please reference the doc [here](./cluster-bootstrap/README.md)
 
 ## Install pre-commit for repository secret detect in your local
