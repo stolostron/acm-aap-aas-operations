@@ -40,7 +40,7 @@
 
 - name: generate storage secret
   template:
-    src: ../roles/enable-oadp-object-storage/templates/storage.secret
+    src: ../roles/enable-oadp-object-storage/templates/cloud-credentials-azure
     dest: "{{ tempfile_1.path }}"
 
 
