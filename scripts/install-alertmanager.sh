@@ -1,4 +1,5 @@
 #!/bin/sh
+# Usage: ./scripts/install-alertmanager.sh $channel $private $alertdisabling
 
 generate_url_secret()
 {
@@ -20,7 +21,7 @@ generate_url_secret()
 }
 
 if [[ "$2" == true ]] ; then
-  printf 'Generating a secret that conatins proxy URL for Alert Manager config usage in private cluster...\n'
+  printf 'Generating a secret that contains proxy URL for Alert Manager config usage in private cluster...\n'
   HTTP_PROXY_URL=$(kubectl get proxy -o=jsonpath='{.items[0].spec.httpProxy}')
 
   if [ -z "$HTTP_PROXY_URL" ]; then
@@ -34,11 +35,16 @@ if [[ "$2" == true ]] ; then
   printf 'Secret generat successful!\n'
 fi
 
-printf 'Generating a secret that conatins acm & alert manager URL for Alert Manager config usage later...\n'
+printf 'Generating a secret that contains acm & alert manager URL for Alert Manager config usage later...\n'
 generate_url_secret
 printf 'Secret generat successful!\n'
 
 printf "=====================Create Alert manager config Argocd application ...\n"
-kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config
+if [[ "$3" == true ]] ; then
+  # Disable alert forwarding policy
+  kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config/noalerts
+else
+  kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config
+fi
 
 printf "Alert Manager configuration created!"
