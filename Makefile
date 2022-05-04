@@ -39,6 +39,9 @@ deploy-alert-manager-dev:
 deploy-alert-manager-dev-private:
 	sh ./scripts/install-alertmanager.sh dev true
 
+deploy-alert-manager-dev-noalerts:
+	sh ./scripts/install-alertmanager.sh dev false true
+
 .PHONY: deploy-alert-manager-stage
 deploy-alert-manager-stage:
 	sh ./scripts/install-alertmanager.sh stage true
@@ -56,6 +59,9 @@ deploy-dev: deploy-stacks-dev deploy-alert-manager-dev
 
 .PHONY: deploy-dev-private
 deploy-dev-private: deploy-stacks-dev deploy-alert-manager-dev-private
+
+.PHONY: deploy-dev-noalerts
+deploy-dev-noalerts: deploy-stacks-dev deploy-alert-manager-dev-noalerts
 
 .PHONY: deploy-stage
 deploy-stage: deploy-stacks-stage config-cert-manager-stage deploy-alert-manager-stage

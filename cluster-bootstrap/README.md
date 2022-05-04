@@ -11,11 +11,12 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
 
 
 ### Deployment:
-1. Replace the `VAULT_ADDRESS` and `VAULT_TOKEN` in `cluster-bootstrap/openshift-gitops/config/argocd.yaml` with the Vault service address and auth token from above doc.
-   Please note that to used the correct env values for your deployment. 
+1. Replace the `VAULT_ADDRESS` and `VAULT_TOKEN` in `cluster-bootstrap/openshift-gitops/config/argocd.yaml` with the Vault service address and read only auth token from above doc.
+   Please take care of using the correct env values for your deployment.
    * Dev is for development env usage. 
    * Stage is for staging env usage.
 2. Deploy the stacks:
+   * For bootstrap a development env without alert forwarding, run `make deploy-dev-noalerts`.
    * For bootstrap development env, run `make deploy-dev`.
    * For bootstrap development env based on private cluster, run `make deploy-dev-private`.
    * For bootstrap stage env, run `make deploy-stage`.
@@ -52,7 +53,8 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   ├── base
     │   └── overlay
     │       ├── dev                            
-    │       ├── dev-private                 # Add http proxy for slack alerts forwards
+    │       ├── dev-noalerts                # Disable alerting for DEV testing
+    |       ├── dev-private                 # Add http proxy for slack alerts forwards
     │       └── stage
     ├── grafana-dev                         # Deploy Grafana dev instance configuration
     │   ├── base   
