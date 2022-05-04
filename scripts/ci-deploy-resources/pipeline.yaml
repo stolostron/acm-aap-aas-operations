@@ -1,0 +1,83 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: deploy-acm-aap-aas-ops-dev
+  namespace: managed-services
+spec:
+  params:
+  - default: hypershift-cluster-pool
+    description: The name of the clusterpool to use
+    name: clusterPoolName
+    type: string
+  - default: ci-acm-aap-aas-ops-dev
+    description: The name of the clusterclaim to claim
+    name: clusterClaimName
+    type: string
+  - default: https://github.com/stolostron/acm-aap-aas-operations.git
+    description: fork of acm-aap-operations-repo
+    name: gitRepo
+    type: string
+  - default: main
+    description: The branch to checkout of the gitRepo
+    name: gitBranch
+    type: string
+  tasks:
+  - name: fetch-repo-samples
+    params:
+    - name: url
+      value: $(params.gitRepo)
+    - name: revision
+      value: $(params.gitBranch)
+    - name: deleteExisting
+      value: "true"
+    - name: subdirectory
+      value: samples
+    - name: gitInitImage
+      value: registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:afc5d3f9efe26c7042635d43b8ffd09d67936e3d0b6b901dc08a33e20313d361
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+  - name: checkout-cluster
+    params:
+    - name: clusterClaimName
+      value: $(params.clusterClaimName)
+    - name: clusterPoolName
+      value: $(params.clusterPoolName)
+    runAfter:
+    - fetch-repo-samples
+    taskRef:
+      kind: Task
+      name: deploy-acm-aap-aas-ops-dev-checkout-cluster
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+  - name: login-to-cluster
+    params:
+    - name: username
+      value: $(tasks.checkout-cluster.results.username)
+    - name: password
+      value: $(tasks.checkout-cluster.results.password)
+    - name: api
+      value: $(tasks.checkout-cluster.results.api)
+    runAfter:
+    - checkout-cluster
+    taskRef:
+      kind: Task
+      name: deploy-acm-aap-aas-ops-dev-login-to-cluster
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+  - name: deploy-acm-aap-aas-ops-dev
+    runAfter:
+    - login-to-cluster
+    taskRef:
+      kind: Task
+      name: deploy-acm-aap-aas-ops-dev-deploy
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+  workspaces:
+  - name: shared-workspace

@@ -1,0 +1,33 @@
+# Copyright Contributors to the Open Cluster Management project
+
+name: Deploy ACM-AAP-AAS-Ops Dev
+
+on: 
+  pull_request_target:
+    types: [ labeled ]
+    branches:
+      - main
+
+  # manual trigger
+  # workflow_dispatch:
+
+jobs:
+  pr-check-deploy-acm-aap-aas-ops-dev:
+    if: contains(github.event.pull_request.labels.*.name, 'ok-to-test')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Removing 'ok-to-test' label
+        uses: buildsville/add-remove-label@v1
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          label: ok-to-test
+          type: remove
+      - name: Checkout cluster and deploy ACM-AAP-AAS-Ops Dev
+        run: |
+          echo "=== Deploying ACM-AAP-AAS-Operations ==="
+          bash ./scripts/ci-deploy.sh aws ${GITHUB_REPOSITORY} ${{ github.head_ref }} ${{ github.sha }}
+        env:
+          _AWS_CLUSTERPOOL_API_URL: ${{ secrets._AWS_CLUSTERPOOL_API_URL }}
+          _AWS_CLUSTERPOOL_TOKEN: ${{ secrets._AWS_CLUSTERPOOL_TOKEN }}
+          _AWS_CLUSTERPOOL_CONSOLE_URL: ${{ secrets._AWS_CLUSTERPOOL_CONSOLE_URL }}
