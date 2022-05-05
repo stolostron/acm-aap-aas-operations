@@ -131,7 +131,9 @@ AKS_SUB: e47e6908-...                    # subscription id of the AKS cluster
 managed_application: acmaocdevtest0418   # name of the managed application, we'll add this label to the managed cluster CR
 ```
 
-## Update bastion host
+## <a name="bastion"></a>[bastion.yml](playbooks/bastion.yml)
+
+Update bastion host
 
 ```bash
 ansible-playbook playbooks/bastion.yml -i inventories/bastion-hosts.yml 
