@@ -67,8 +67,7 @@ delete the `automation-test` namespace on all selected cluster
 ansible-playbook playbooks/automation-test-reset.yml -i inventories/cluster-inventory-example.yml -e target_hosts=dev-azure-aap
 ```
 
-
-# Importing AKS Clusters
+## <a name="import-collection"></a>[import-aap-aks-collection.yml](playbooks/import-aap-aks-collection.yml)
 
 This is the first example playbook to import an aks cluster using `az aks command invoke` and standard priviledged service account on RHACM.
 
