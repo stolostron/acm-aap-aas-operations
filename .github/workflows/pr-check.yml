@@ -26,7 +26,7 @@ jobs:
       - name: Checkout cluster and deploy ACM-AAP-AAS-Ops Dev
         run: |
           echo "=== Deploying ACM-AAP-AAS-Operations ==="
-          bash ./scripts/ci-deploy.sh aws ${GITHUB_REPOSITORY} ${{ github.head_ref }} ${{ github.sha }}
+          bash ./scripts/ci-deploy.sh aws ${{ github.event.pull_request.head.repo.full_name }} ${{ github.head_ref }} ${{ github.sha }}
         env:
           _AWS_CLUSTERPOOL_API_URL: ${{ secrets._AWS_CLUSTERPOOL_API_URL }}
           _AWS_CLUSTERPOOL_TOKEN: ${{ secrets._AWS_CLUSTERPOOL_TOKEN }}
