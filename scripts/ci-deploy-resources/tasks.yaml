@@ -1,0 +1,155 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-acm-aap-aas-ops-dev-checkout-cluster
+  namespace: managed-services
+spec:
+  params:
+  - default: demo-claim
+    description: The name of the clusterclaim to use
+    name: clusterClaimName
+    type: string
+  - default: hypershift-cluster-pool
+    description: The name of the clusterpool to use
+    name: clusterPoolName
+    type: string
+  results:
+  - description: Username for the claimed cluster.
+    name: username
+  - description: Password for the claimed cluster.
+    name: password
+  - description: API URL of the claimed cluster.
+    name: api
+  steps:
+  - args:
+    - |-
+      #!/bin/bash
+      set -e
+      
+      _TEMPLATE="apiVersion: hive.openshift.io/v1
+      kind: ClusterClaim
+      metadata:
+        annotations:
+          cluster.open-cluster-management.io/createmanagedcluster: 'false'
+        name: $(inputs.params.clusterClaimName)
+      spec:
+        clusterPoolName: $(inputs.params.clusterPoolName)
+        lifetime: 2h
+        subjects:
+        - apiGroup: rbac.authorization.k8s.io
+          kind: Group
+          name: idp-for-the-masses
+        - apiGroup: rbac.authorization.k8s.io
+          kind: Group
+          name: system:serviceaccounts:managed-services"
+
+      echo "$_TEMPLATE" | oc apply -f -
+
+      oc wait --for=condition=ClusterRunning clusterclaim.hive/$(inputs.params.clusterClaimName) --timeout=90m
+
+      NAMESPACE=$(oc get clusterclaim.hive $(inputs.params.clusterClaimName) -o=jsonpath='{.spec.namespace}')
+      CD_INFO=$(oc get clusterdeployment ${NAMESPACE} -n ${NAMESPACE} -o yaml -o=jsonpath='{.spec.clusterMetadata.adminPasswordSecretRef.name}')
+      KUBECONFIG_SECRET=$(oc get cd ${NAMESPACE} -n ${NAMESPACE} -o yaml | yq eval '.spec.clusterMetadata.adminKubeconfigSecretRef.name' -)
+
+      _USERNAME=$(oc get secret ${CD_INFO} -n ${NAMESPACE} -o jsonpath='{.data.username}' | base64 -d )
+      _PASSWORD=$(oc get secret ${CD_INFO} -n ${NAMESPACE} -o jsonpath='{.data.password}' | base64 -d  )
+      _API_URL=$(oc get cd ${NAMESPACE} -n ${NAMESPACE} -o jsonpath='{.status.apiURL}' )
+      
+      oc get secret -n ${NAMESPACE} ${KUBECONFIG_SECRET} -o yaml | yq eval '.data.kubeconfig' - | base64 -d > $(inputs.params.clusterClaimName)-kubeconfig.yaml     
+
+      echo "$_USERNAME" | tr -d '\n' > $(results.username.path)
+      echo "$_PASSWORD" | tr -d '\n' > $(results.password.path)
+      echo "$_API_URL" | tr -d '\n' > $(results.api.path)
+
+      echo "API URL of claimed cluster: $_API_URL"
+      echo "Password for the claimed cluster: $_PASSWORD"
+      echo ""
+      echo "Clusterclaim successfully checked out"
+      exit 0
+    command:
+    - /bin/bash
+    - -c
+    image: quay.io/zkayyali812/ocm-utils:latest
+    name: apply
+    resources: {}
+    workingDir: /workspace/source
+  workspaces:
+  - name: source
+
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-acm-aap-aas-ops-dev-login-to-cluster
+  namespace: managed-services
+spec:
+  params:
+  - default: kubeadmin
+    description: The username of the claimed cluster
+    name: username
+    type: string
+  - default: password
+    description: The password of the claimed cluster
+    name: password
+    type: string
+  - default: https://api.openshift.com
+    description: The claimed cluster API URL
+    name: api
+    type: string
+  steps:
+  - args:
+    - |-
+      #!/bin/bash
+      set -e
+
+      LOGINCMD="oc login $(inputs.params.api) -u $(inputs.params.username) -p $(inputs.params.password) --insecure-skip-tls-verify=true"
+      eval $LOGINCMD
+
+      echo $LOGINCMD > login.sh
+      echo $LOGINCMD
+    command:
+    - /bin/bash
+    - -c
+    image: quay.io/zkayyali812/ocm-utils:latest
+    name: apply
+    resources: {}
+    workingDir: /workspace/source
+  workspaces:
+  - name: source
+
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-acm-aap-aas-ops-dev-deploy
+  namespace: managed-services
+spec:
+  steps:
+  - args:
+    - |-
+      #!/bin/bash
+      set -e
+
+      _VAULT_ADDRESS=$(oc get secret acm-aap-aas-ops-ci-secret -o jsonpath='{.data.vaultAddress}' | base64 -d )
+      _VAULT_TOKEN=$(oc get secret acm-aap-aas-ops-ci-secret -o jsonpath='{.data.vaultToken}' | base64 -d )
+
+      _LOGIN_CMD=$(cat login.sh)
+      eval "$_LOGIN_CMD"
+
+      cd samples/
+
+      _VAULT_ADDR=${_VAULT_ADDRESS} yq eval -i '.spec.repo.env |= map(select(.name == "VAULT_ADDR").value = env(_VAULT_ADDR))' cluster-bootstrap/openshift-gitops/config/argocd.yaml
+      _VAULT_TOKEN=${_VAULT_TOKEN} yq eval -i '.spec.repo.env |= map(select(.name == "VAULT_TOKEN").value = env(_VAULT_TOKEN))' cluster-bootstrap/openshift-gitops/config/argocd.yaml
+
+      make deploy-dev
+    command:
+    - /bin/bash
+    - -c
+    image: quay.io/zkayyali812/ocm-utils:latest
+    name: apply
+    resources: {}
+    workingDir: /workspace/source
+  workspaces:
+  - name: source
