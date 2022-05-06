@@ -1,0 +1,41 @@
+---
+
+- name: Check that this VM is a RHEL
+  ansible.builtin.lineinfile:
+    path: /etc/os-release
+    line: "NAME=\"Red Hat Enterprise Linux\""
+    state: present
+  check_mode: true
+  register: os_type
+
+- fail:
+    msg: The system doesn't look like a RHEL
+  when: (os_type is changed) or (os_type is failed)
+
+- fail:
+    msg: Please define RHSM variables
+  when: (rhsm.username| length == 0) or (rhsm.password| length == 0)
+
+- name: Register system for Red Hat updates
+  community.general.redhat_subscription:
+    username: "{{ rhsm.username }}"
+    password: "{{ rhsm.password }}"
+    state: present
+  register: result
+
+- name: Check if there are security updates
+  yum:
+    security: yes
+    state: latest
+    name: '*'
+  register: yum_output
+
+- name: Check if reboot is required
+  shell: needs-restarting -r
+  failed_when: false
+  register: reboot_required
+  changed_when: false
+
+- name: Reboot if necessary
+  reboot:
+  when: reboot_required.rc != 0

@@ -1,0 +1,7 @@
+plugin: azure_rm
+auth_source: auto
+conditional_groups:
+  bastions_by_name: "'bastion' in computer_name" # alternative for bastions not yet tagged properly
+keyed_groups:
+ - separator: ""
+   key: tags.type | default('no-type')
