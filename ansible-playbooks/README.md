@@ -70,9 +70,6 @@ ansible-playbook playbooks/automation-test-reset.yml -i inventories/cluster-inve
 ## <a name="bastion"></a>[bastion.yml](playbooks/bastion.yml)
 This playbook is meant to be run on bastion hosts, retrieved by the custom inventory defined [here](inventory/vm_inventory_azure_rm.yml).
 
-<<<<<<< HEAD
-## <a name="import-collection"></a>[import-aap-aks-collection.yml](playbooks/import-aap-aks-collection.yml)
-=======
 It is split in 3 roles:
 - user setup
 - VM setup (RHEL registration configuration)
@@ -88,9 +85,7 @@ They can be used separately by using tags.
 ansible-playbook -i ansible-playbooks/inventories/vm-inventory_azure_rm.yml ansible-playbooks/playbooks/bastion.yml -t vm -e "{\"rhsm\":{\"username\":\"USERNAME\",\"password\":\"PASSWORD\"}}"
 ansible-playbook -i ansible-playbooks/inventories/vm-inventory_azure_rm.yml ansible-playbooks/playbooks/bastion.yml -t users
 ```
-
-# Importing AKS Clusters
->>>>>>> b63f282 (Expand playbook for bastion post-install configuration)
+## <a name="import-collection"></a>[import-aap-aks-collection.yml](playbooks/import-aap-aks-collection.yml)
 
 This is the first example playbook to import an aks cluster using `az aks command invoke` and standard priviledged service account on RHACM.
 
