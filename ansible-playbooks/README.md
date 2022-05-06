@@ -1,4 +1,5 @@
 # [playbooks](playbooks/)
+- [bastion.yml](#bastion)
 - [create-kubeconfig.yml](#create-kubeconfig)
 - [operator-mgmt.yml](#operator-mgmt)
 - [automation-test-reset.yml](#automation-test-reset)
@@ -66,8 +67,30 @@ delete the `automation-test` namespace on all selected cluster
 ```
 ansible-playbook playbooks/automation-test-reset.yml -i inventories/cluster-inventory-example.yml -e target_hosts=dev-azure-aap
 ```
+## <a name="bastion"></a>[bastion.yml](playbooks/bastion.yml)
+This playbook is meant to be run on bastion hosts, retrieved by the custom inventory defined [here](inventory/vm_inventory_azure_rm.yml).
 
+<<<<<<< HEAD
 ## <a name="import-collection"></a>[import-aap-aks-collection.yml](playbooks/import-aap-aks-collection.yml)
+=======
+It is split in 3 roles:
+- user setup
+- VM setup (RHEL registration configuration)
+- OCP customization
+
+They can be used separately by using tags.
+### Configuration
+- Public keys are in its own [var file](roles/authorized-key/vars/main.yml)
+- Red Hat account for the subscription needs to be defined [here](roles/bastion-setup/vars/main.yml)
+
+### Example
+```
+ansible-playbook -i ansible-playbooks/inventories/vm-inventory_azure_rm.yml ansible-playbooks/playbooks/bastion.yml -t vm -e "{\"rhsm\":{\"username\":\"USERNAME\",\"password\":\"PASSWORD\"}}"
+ansible-playbook -i ansible-playbooks/inventories/vm-inventory_azure_rm.yml ansible-playbooks/playbooks/bastion.yml -t users
+```
+
+# Importing AKS Clusters
+>>>>>>> b63f282 (Expand playbook for bastion post-install configuration)
 
 This is the first example playbook to import an aks cluster using `az aks command invoke` and standard priviledged service account on RHACM.
 
@@ -129,12 +152,4 @@ AKS_MRG: mrg-...-preview-20220331094426  # managed application resource group na
 AKS_NAME: aks-...-centralus              # AKS k8s service name
 AKS_SUB: e47e6908-...                    # subscription id of the AKS cluster
 managed_application: acmaocdevtest0418   # name of the managed application, we'll add this label to the managed cluster CR
-```
-
-## <a name="bastion"></a>[bastion.yml](playbooks/bastion.yml)
-
-Update bastion host
-
-```bash
-ansible-playbook playbooks/bastion.yml -i inventories/bastion-hosts.yml 
 ```

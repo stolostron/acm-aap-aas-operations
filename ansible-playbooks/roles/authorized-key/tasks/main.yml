@@ -1,8 +1,22 @@
 ---
 
+- name: Create users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    state: present
+    shell: /bin/bash
+    groups: "wheel"
+    append: yes
+  with_items: "{{ public_key }}"
+
 - name: Set authorized key from file
-  authorized_key:
-    user: "az-admin"
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
     state: present
     key: "{{ item.key }}"
   with_items: "{{ public_key }}"
+
+- name: Ensure sudo access
+  lineinfile:
+    dest: /etc/sudoers
+    line: "%wheel        ALL=(ALL)       NOPASSWD: ALL"  # pragma: allowlist secret

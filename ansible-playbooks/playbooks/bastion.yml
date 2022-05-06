@@ -1,4 +1,9 @@
 - hosts: bastion
-  become: false
+  become: true
   roles:
-    - role: ../roles/authorized-key
+    - role: ../roles/authorized-key # set up users
+      tags: [ users ]
+    - role: ../roles/bastion-setup # configure VM
+      tags: [ vm ]
+    - role: ../roles/bastion-ocp4-setup # configure ocp4 specific stuff
+      tags: [ ocp4 ]
