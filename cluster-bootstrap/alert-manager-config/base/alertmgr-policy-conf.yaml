@@ -40,9 +40,6 @@ spec:
                       group_by: ['alertname', 'cluster', 'pod']
                       repeat_interval: 30m
                       routes:
-                        - receiver: ignored-alerts
-                          matchers:
-                            - alertname =~ "Watchdog|UpdateAvailable|ViolatedPolicyReport|AlertmanagerReceiversNotConfigured"
                         # argo-cd bug: https://issues.redhat.com/browse/GITOPS-982
                         # will remove it when this bug fixed
                         - receiver: ignored-cert-manager-argo-alert
@@ -67,7 +64,6 @@ spec:
                             - team = "acm-sre"
 
                     receivers:
-                      - name: ignored-alerts
                       - name: ignored-cert-manager-argo-alert
                       - name: default-receiver
                         slack_configs:
