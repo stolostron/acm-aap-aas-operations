@@ -50,6 +50,10 @@ spec:
                           matchers:
                             - severity =~ "warning|critical"
                           continue: true
+                        - receiver: to-github
+                          matchers:
+                            - alertname =~ ".*"
+                          continue: true
                         - receiver: aoc-receiver
                           matchers:
                             - severity =~ "warning|critical"
@@ -65,6 +69,9 @@ spec:
 
                     receivers:
                       - name: ignored-cert-manager-argo-alert
+                      - name: to-github
+                        webhook_configs:
+                        - url: http://alertmanager-to-github/v1/webhook?owner=stolostron&repo=incident-backlog
                       - name: default-receiver
                         slack_configs:
                         - channel: team-acm-sre-dev-alerts
