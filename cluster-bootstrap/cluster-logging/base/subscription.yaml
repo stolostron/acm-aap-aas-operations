@@ -6,5 +6,6 @@ metadata:
 spec:
   channel: "stable-5.3" 
   name: cluster-logging
+  installPlanApproval: Manual
   source: redhat-operators 
   sourceNamespace: openshift-marketplace
