@@ -40,25 +40,38 @@ spec:
                       group_by: ['alertname', 'cluster', 'pod']
                       repeat_interval: 30m
                       routes:
-                        - matchers:
-                            - severity=~"warning|critical"
-                          receiver: default-receiver
+                        # argo-cd bug: https://issues.redhat.com/browse/GITOPS-982
+                        # will remove it when this bug fixed
+                        - receiver: ignored-cert-manager-argo-alert
+                          matchers:
+                            - alertname = "ArgoCDSyncAlert"
+                            - name = "cert-manager"
+                        - receiver: default-receiver
+                          matchers:
+                            - severity =~ "warning|critical"
                           continue: true
-                        - matchers:
-                            - severity=~"warning|critical"
-                            - service="aap"
-                          receiver: aoc-receiver
+                        - receiver: to-github
+                          matchers:
+                            - alertname =~ ".*"
                           continue: true
-                        - matchers:
-                            - severity="critical"
-                            - team="acm-sre"
-                          receiver: pagerduty-acm-aoc-critical
-                        - matchers:
-                            - severity="warning"
-                            - team="acm-sre"
-                          receiver: pagerduty-acm-aoc-warning
+                        - receiver: aoc-receiver
+                          matchers:
+                            - severity =~ "warning|critical"
+                          continue: true
+                        - receiver: pagerduty-acm-aoc-critical
+                          matchers:
+                            - severity = "critical"
+                            - team = "acm-sre"
+                        - receiver: pagerduty-acm-aoc-warning
+                          matchers:
+                            - severity = "warning"
+                            - team = "acm-sre"
 
                     receivers:
+                      - name: ignored-cert-manager-argo-alert
+                      - name: to-github
+                        webhook_configs:
+                        - url: http://alertmanager-to-github/v1/webhook?owner=stolostron&repo=incident-backlog
                       - name: default-receiver
                         slack_configs:
                         - channel: team-acm-sre-stage-alerts
