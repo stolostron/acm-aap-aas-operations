@@ -34,6 +34,8 @@ spec:
                   alertmanager.yaml: |
                     global:
                       slack_api_url: <SLACK_API_URL>
+                      http_config:
+                        proxy_url: {{fromSecret "openshift-gitops" "proxy-url" "URL" | base64dec}}
 
                     route:
                       receiver: default-receiver
@@ -72,13 +74,9 @@ spec:
                       - name: to-github
                         webhook_configs:
                         - url: http://alertmanager-to-github/v1/webhook?owner=stolostron&repo=incident-backlog
-                          http_config:
-                            proxy_url: {{fromSecret "openshift-gitops" "proxy-url" "URL" | base64dec}}
                       - name: default-receiver
                         slack_configs:
                         - channel: team-acm-sre-stage-alerts
-                          http_config:
-                            proxy_url: {{fromSecret "openshift-gitops" "proxy-url" "URL" | base64dec}}
                           actions:
                             - name: "links"
                               text: "Grafana :grafana:"
@@ -101,8 +99,6 @@ spec:
                       - name: aoc-receiver
                         slack_configs:
                         - channel: aoc-azure-alerts
-                          http_config:
-                            proxy_url: {{fromSecret "openshift-gitops" "proxy-url" "URL" | base64dec}}
                           api_url: <AOC_SLACK_API_URL>
                           actions:
                             - name: "links"
