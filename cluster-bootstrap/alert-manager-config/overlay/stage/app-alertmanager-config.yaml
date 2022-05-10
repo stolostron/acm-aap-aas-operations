@@ -72,6 +72,8 @@ spec:
                       - name: to-github
                         webhook_configs:
                         - url: http://alertmanager-to-github/v1/webhook?owner=stolostron&repo=incident-backlog
+                          http_config:
+                            proxy_url: {{fromSecret "openshift-gitops" "proxy-url" "URL" | base64dec}}
                       - name: default-receiver
                         slack_configs:
                         - channel: team-acm-sre-stage-alerts
