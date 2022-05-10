@@ -1,7 +1,13 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: openshift-gitops
-
 resources:
-- application.yaml
+- ../../base/alertmanager-to-github
+
+patchesJson6902:
+- target:
+    group: argoproj.io
+    version: v1alpha1
+    kind: Application
+    name: alertmanager-to-github
+  path: patch-path.yaml
