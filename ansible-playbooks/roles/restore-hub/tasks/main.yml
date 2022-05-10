@@ -5,12 +5,38 @@
         invalidate_cache: False
   register: api_status
 
+- name: Patch to enable cluster backup operator
+  k8s:
+    definition:
+      apiVersion: operator.open-cluster-management.io/v1
+      kind: MultiClusterHub
+      metadata:
+        name: multiclusterhub
+        namespace: open-cluster-management
+      spec:
+        enableClusterBackup: true
+
+- name: Let's pause 1m to let cluster-backup operator run
+  wait_for:
+    timeout: 60
+
+- name: Creating Restore CRD to trigger restoring
+  kubernetes.core.k8s:
+    state: present
+    template:
+      - path: "restore-hub.yml"
+
+- name: Let's pause 20s to let restore running
+  wait_for:
+    timeout: 20
+
 - name: Get managed clusters
   kubernetes.core.k8s_info:
     api_version: cluster.open-cluster-management.io/v1
     kind: ManagedCluster
   register: managedcluster_list
 
+#TODO: double check only managedcluster with label key velero.io/restore-name
 #TODO remove 'local-cluster' from mc_lists
 - set_fact:
     mc_lists: "{{  managedcluster_list.resources | map(attribute='metadata.name') | list }}"
@@ -25,22 +51,40 @@
   vars:
     jmesquery: "[*].{ID: id}"
 
-
-- name: cleanup AKS
+- name: deconnect AKS
   include_tasks: ../roles/connect-aks-to-acm-hub-collection/tasks/delete.yml
   vars:
-     AKS_NAME:  "{{  item.ID.split('/')[8] }}"
-     AKS_MRG: "{{ item.ID.split('/')[4] }}"
-  with_items:
-    - "{{ aks_ids }}"
-  when: ( item.ID.split('/')[8] in {{ mc_lists }} )
+     AKS_NAME:  "{{  aks_item.ID.split('/')[8] }}"
+     AKS_MRG: "{{ aks_item.ID.split('/')[4] }}"
+  loop: "{{ aks_ids }}"
+  loop_control:
+    loop_var: aks_item
+  when: ( aks_item.ID.split('/')[8] in {{ mc_lists }} )
+-
+name: Let's pause 20s to let private dns zone fade away
+  wait_for:
+    timeout: 20
 
-
-- name: create AKS
+- name: reconnect AKS
   include_tasks: ../roles/connect-aks-to-acm-hub-collection/tasks/create.yml
   vars:
-     AKS_NAME:  "{{  item.ID.split('/')[8] }}"
-     AKS_MRG: "{{ item.ID.split('/')[4] }}"
-  with_items:
-    - "{{ aks_ids }}"
-  when: ( item.ID.split('/')[8] in {{ mc_lists }} )
+     AKS_NAME:  "{{  aks_item.ID.split('/')[8] }}"
+     AKS_MRG: "{{ aks_item.ID.split('/')[4] }}"
+  loop: "{{ aks_ids }}"
+  loop_control:
+    loop_var: aks_item
+  when: ( aks_item.ID.split('/')[8] in {{ mc_lists }} )
+
+- name: Let's pause 20s to let private endpoint/linksvc connect correctly
+  wait_for:
+    timeout: 20
+
+- name: re-import AKS
+  include_tasks: ../roles/import-managedcluster-default-invoke/tasks/create.yml
+  vars:
+     AKS_NAME:  "{{  aks_item.ID.split('/')[8] }}"
+     AKS_MRG: "{{ aks_item.ID.split('/')[4] }}"
+  loop: "{{ aks_ids }}"
+  loop_control:
+    loop_var: aks_item
+  when: ( aks_item.ID.split('/')[8] in {{ mc_lists }} )
