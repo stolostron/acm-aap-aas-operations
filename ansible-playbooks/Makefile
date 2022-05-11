@@ -16,7 +16,6 @@ venv:
 	$(ANSIBLE-GALAXY) collection install kubernetes.core
 	${PIP} install pre-commit
 	${PIP} install detect-secrets
-	pre-commit install
 
 clean-venv:
 	rm -fr $(VIRTUALENV)
