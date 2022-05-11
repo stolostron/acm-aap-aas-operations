@@ -46,4 +46,10 @@ kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/prometheus-config
 printf "=====================Create Cert-manager application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/cert-manager
 
+printf "=====================Create Patch-operator application ...\n"
+kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/patch-operator
+
+printf "=====================Create openshift-config application ...\n"
+kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/openshift-config
+
 printf "Cluster bootstrap completed with ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics!\n\n"
