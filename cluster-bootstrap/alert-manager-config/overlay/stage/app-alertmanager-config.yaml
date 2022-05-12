@@ -73,7 +73,7 @@ spec:
                       - name: ignored-cert-manager-argo-alert
                       - name: to-github
                         webhook_configs:
-                        - url: http://alertmanager-to-github/v1/webhook?owner=stolostron&repo=incident-backlog
+                        - url: http://alertmanager-to-github-open-cluster-management-observability.apps.demo-aws-495-7spz8.demo.red-chesterfield.com/v1/webhook?owner=stolostron&repo=incident-backlog
                       - name: default-receiver
                         slack_configs:
                         - channel: team-acm-sre-stage-alerts
