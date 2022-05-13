@@ -13,5 +13,7 @@ configMapGenerator:
   - name: alertmanager-to-github
     files:
     - alert-blocklist.yaml
+    - body.tmpl
+    - title.tmpl
 generatorOptions:
   disableNameSuffixHash: true

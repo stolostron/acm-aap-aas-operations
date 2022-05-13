@@ -1,0 +1,45 @@
+{{- $payload := .Payload -}}
+
+**Description:** {{index .Payload.CommonAnnotations "description"}}
+
+<!-- A clear and concise description for the incident -->
+
+**Service:** {{index .Payload.CommonLabels "service"}}
+
+**Affects Version:**
+
+- ACM
+   - [x] 2.4.X 
+   - [ ] 2.5.X
+
+- AAP
+
+**PagerDuty Incident URL:** 
+
+**Alert Name:** {{index .Payload.CommonLabels "alertname"}}
+
+**Runbook URL:** {{index .Payload.CommonLabels "runbook_url"}}
+
+**Cluster Name:** {{index .Payload.CommonLabels "cluster"}}
+
+**Log:**
+
+**Debugging:**
+
+**Customer Cloud Subscription (CCS):** <!-- Is the cloud account owned by the customer? -->
+
+- [ ] Yes
+
+**Tenant Name:**
+
+**Customer Name:** <!-- Field for tracking the customer name on an issue. Blank if the issue did not originate from a product customer -->
+
+**Initial Conclusion:**
+
+**Root Cause:**
+
+**Resolution:**
+
+**Resolution Time:**
+
+<!-- alert data: {{json $payload}} -->
