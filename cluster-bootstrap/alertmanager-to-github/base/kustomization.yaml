@@ -7,7 +7,6 @@ resources:
   - deployment.yaml
   - service.yaml
   - secret.yaml
-  - route.yaml
 
 configMapGenerator:
   - name: alertmanager-to-github
