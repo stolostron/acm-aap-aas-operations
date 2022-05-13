@@ -3,5 +3,5 @@ kind: Kustomization
 
 namespace: openshift-gitops
 
-resources:
-- application.yaml
+bases:
+- ../../base

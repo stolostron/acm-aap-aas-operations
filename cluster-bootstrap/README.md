@@ -70,6 +70,16 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   │   └── deploy                       # Deploy Multicluster observability
     │   └── overlay  
     │       ├── dev
+    │       └── stage
+    ├── openshift-config                     # Deploy OCP configuration
+    │   ├── base
+    │   └── overlay  
+    │       ├── dev
+    │       └── stage
+    ├── patch-operator                       # Deploy Patch operator
+    │   ├── base
+    │   └── overlay  
+    │       ├── dev
     │       └── stage  
     └── prometheus-config                    # Deploy Prometheus configuration
         ├── base                             
