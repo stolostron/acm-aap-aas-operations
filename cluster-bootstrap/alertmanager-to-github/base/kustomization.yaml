@@ -15,5 +15,6 @@ configMapGenerator:
     - alert-blocklist.yaml
     - body.tmpl
     - title.tmpl
+    - owner-conf.yaml
 generatorOptions:
   disableNameSuffixHash: true
