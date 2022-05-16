@@ -1,6 +1,8 @@
 - hosts: bastion
   become: true
   roles:
+    - role: ../roles/bastion-ocp4-facts # get ocp4 specific facts
+      tags: [ vm, users, ocp4 ]
     - role: ../roles/authorized-key # set up users
       tags: [ users ]
     - role: ../roles/bastion-setup # configure VM

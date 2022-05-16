@@ -1,44 +1,3 @@
----
-- name: Find install root path
-  find:
-    paths: /root
-    recurse: no
-    file_type: directory
-  register: dir
-
-# Normally 1 single folder with the install root path
-# Alternative is to have an hardcoded path since anyway
-# we have 1 bastion <-> 1 cluster
-- fail:
-    msg: Can't find the root path on this bastion
-  when: dir.matched != 1
-
-- ansible.builtin.set_fact:
-    root_path: "{{ dir.files[0].path }}"
-    metadata_path: "{{ dir.files[0].path + '/metadata.json' }}"
-
-- name: Check that this VM is an OCP bastion
-  ansible.builtin.stat:
-    path: "{{ metadata_path }}"
-  register: stat_result
-
-- fail:
-    msg: Missing metadata file on this bastion
-  when: not stat_result.stat.exists
-
-- name: Read metadata file
-  ansible.builtin.slurp:
-    src: "{{ metadata_path }}"
-  register: ocp4_metadata_raw
-
-- ansible.builtin.set_fact:
-    ocp4_metadata: "{{ ocp4_metadata_raw.content|b64decode|from_json }}"
-
-- ansible.builtin.debug:
-    msg: "{{ ocp4_metadata }}"
-
-- ansible.builtin.set_fact:
-    ocp4_rg: "{{ ocp4_metadata.azure.resourceGroupName | default((ocp4_metadata.infraID + '-rg'), true) }}"
 
 - name: Deploy a template to /etc/motd
   ansible.builtin.template:
@@ -50,5 +9,3 @@
     src: prompt.sh.j2
     dest: /etc/profile.d/custom-prompt.sh
     mode: '0755'
-
- # TODO: export kubeconfig?

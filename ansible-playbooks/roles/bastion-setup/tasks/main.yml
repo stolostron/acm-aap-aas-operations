@@ -20,6 +20,7 @@
   community.general.redhat_subscription:
     username: "{{ rhsm.username }}"
     password: "{{ rhsm.password }}"
+    consumer_name: "{{ ocp4_metadata.clusterName | default(\"\") }}"
     state: present
   register: result
 
