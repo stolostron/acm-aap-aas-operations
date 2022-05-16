@@ -23,6 +23,11 @@ lint:
 kind-test:
 	@echo "TODO: create Kind test here."
 
+# Deploy stacks(ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics)
+.PHONY: deploy-stacks-local
+deploy-stacks-local:
+	sh ./scripts/install.sh local
+
 .PHONY: deploy-stacks-dev
 deploy-stacks-dev:
 	sh ./scripts/install.sh dev
@@ -30,6 +35,11 @@ deploy-stacks-dev:
 .PHONY: deploy-stacks-stage
 deploy-stacks-stage:
 	sh ./scripts/install.sh stage
+
+# Deploy Alert manager policy
+.PHONY: deploy-alert-manager-local
+deploy-alert-manager-local:
+	sh ./scripts/install-alertmanager.sh local
 
 .PHONY: deploy-alert-manager-dev
 deploy-alert-manager-dev:
@@ -46,6 +56,7 @@ deploy-alert-manager-dev-noalerts:
 deploy-alert-manager-stage:
 	sh ./scripts/install-alertmanager.sh stage true
 
+# Config cert-manager
 .PHONY: config-cert-manager-dev
 config-cert-manager-dev:
 	sh ./scripts/config-certmanager.sh dev
@@ -54,6 +65,7 @@ config-cert-manager-dev:
 config-cert-manager-stage:
 	sh ./scripts/config-certmanager.sh stage
 
+# Make entries
 .PHONY: deploy-dev
 deploy-dev: deploy-stacks-dev deploy-alert-manager-dev
 
@@ -64,4 +76,7 @@ deploy-dev-private: deploy-stacks-dev deploy-alert-manager-dev-private
 deploy-dev-noalerts: deploy-stacks-dev deploy-alert-manager-dev-noalerts
 
 .PHONY: deploy-stage
-deploy-stage: deploy-stacks-stage config-cert-manager-stage deploy-alert-manager-stage
+deploy-stage: deploy-stacks-stage deploy-alert-manager-stage
+
+.PHONY: deploy-local
+deploy-local: deploy-stacks-local deploy-alert-manager-local

@@ -1,0 +1,6 @@
+- op: replace
+  path: /spec/storageClassName
+  value: gp2
+- op: replace
+  path: /spec/resources/requests/storage
+  value: 1Gi

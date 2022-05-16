@@ -22,12 +22,20 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
    * For bootstrap stage env, run `make deploy-stage`.
 
 
+### How to setup your own cluster for testing
+1. Prepare your own OCP cluster, current you could resume one quickly from AWS cluster pool
+2. Fork the repo and update all the `repoURL` in `application.yaml` under `./cluster-bootstrap/argocd-apps/local` with your forked URL
+3. Fill in your tokens in `./scripts/local-install.env`. Notes: Please keep the quotes mark.
+4. Run `make deploy-local`
+
+
 ### Configurations layout:
     cluster-bootstrap
     ├── acm                                 # Deploy ACM
     │   ├── base
     │   └── overlay
-    │       ├── dev                            
+    │       ├── dev
+    │       ├── local                            
     │       └── stage
     ├── acm-app                             # Deploy ansible-automation-platform through ACM application channel
     │   ├── base
@@ -55,12 +63,14 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │       ├── dev                            
     │       ├── dev-noalerts                # Disable alerting for DEV testing
     |       ├── dev-private                 # Add http proxy for slack alerts forwards
+    │       ├── local
     │       └── stage
     ├── grafana-dev                         # Deploy Grafana dev instance configuration
     │   ├── base   
     │   └── overlay
     │       ├── dev  
     │       ├── dev-managed-premium 
+    │       ├── local
     │       └── stage                             
     ├── multicluster-observability
     │   ├── base
@@ -70,9 +80,11 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   │   └── deploy                       # Deploy Multicluster observability
     │   └── overlay  
     │       ├── dev
+    │       ├── local
     │       └── stage  
     └── prometheus-config                    # Deploy Prometheus configuration
         ├── base                             
         └── overlay  
             ├── dev
+            ├── local
             └── stage
