@@ -31,7 +31,14 @@ spec:
                 kind: Deployment
                 metadata:
                   name: metrics-collector-deployment
-
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: observability.open-cluster-management.io/v1beta1
+                kind: ObservabilityAddon
+                metadata:
+                  name: observability-addon
+                spec:
+                  enableMetrics: true
 ---
 apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
