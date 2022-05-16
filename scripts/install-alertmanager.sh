@@ -1,5 +1,5 @@
 #!/bin/sh
-# Usage: ./scripts/install-alertmanager.sh $channel $private $alertdisabling
+# Usage: ./scripts/install-alertmanager.sh $overlay $private $alertdisabling
 
 generate_url_secret()
 {
@@ -44,7 +44,13 @@ if [[ "$3" == true ]] ; then
   # Disable alert forwarding policy
   kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config/noalerts
 else
-  kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config
+  if [ $1 == "local" ]; then
+    source ./scripts/local-install.env
+    sed -i'' --expression 's@<SLACK_API_URL>@'$SLACK_API_URL'@g' ./cluster-bootstrap/alert-manager-config/overlay/local/app-alertmanager-config.yaml
+    kubectl apply -k ./cluster-bootstrap/alert-manager-config/overlay/local
+  else
+    kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alert-manager-config
+  fi
 fi
 
 printf "Alert Manager configuration created!"
