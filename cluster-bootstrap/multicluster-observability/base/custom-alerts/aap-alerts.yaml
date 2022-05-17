@@ -96,7 +96,7 @@ data:
         annotations:
           description: Metrics collector Pod missing on some managed clusters for longer than 5 minutes
           summary: Metrics collector Pod missing on some managed clusters
-        expr: sum(kube_pod_info{namespace="open-cluster-management-addon-observability", pod=~"metrics-collector-deployment.*"}) != sum(kube_namespace_labels{label_cluster_open_cluster_management_io_managed_cluster!=""})
+        expr: sum(kube_pod_info{namespace="open-cluster-management-addon-observability", pod=~"metrics-collector-deployment.*"}) != sum(acm_managed_cluster_info{clusterID!=""})
         for: 5m
         labels:
           severity: critical
