@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: alertmanager-to-github
-        image: quay.io/ocm-observability/alertmanager-to-github:latest
+        image: quay.io/acm-sre/alertmanager-to-github:latest
         resources:
           limits:
             cpu: 100m

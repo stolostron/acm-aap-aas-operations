@@ -62,7 +62,7 @@ spec:
                     spec:
                       containers:
                       - name: aap-metric-checker
-                        image: quay.io/ocm-observability/app-metric-checker:latest
+                        image: quay.io/acm-sre/app-metric-checker:latest
                         imagePullPolicy: Always
                         command: ["/bin/sh"]
                         args: ["-c", "/tmp/check-the-aap-metrics.sh"]
