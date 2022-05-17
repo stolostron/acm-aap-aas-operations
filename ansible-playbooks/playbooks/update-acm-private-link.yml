@@ -1,0 +1,139 @@
+- hosts: all
+  become: false
+  # vars:
+  #   ACM_HUB_RG: 
+  #   ACM_HUB_VNET_RG: 
+  #   ACM_HUB_VNET: 
+  #   ACM_HUB_DNS_ZONE: 
+  tasks:
+
+    - name: Debug
+      debug:
+        msg:
+        - "HUB RG: {{ ACM_HUB_RG }}"
+        - "HUB ZONE: {{ ACM_HUB_DNS_ZONE }}"
+
+    - name: Get facts for one virtual network link in private DNS zone
+      azure.azcollection.azure_rm_privatednszonelink_info:
+        resource_group: "{{ ACM_HUB_RG }}"
+        zone_name: "{{ ACM_HUB_DNS_ZONE }}"
+      register: pdnszlink
+
+    # - name: Create a virtual network link
+    #   azure.azcollection.azure_rm_privatednszonelink:
+    #     resource_group: "{{ ACM_HUB_RG }}"
+    #     name: private-link-vnetlink1
+    #     zone_name: "{{ ACM_HUB_DNS_ZONE }}"
+    #     virtual_network: "{{ ACM_HUB_VNET }}"
+    #     state: present
+
+    - name: Get the subnet list
+      debug:
+        msg: "{{ item.linkname }} {{ item.subnetname }}"
+      with_items:
+      - { "linkname": "api-privatelink", "subnetname": "control-plane", "subnetid": "" }
+      - { "linkname": "apps-privatelink", "subnetname": "compute", "subnetid" : "" }
+
+    - name: Get facts of specific subnet
+      azure.azcollection.azure_rm_subnet_info:
+        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        virtual_network_name: "{{ ACM_HUB_VNET }}"
+        name: "{{ item.subnetname }}"
+      with_items:
+        - { "linkname": "api-privatelink", "subnetname": "control-plane", "subnetid": "" }
+        - { "linkname": "apps-privatelink", "subnetname": "compute", "subnetid" : "" }
+      register: subnet_info
+
+    - set_fact:
+        subnet_name_list:
+          - control-plane
+          - compute
+
+    - name: Debug
+      debug:
+        var: item
+      loop: "{{ subnet_name_list }}"
+
+    - name: 1. Get the list of subnet ids for the subnet names
+      azure.azcollection.azure_rm_subnet_info:
+        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        virtual_network_name: "{{ ACM_HUB_VNET }}"
+        name: "{{ item }}"
+      loop: "{{ subnet_name_list }}"
+      register: subnet_raw
+
+    - name: Debug
+      debug:
+        msg:
+        - "{{ item.subnets[0].name }}"
+        - "{{ item.subnets[0].id }}"
+      loop: "{{ subnet_raw.results }}"
+
+    - name: 2. Get the list of FrontendIpConfigs
+      debug:
+        msg: "debug"
+
+    - name: 2. Get facts for loadbalancer frontendipconfig
+      azure_rm_loadbalancer_info:
+        resource_group: "{{ ACM_HUB_RG }}"
+      register: lbfrontend
+
+    - name: Debug
+      debug:
+        var: lbfrontend
+
+    - name: Debug
+      debug:
+        msg: "{{ item.properties.frontendIPConfigurations }}"
+      loop: "{{ lbfrontend.ansible_info.azure_loadbalancers }}"
+      register: thing
+
+    - name: Debug
+      debug:
+        var: "{{ item.msg.subnet }}"
+      when: item.msg.subnet is defined
+      loop: "{{ thing.results }}"
+
+    # - name: Query all the resources in the resource group
+    #   azure.azcollection.azure_rm_resource_info:
+    #     resource_group: "{{ ACM_HUB_RG }}"
+    #     resource_type: resources
+
+    - name: List current private link services in the RG
+      azure.azcollection.azure_rm_resource_info:
+        api_version: "2021-08-01"
+        resource_group: "{{ ACM_HUB_RG }}"
+        provider: network
+        resource_type: privatelinkservices
+        subscription_id: "{{ SUBSCRIPTION_ID }}"
+
+    - name: List current frontend
+      azure.azcollection.azure_rm_resource_info:
+        api_version: "2021-08-01"
+        resource_group: "{{ ACM_HUB_RG }}"
+        provider: network
+        resource_type: loadbalancers
+        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        subresource:
+          - type: frontendIPConfigurations
+            # name: "{{ network.name }}"
+
+    # id: "{{ subnet_info.results[0].subnets[0].id }}" # control-plane
+    - name: Create a private link service
+      azure.azcollection.azure_rm_resource:
+        api_version: "2021-08-01"
+        resource_group: "{{ ACM_HUB_RG }}"
+        provider: network
+        resource_type: privatelinkservices
+        resource_name: "apps-privatelink"
+        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        body:
+          location: "westus3"
+          properties:
+            loadBalancerFrontendIpConfigurations:
+              - id: "{{ LBID }}"
+            ipConfigurations:
+              - name: "control-plane"
+                properties:
+                  subnet:
+                    id: "{{ SUBNETID }}"
