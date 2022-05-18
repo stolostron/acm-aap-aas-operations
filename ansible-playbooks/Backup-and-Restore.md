@@ -50,9 +50,12 @@ Create the `default.yml` for ansible variables
 
 ```shell
 (venv)$ cat default.yml
-HUB_RG:  ... # hub resource group
-HUB_SUB: ... # hub azure subscription
-HUB_PDNSZ: ... # hub dns zone
+HUB_RG:  ... # hub to restore resource group
+HUB_SUB: ... # hub to restore azure subscription
+HUB_PDNSZ: ... # hub to restore private dns zone
+
+OLD_HUB_PDNSZ: ... # hub backed up private dns zone
+
 
 STORAGE_RESOURCEGROUP: ... # storage resource group
 STORAGE_CONTAINER: ... # azure storage container

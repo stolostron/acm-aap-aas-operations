@@ -7,6 +7,7 @@
 # - STORAGE_ACCOUNT
 # - STORAGE_SUBSCRIPTION
 
+#TOD (sdminonne): this for restore should be replaced with an _info to prevent creation
 - name: ensure storage account exists
   azure_rm_storageaccount:
     resource_group: "{{ STORAGE_RESOURCEGROUP }}"
@@ -22,13 +23,12 @@
 - set_fact:
     STORAGE_KEY: "{{ key.stdout }}"
 
-
+#TODO (sdminonne): this for restore should be replaced with an _info to prevent creation
 - name: Ensure storage container exist
   azure_rm_storageblob:
     resource_group: "{{ STORAGE_RESOURCEGROUP }}"
     storage_account_name: "{{ STORAGE_ACCOUNT }}"
     container: "{{STORAGE_CONTAINER}}"
-
 
 - name: Create temporary file
   ansible.builtin.tempfile:
@@ -36,13 +36,10 @@
     suffix: temp
   register: tempfile_1
 
-
-
 - name: generate storage secret
   template:
     src: ../roles/enable-oadp-object-storage/templates/cloud-credentials-azure
     dest: "{{ tempfile_1.path }}"
-
 
 - name: Create storage secret
   kubernetes.core.k8s:
@@ -56,7 +53,6 @@
         namespace: openshift-adp
       data:
         cloud: "{{ lookup('file',  '{{tempfile_1.path}}'  ) | b64encode }}"
-
 
 - name: Create openshift oadp operator
   kubernetes.core.k8s:

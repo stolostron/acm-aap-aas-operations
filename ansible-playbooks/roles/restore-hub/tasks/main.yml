@@ -34,46 +34,50 @@
   kubernetes.core.k8s_info:
     api_version: cluster.open-cluster-management.io/v1
     kind: ManagedCluster
-  register: managedcluster_list
+    label_selectors:
+      - velero.io/restore-name #To get only restored clusters
+  register: restored_managedclusters
 
-#TODO: double check only managedcluster with label key velero.io/restore-name
-#TODO remove 'local-cluster' from mc_lists
-- set_fact:
-    mc_lists: "{{  managedcluster_list.resources | map(attribute='metadata.name') | list }}"
-
-- name: Collect AKS in subscription
-  azure_rm_aks_info:
-    subscription_id: "{{ AKS_SUB }}"
-  register: aks_list
-
-- set_fact:
-    aks_ids : "{{ aks_list.aks | json_query(jmesquery) }}"
-  vars:
-    jmesquery: "[*].{ID: id}"
-
-- name: deconnect AKS
-  include_tasks: ../roles/connect-aks-to-acm-hub-collection/tasks/delete.yml
-  vars:
-     AKS_NAME:  "{{  aks_item.ID.split('/')[8] }}"
-     AKS_MRG: "{{ aks_item.ID.split('/')[4] }}"
-  loop: "{{ aks_ids }}"
+# Iterate over restored managed clusters and collect their name skipping the already Joined ones
+- set_fact: mc_lists="{{ (mc_lists | default([])) + ([ mc_item.metadata.name ])}}"
+  loop: "{{ restored_managedclusters.resources }}"
   loop_control:
-    loop_var: aks_item
-  when: ( aks_item.ID.split('/')[8] in {{ mc_lists }} )
--
-name: Let's pause 20s to let private dns zone fade away
+    loop_var: mc_item
+  when: mc_item.status.conditions is defined  and "ManagedClusterAvailable" not in (mc_item.status.conditions | map(attribute='reason'))
+
+
+- name: retrieve  all AKS across all subcrtiptions
+  shell: for subid in $(az account list --query [].id -o tsv); do az aks list --subscription $subid --query [].id -o tsv; done
+  register: list_all_aks_x_accounts
+
+- set_fact:
+    aks_IDs: "{{ list_all_aks_x_accounts.stdout }}"
+
+- name: deconnect AKS from {{OLD_HUB_PDNSZ}} and attach to {{ HUB_PDNSZ }}
+  include_tasks: ../roles/connect-aks-to-acm-hub-collection/tasks/cleanup-for-restore.yml
+  vars:
+     AKS_NAME:  "{{ aks_id.split('/')[8] }}"
+     AKS_MRG: "{{ aks_id.split('/')[4] }}"
+     AKS_SUB: "{{ aks_id.split('/')[2] }}"
+  loop: "{{ aks_IDs.splitlines() }}"
+  loop_control:
+    loop_var: aks_id
+  when: ( aks_id.split('/')[8] in {{ mc_lists }} )
+
+- name: Let's pause 20s to let private dns zone fade away
   wait_for:
     timeout: 20
 
 - name: reconnect AKS
   include_tasks: ../roles/connect-aks-to-acm-hub-collection/tasks/create.yml
   vars:
-     AKS_NAME:  "{{  aks_item.ID.split('/')[8] }}"
-     AKS_MRG: "{{ aks_item.ID.split('/')[4] }}"
-  loop: "{{ aks_ids }}"
+     AKS_NAME:  "{{ aks_id.split('/')[8] }}"
+     AKS_MRG: "{{ aks_id.split('/')[4] }}"
+     AKS_SUB: "{{ aks_id.split('/')[2] }}"
+  loop: "{{ aks_IDs.splitlines() }}"
   loop_control:
-    loop_var: aks_item
-  when: ( aks_item.ID.split('/')[8] in {{ mc_lists }} )
+    loop_var: aks_id
+  when: ( aks_id.split('/')[8] in {{ mc_lists }} )
 
 - name: Let's pause 20s to let private endpoint/linksvc connect correctly
   wait_for:
@@ -82,9 +86,10 @@ name: Let's pause 20s to let private dns zone fade away
 - name: re-import AKS
   include_tasks: ../roles/import-managedcluster-default-invoke/tasks/create.yml
   vars:
-     AKS_NAME:  "{{  aks_item.ID.split('/')[8] }}"
-     AKS_MRG: "{{ aks_item.ID.split('/')[4] }}"
-  loop: "{{ aks_ids }}"
+     AKS_NAME:  "{{ aks_id.split('/')[8] }}"
+     AKS_MRG: "{{ aks_id.split('/')[4] }}"
+     AKS_SUB: "{{ aks_id.split('/')[2] }}"
+  loop: "{{ aks_IDs.splitlines() }}"
   loop_control:
-    loop_var: aks_item
-  when: ( aks_item.ID.split('/')[8] in {{ mc_lists }} )
+    loop_var: aks_id
+  when: ( aks_id.split('/')[8] in {{ mc_lists }} )
