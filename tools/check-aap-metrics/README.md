@@ -39,6 +39,6 @@ $ kubectl apply -f aap-metric-checker-policy.yaml
 ## Build & Push Image
 
 ```
-$ docker build -t quay.io/ocm-observability/app-metric-checker -f Dockerfile .
-$ docker push quay.io/ocm-observability/app-metric-checker:latest
+$ docker build -t quay.io/acm-sre/app-metric-checker -f Dockerfile .
+$ docker push quay.io/acm-sre/app-metric-checker:latest
 ```
