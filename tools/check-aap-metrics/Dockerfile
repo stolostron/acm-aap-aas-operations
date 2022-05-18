@@ -1,4 +1,4 @@
-FROM quay.io/ocm-observability/tool-cli:latest
+FROM quay.io/acm-sre/tool-cli:latest
 
 WORKDIR /tmp
 

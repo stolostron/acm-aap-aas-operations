@@ -75,8 +75,7 @@ spec:
       g, aap-aas-demo-admin, role:admin
     scopes: '[groups]'
   repo:
-    image: quay.io/ocm-observability/argovault
-    version: v1.0
+    image: quay.io/acm-sre/argovault:latest
     resources:
       limits:
         cpu: '1'

@@ -92,3 +92,14 @@ data:
           team: acm-sre
           service: policy
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/PolicyNotCompliant.md
+      - alert: MetricsCollectorMissing
+        annotations:
+          description: Metrics collector Pod missing on some managed clusters for longer than 5 minutes
+          summary: Metrics collector Pod missing on some managed clusters
+        expr: sum(kube_pod_info{namespace="open-cluster-management-addon-observability", pod=~"metrics-collector-deployment.*"}) != sum(acm_managed_cluster_info{clusterID!=""})
+        for: 5m
+        labels:
+          severity: critical
+          team: acm-sre
+          service: observability
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/MetricsCollectorMissing.md

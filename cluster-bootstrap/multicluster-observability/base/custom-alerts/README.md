@@ -14,6 +14,7 @@ AAPPodFrequentlyRestarting | AAP Pod in `ansible-automation-platform` namespace 
 AAPPodNotReady | AAP Pod in `ansible-automation-platform` namespace has been in a non-ready state for longer than 15 minutes
 AAPPodRestartingTooMuch | AAP Pod in `ansible-automation-platform` namespace restart more than 10 times over 10 minutes
 AAPStatefulSetReplicasMismatch | AAP StatefulSet in `ansible-automation-platform` namespace actual number of replicas is inconsistent with the set number of replicas over 5 minutes
+MetricsCollectorMissing | Metrics collector Pod missing on some managed clusters for longer than 5 minutes
 PolicyNotCompliant | Policy is not compliant for longer than 5 minutes
 
 ## Adding an alert
