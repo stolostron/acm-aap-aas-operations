@@ -69,45 +69,41 @@
         - "{{ item.subnets[0].id }}"
       loop: "{{ subnet_raw.results }}"
 
-    - name: 2. Get the list of FrontendIpConfigs
-      debug:
-        msg: "debug"
+    # - name: 2. Get facts for loadbalancer frontendipconfig
+    #   azure_rm_loadbalancer_info:
+    #     resource_group: "{{ ACM_HUB_RG }}"
+    #   register: lbfrontend
 
-    - name: 2. Get facts for loadbalancer frontendipconfig
-      azure_rm_loadbalancer_info:
-        resource_group: "{{ ACM_HUB_RG }}"
-      register: lbfrontend
+    # - name: Debug
+    #   debug:
+    #     var: lbfrontend
 
-    - name: Debug
-      debug:
-        var: lbfrontend
+    # - name: Debug
+    #   debug:
+    #     msg: "{{ item.properties.frontendIPConfigurations }}"
+    #   loop: "{{ lbfrontend.ansible_info.azure_loadbalancers }}"
+    #   register: thing
 
-    - name: Debug
-      debug:
-        msg: "{{ item.properties.frontendIPConfigurations }}"
-      loop: "{{ lbfrontend.ansible_info.azure_loadbalancers }}"
-      register: thing
-
-    - name: Debug
-      debug:
-        var: "{{ item.msg.subnet }}"
-      when: item.msg.subnet is defined
-      loop: "{{ thing.results }}"
+    # - name: Debug
+    #   debug:
+    #     var: "{{ item.msg.subnet }}"
+    #   when: item.msg.subnet is defined
+    #   loop: "{{ thing.results }}"
 
     # - name: Query all the resources in the resource group
     #   azure.azcollection.azure_rm_resource_info:
     #     resource_group: "{{ ACM_HUB_RG }}"
     #     resource_type: resources
 
-    - name: List current private link services in the RG
-      azure.azcollection.azure_rm_resource_info:
-        api_version: "2021-08-01"
-        resource_group: "{{ ACM_HUB_RG }}"
-        provider: network
-        resource_type: privatelinkservices
-        subscription_id: "{{ SUBSCRIPTION_ID }}"
+    # - name: List current private link services in the RG
+    #   azure.azcollection.azure_rm_resource_info:
+    #     api_version: "2021-08-01"
+    #     resource_group: "{{ ACM_HUB_RG }}"
+    #     provider: network
+    #     resource_type: privatelinkservices
+    #     subscription_id: "{{ SUBSCRIPTION_ID }}"
 
-    - name: List current frontend
+    - name: List current frontendIPConfiguration for a RG
       azure.azcollection.azure_rm_resource_info:
         api_version: "2021-08-01"
         resource_group: "{{ ACM_HUB_RG }}"
@@ -116,9 +112,7 @@
         subscription_id: "{{ SUBSCRIPTION_ID }}"
         subresource:
           - type: frontendIPConfigurations
-            # name: "{{ network.name }}"
 
-    # id: "{{ subnet_info.results[0].subnets[0].id }}" # control-plane
     - name: Create a private link service
       azure.azcollection.azure_rm_resource:
         api_version: "2021-08-01"
