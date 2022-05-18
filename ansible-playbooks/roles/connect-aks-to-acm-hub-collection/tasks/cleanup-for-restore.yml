@@ -1,8 +1,8 @@
 ---
 
-- name: show role parameters
+- name: show me the info
   debug:
-    msg: "Deleting connection to HUB for AKS {{ AKS_NAME }} in RG {{AKS_MRG}} in subscription {{AKS_SUB}}"
+    msg: "Cleanup for restore for AKS {{ AKS_NAME }} in RG {{AKS_MRG}} in subscription {{AKS_SUB}}"
 
 - name: Get facts for virtual network info
   azure.azcollection.azure_rm_virtualnetwork_info:
@@ -42,7 +42,7 @@
     resource_group: "{{ AKS_MRG }}"
     relative_name: "*.apps"
     subscription_id: "{{ AKS_SUB }}"
-    zone_name: "{{ HUB_PDNSZ }}"
+    zone_name: "{{ OLD_HUB_PDNSZ }}"
     record_type: A
     records:
       - entry: "{{ item.ip_configurations[0].private_ip_address }}"
@@ -56,7 +56,7 @@
     resource_group: "{{ AKS_MRG }}"
     relative_name: "api"
     subscription_id: "{{ AKS_SUB }}"
-    zone_name: "{{ HUB_PDNSZ }}"
+    zone_name: "{{ OLD_HUB_PDNSZ }}"
     record_type: A
     records:
       - entry: "{{ item.ip_configurations[0].private_ip_address }}"
@@ -70,7 +70,7 @@
     resource_group: "{{ AKS_MRG }}"
     relative_name: "api-int"
     subscription_id: "{{ AKS_SUB }}"
-    zone_name: "{{ HUB_PDNSZ }}"
+    zone_name: "{{ OLD_HUB_PDNSZ }}"
     record_type: A
     records:
       - entry: "{{ item.ip_configurations[0].private_ip_address }}"
@@ -98,8 +98,8 @@
 - name: Delete private dns zone link
   azure.azcollection.azure_rm_privatednszonelink:
     resource_group: "{{ AKS_MRG }}"
-    name: "{{ HUB_PDNSZ }}-link"
-    zone_name: "{{ HUB_PDNSZ }}"
+    name: "{{ OLD_HUB_PDNSZ }}-link"
+    zone_name: "{{ OLD_HUB_PDNSZ }}"
     virtual_network: "{{ AKS_VNET }}"
     subscription_id: "{{ AKS_SUB }}"
     registration_enabled: yes
@@ -110,7 +110,7 @@
 - name: Delete private dns zone
   azure.azcollection.azure_rm_privatednszone:
     resource_group: "{{ AKS_MRG }}"
-    name: "{{ HUB_PDNSZ }}"
+    name: "{{ OLD_HUB_PDNSZ }}"
     subscription_id: "{{ AKS_SUB }}"
     state: absent
     tags:
