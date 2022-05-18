@@ -30,3 +30,4 @@ Actions need to take:
 * Check the specific location in the file as the error info indicated to double check if it is a real secret leak. 
 * If not, run `detect-secrets scan --baseline .secrets.baseline` to update the baseline.
 * Commit again with your all updates and `.secrets.baseline`  
+
