@@ -50,7 +50,7 @@ spec:
                 namespace: open-cluster-management-addon-observability
           - complianceType: musthave
             objectDefinition:
-                apiVersion: batch/v1beta1
+                apiVersion: batch/v1
                 kind: CronJob
                 metadata:
                   name: aap-configure-prom
