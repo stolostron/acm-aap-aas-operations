@@ -75,7 +75,8 @@ spec:
       g, aap-aas-demo-admin, role:admin
     scopes: '[groups]'
   repo:
-    image: quay.io/acm-sre/argovault:latest
+    image: quay.io/acm-sre/argovault
+    version: latest
     resources:
       limits:
         cpu: '1'
