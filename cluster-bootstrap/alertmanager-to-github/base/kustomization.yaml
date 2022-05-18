@@ -7,11 +7,14 @@ resources:
   - deployment.yaml
   - service.yaml
   - secret.yaml
-  - route.yaml
+  - namespace.yaml
 
 configMapGenerator:
   - name: alertmanager-to-github
     files:
     - alert-blocklist.yaml
+    - body.tmpl
+    - title.tmpl
+    - owner-conf.yaml
 generatorOptions:
   disableNameSuffixHash: true

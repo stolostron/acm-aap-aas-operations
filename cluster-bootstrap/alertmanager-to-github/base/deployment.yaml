@@ -23,9 +23,15 @@ spec:
             cpu: 50m
             memory: 50Mi
         imagePullPolicy: Always
+        args:
+        - start
+        - --body-template-file=/conf/body.tmpl
+        - --title-template-file=/conf/title.tmpl
         env:
         - name: ATG_ALERT_BLOCKLIST
           value: /conf/alert-blocklist.yaml
+        - name: ATG_OWNER_CONF
+          value: /conf/owner-conf.yaml
         - name: ATG_LISTEN
           value: ':8080'
         - name: ATG_GITHUB_TOKEN
