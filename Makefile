@@ -32,10 +32,6 @@ deploy-stacks-local:
 deploy-stacks-dev:
 	sh ./scripts/install.sh dev
 
-.PHONY: deploy-stacks-stage
-deploy-stacks-stage:
-	sh ./scripts/install.sh stage
-
 # Deploy Alert manager policy
 .PHONY: deploy-alert-manager-local
 deploy-alert-manager-local:
@@ -52,18 +48,10 @@ deploy-alert-manager-dev-private:
 deploy-alert-manager-dev-noalerts:
 	sh ./scripts/install-alertmanager.sh dev false true
 
-.PHONY: deploy-alert-manager-stage
-deploy-alert-manager-stage:
-	sh ./scripts/install-alertmanager.sh stage true
-
 # Config cert-manager
 .PHONY: config-cert-manager-dev
 config-cert-manager-dev:
 	sh ./scripts/config-certmanager.sh dev
-
-.PHONY: config-cert-manager-stage
-config-cert-manager-stage:
-	sh ./scripts/config-certmanager.sh stage
 
 # Make entries
 .PHONY: deploy-dev
@@ -74,9 +62,6 @@ deploy-dev-private: deploy-stacks-dev deploy-alert-manager-dev-private
 
 .PHONY: deploy-dev-noalerts
 deploy-dev-noalerts: deploy-stacks-dev deploy-alert-manager-dev-noalerts
-
-.PHONY: deploy-stage
-deploy-stage: deploy-stacks-stage deploy-alert-manager-stage
 
 .PHONY: deploy-local
 deploy-local: deploy-stacks-local deploy-alert-manager-local
