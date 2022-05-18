@@ -76,6 +76,7 @@ spec:
     scopes: '[groups]'
   repo:
     image: quay.io/acm-sre/argovault
+    version: latest
     resources:
       limits:
         cpu: '1'
