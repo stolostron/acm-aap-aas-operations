@@ -6,9 +6,7 @@ USER root
 # Install tools needed for your repo-server to retrieve & decrypt secrets, render manifests
 RUN apt-get update && \
     apt-get install -y \
-        curl \
-        awscli \
-        gpg && \
+        curl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
