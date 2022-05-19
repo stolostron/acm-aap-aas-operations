@@ -3,7 +3,7 @@
 If you have permission to access the AAP cluster, then run this script to check the AAP metric:
 
 ```
-$ ./check-the-aap-metrics.sh
+$ ./aap-metric-checker.sh
 ```
 
 ## Check the AAP metric via ACM policy

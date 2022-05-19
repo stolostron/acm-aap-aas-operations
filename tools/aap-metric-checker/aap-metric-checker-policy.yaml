@@ -65,7 +65,7 @@ spec:
                         image: quay.io/ocm-observability/app-metric-checker:latest
                         imagePullPolicy: Always
                         command: ["/bin/sh"]
-                        args: ["-c", "/tmp/check-the-aap-metrics.sh"]
+                        args: ["-c", "/tmp/aap-metric-checker.sh"]
                       restartPolicy: OnFailure
                       serviceAccount: aap-metric-checker
                       serviceAccountName: aap-metric-checker
