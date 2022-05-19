@@ -15,11 +15,11 @@ We can use this image to create a pod in the cluster and debug something because
 
 ```
 $ docker build -t quay.io/acm-sre/tool-cli -f Dockerfile .
-$ docker push quay.io/acm-sre/tool-cli:latest
+$ docker push quay.io/acm-sre/tool-cli:v2.4
 ```
 
 ## Create Pod in Cluster
 
 ```
-kubectl run -it debug-pod --image=quay.io/ocm-observability/tool-cli:latest
+kubectl run -it debug-pod --image=quay.io/ocm-observability/tool-cli:v2.4
 ```

@@ -69,7 +69,7 @@ spec:
     command:
     - /bin/bash
     - -c
-    image: quay.io/zkayyali812/ocm-utils:latest
+    image: quay.io/acm-sre/ocm-utils:v2.4
     name: apply
     resources: {}
     workingDir: /workspace/source
@@ -111,7 +111,7 @@ spec:
     command:
     - /bin/bash
     - -c
-    image: quay.io/zkayyali812/ocm-utils:latest
+    image: quay.io/acm-sre/ocm-utils:v2.4
     name: apply
     resources: {}
     workingDir: /workspace/source
@@ -147,7 +147,7 @@ spec:
     command:
     - /bin/bash
     - -c
-    image: quay.io/zkayyali812/ocm-utils:latest
+    image: quay.io/acm-sre/ocm-utils:v2.4
     name: apply
     resources: {}
     workingDir: /workspace/source
