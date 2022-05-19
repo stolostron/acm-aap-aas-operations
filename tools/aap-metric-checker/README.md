@@ -3,7 +3,7 @@
 If you have permission to access the AAP cluster, then run this script to check the AAP metric:
 
 ```
-$ ./check-the-aap-metrics.sh
+$ ./aap-metric-checker.sh
 ```
 
 ## Check the AAP metric via ACM policy
@@ -39,6 +39,6 @@ $ kubectl apply -f aap-metric-checker-policy.yaml
 ## Build & Push Image
 
 ```
-$ docker build -t quay.io/acm-sre/app-metric-checker -f Dockerfile .
-$ docker push quay.io/acm-sre/app-metric-checker:latest
+docker build -t quay.io/acm-sre/app-metric-checker:v2.4 -f Dockerfile .
+docker push quay.io/acm-sre/app-metric-checker:v2.4
 ```

@@ -10,4 +10,6 @@ RUN curl -LO https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl \
     && curl -LO https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 \
     && chmod +x jq-linux64 && mv ./jq-linux64 /usr/local/bin/jq
 
+RUN microdnf update -y && microdnf clean all
+
 ADD ./configure-aks-prom.sh configure-aks-prom.sh
