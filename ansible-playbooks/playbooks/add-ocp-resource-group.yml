@@ -1,0 +1,37 @@
+---
+
+- hosts: all
+  become: false
+
+  vars:
+    rg_list:
+      - cdoan10
+      - cdoan10-cluster
+
+  tasks:
+
+    - name: Sleep for 120s seconds and continue with play
+      wait_for:
+        timeout: 120
+      delegate_to: localhost
+
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "{{ item }}"
+        location: "{{ location }}"
+        tags:
+            purpose: development
+      loop: "{{ rg_list }}"
+      when: destroy is not defined
+
+    - name: Delete a resource group
+      azure_rm_resourcegroup:
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ rg_list }}"
+      when: destroy is defined
+
+    - name: Sleep for 120s seconds and continue with play
+      wait_for:
+        timeout: 120
+      delegate_to: localhost
