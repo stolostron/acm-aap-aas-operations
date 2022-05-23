@@ -148,3 +148,38 @@ AKS_NAME: aks-...-centralus              # AKS k8s service name
 AKS_SUB: e47e6908-...                    # subscription id of the AKS cluster
 managed_application: acmaocdevtest0418   # name of the managed application, we'll add this label to the managed cluster CR
 ```
+
+## <a name="aap-setup-project"></a>[aap-setup-project.yml](playbooks/aap-setup-project.yml)
+
+Use this playbook to configure the AAP server. Infrastructure as source. This playbook uses the `awx.awx` module.
+
+Run Example:
+
+```bash
+ansible-playbook playbooks/aap-setup-project.yml -e target=development -e "@.secret.yml.secret"
+```
+
+Parameters defined in secret.yml.secret
+
+```yaml
+# AAP Credentials and Route
+admin_username: admin
+admin_password: jsr...B4
+inventory_hostname: https://aap-automation-controller-ansible-automation-platform.apps.$BASEDOMAIN
+
+# Azure Service Principal Credentials
+acm_sre_sa_client_id: 
+acm_sre_sa_tenant_id: 
+acm_sre_sa_subscription_id: 
+acm_sre_sa_client_secret: 
+
+public_ssh_key: ssh-rsa AAAAB...
+# The private key is passed encoded. If its stored in vault, store it encoded. We'll decode before actual using
+private_ssh_key: LS0tLS1...0tLS0tCg==
+ocp4_pull_secret: |-
+    '{...}'
+
+# To differentiate from development vs. production
+target: development
+
+```

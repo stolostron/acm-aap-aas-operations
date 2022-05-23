@@ -1,0 +1,239 @@
+---
+# This is the reference playbook that is used to develop the flow.
+# Another version of this playbook is also avaiable in the AOC project.
+
+- hosts: localhost
+  gather_facts: false
+  connection: local
+
+  vars:
+    # The following line is necessary because the generated inventory file
+    # has this set to true.  We don't need to use sudo for the following
+    # operations.
+    ansible_become: false
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+  collections:
+    - awx.awx
+    - azure.azcollection
+
+  tasks:
+
+    - name: Configure the Red Hat organization
+      organization:
+        name: "Red Hat - ACM"
+        description: "Red Hat, Inc."
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        validate_certs: false
+      when:
+        target == "development"
+
+    - name: Configure the SRE Team
+      team:
+        organization: "Red Hat - ACM"
+        name: "ACM SRE"
+        description: "Team for ACM Site Reliability Engineers"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        validate_certs: false
+
+    - name: Configure credentials for ACM SRE Service Account
+      credential:
+        team: "ACM SRE"
+        name: "ACM SRE OPENSHIFTDEV Service Account"
+        description: "Service Account for ACM SREs"
+        credential_type: "Microsoft Azure Resource Manager"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        inputs:
+          client: "{{ openshiftdev_client_id }}"
+          secret: "{{ openshiftdev_client_secret }}"
+          tenant: "{{ openshiftdev_tenant_id }}"
+          subscription: "{{ openshiftdev_subscription_id }}"
+        validate_certs: false
+      register:
+        result
+
+    - name: Create project for stolostron/ocp4-azure-ipi repository
+      project:
+        organization: "Red Hat"
+        name: "stolostron/ocp4-azure-ipi"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        scm_url: "https://github.com/stolostron/ocp4-azure-ipi.git"
+        scm_type: git
+        validate_certs: false
+      register:
+        result
+
+    - name: Create project for stolostron/acm-aap-aas-operations repository
+      project:
+        organization: "Red Hat"
+        name: "stolostron/acm-aap-aas-operations"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        scm_url: "https://github.com/stolostron/acm-aap-aas-operations.git"
+        scm_type: git
+        validate_certs: false
+      register:
+        result
+
+    - name: Configure SRE Playbook execution environment
+      execution_environment:
+        organization: "Red Hat"
+        name: "ACM SRE Playbook Execution Environment"
+        description: "Execution environment for running ACM SRE playbooks."
+        image: "quay.io/cdoan_rh/azure_ee_supported:1.11.0"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        validate_certs: false
+      register:
+        result
+
+    - credential_type:
+        name: "OCP4 Azure Vars Yaml"
+        description: "OCP4 Azure Vars Yaml"
+        kind: cloud
+        inputs:
+          fields:
+            - id: public_ssh_key
+              type: string
+              label: public_ssh_key
+            - id: private_ssh_key
+              type: string
+              label: private_ssh_key
+              secret: true
+            - id: ocp4_pull_secret
+              type: string
+              label: ocp4_pull_secret
+              secret: true
+          required:
+            - private_ssh_key
+            - public_ssh_key
+            - ocp4_pull_secret        
+        injectors:
+          extra_vars:
+            public_ssh_key: '{%raw%}{{public_ssh_key}}{%endraw%}'
+            private_ssh_key: '{%raw%}{{private_ssh_key}}{%endraw%}'
+            ocp4_pull_secret: '{%raw%}{{ocp4_pull_secret[1:-1]}}{%endraw%}'
+        state: present
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        validate_certs: false
+
+    - name: Configure credentials for ACM OCP4 Deployment
+      credential:
+        team: "ACM SRE"
+        name: "ACM SRE Azure Vars"
+        description: "Azure Vars for ACM SREs"
+        credential_type: "OCP4 Azure Vars Yaml"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        inputs:
+          public_ssh_key: "{{ public_ssh_key }}"
+          private_ssh_key: "{{ private_ssh_key }}" # b64encoded
+          ocp4_pull_secret: "{{ ocp4_pull_secret }}"
+        validate_certs: false
+      register:
+        result
+
+    - name: Create job template for OCP4 Azure IPI
+      job_template:
+        organization: "Red Hat"
+        name: "Create OCP4 Azure Private Cluster Nat"
+        description: "Creates an OCP4 Private Azure cluster with NatGateway egress."
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        job_type: "run"
+        ask_inventory_on_launch: "yes"
+        ask_limit_on_launch: "no"
+        credentials:
+          - "ACM SRE Service Account"
+          - "ACM SRE Azure Vars"
+        execution_environment: "ACM SRE Playbook Execution Environment"
+        project: "stolostron/ocp4-azure-ipi"
+        playbook: "install-private.yml"
+        validate_certs: false
+        extra_vars:
+          azure_client_id: "{%raw%}{{ lookup('env', 'AZURE_CLIENT_ID') }}{%endraw%}"
+          azure_subscription_id: "{%raw%}{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}{%endraw%}"
+          azure_secret: "{%raw%}{{ lookup('env', 'AZURE_SECRET') }}{%endraw%}"
+          azure_tenant: "{%raw%}{{ lookup('env', 'AZURE_TENANT') }}{%endraw%}"
+          bypass_vault_folder_requirement: true
+          ocp4_version: '4.10.11'
+          cluster_name: 'cdoan10' # cdoan10 provided here as an example
+          azure_resource_group: "cdoan10"
+          azure_cluster_resource_group: "cdoan10-cluster"
+          azure_location: westus3
+          azure_dns_root: stolostron.io
+          azure_dns_zone: "az.stolostron.io"
+          skip_provider: true
+          egress: "natgateway"
+          azure_outboundtype: "UserDefinedRouting"
+          azure_vm_size: Standard_B2s
+          azure_vm_os_disk_size_gb: 490
+          azure_vm_image_offer: RHEL
+          azure_vm_image_publisher: RedHat
+          azure_vm_image_sku: "8-lvm-gen2"
+          azure_vm_image_version: latest
+          master_instance_type: Standard_D4s_v3
+          master_instance_count: 3
+          worker_instance_type: Standard_D8s_v3
+          worker_instance_count: 3
+      when: target == 'development'
+
+    - name: Create job template for Uninstall OCP4 Azure IPI
+      job_template:
+        organization: "Red Hat"
+        name: "Uninstall OCP4 Azure Private Cluster Nat"
+        description: "Uninstall an OCP4 Private Azure cluster with NatGateway egress."
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        job_type: "run"
+        ask_inventory_on_launch: "yes"
+        ask_limit_on_launch: "no"
+        credentials:
+          - "ACM SRE Service Account"
+          - "ACM SRE Azure Vars"
+        execution_environment: "ACM SRE Playbook Execution Environment"
+        project: "stolostron/ocp4-azure-ipi"
+        playbook: "uninstall-private.yml"
+        validate_certs: false
+        extra_vars:
+          azure_client_id: "{%raw%}{{ lookup('env', 'AZURE_CLIENT_ID') }}{%endraw%}"
+          azure_subscription_id: "{%raw%}{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}{%endraw%}"
+          azure_secret: "{%raw%}{{ lookup('env', 'AZURE_SECRET') }}{%endraw%}"
+          azure_tenant: "{%raw%}{{ lookup('env', 'AZURE_TENANT') }}{%endraw%}"
+          bypass_vault_folder_requirement: true
+          ocp4_version: '4.10.11'
+          cluster_name: 'cdoan10' # cdoan10 provided here as an example
+          azure_resource_group: "cdoan10"
+          azure_cluster_resource_group: "cdoan10-cluster"
+          azure_location: westus3
+          azure_dns_root: stolostron.io
+          azure_dns_zone: "az.stolostron.io"
+          skip_provider: true
+          egress: "natgateway"
+          azure_outboundtype: "UserDefinedRouting"
+          azure_vm_size: Standard_B2s
+          azure_vm_os_disk_size_gb: 490
+          azure_vm_image_offer: RHEL
+          azure_vm_image_publisher: RedHat
+          azure_vm_image_sku: "8-lvm-gen2"
+          azure_vm_image_version: latest
+          master_instance_type: Standard_D4s_v3
+          master_instance_count: 3
+          worker_instance_type: Standard_D8s_v3
+          worker_instance_count: 3
+      when: target == 'development'
