@@ -80,4 +80,9 @@ kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/patch-operator
 printf "=====================Create openshift-config application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/openshift-config
 
+if [ $1 != "local" ]; then
+    printf "=====================Create SSO application ...\n"
+    kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/sso
+fi
+
 printf "✓ Cluster bootstrap completed with ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics!\n\n"

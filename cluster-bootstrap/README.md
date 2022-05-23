@@ -73,8 +73,12 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   └── overlay  
     │       ├── dev
     │       └── local
-    └── prometheus-config                    # Deploy Prometheus configuration
-        ├── base                             
-        └── overlay  
-            ├── dev
-            └── local
+    ├── prometheus-config                    # Deploy Prometheus configuration
+    │   ├── base                             
+    │   └── overlay  
+    │       ├── dev
+    │       └── local
+    └── sso                                  # Deploy SSO based on github idp
+         ├── base                             
+         └── overlay  
+               └── dev
