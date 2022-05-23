@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: acm
+  name: sso
   namespace: openshift-gitops
 spec:
   destination:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/acm/overlay/dev
+    path: cluster-bootstrap/sso/overlay/dev
     repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
     targetRevision: main
     plugin:

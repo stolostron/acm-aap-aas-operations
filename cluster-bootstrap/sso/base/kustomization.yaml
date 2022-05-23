@@ -4,5 +4,5 @@ kind: Kustomization
 resources:
 - github-client-secret.yaml
 - github-idp.yaml
-- group-acm-sre.yaml
+- acm-sre-group.yaml
 - aap-aas-admin-cluster-admin.rolebinding.yaml
