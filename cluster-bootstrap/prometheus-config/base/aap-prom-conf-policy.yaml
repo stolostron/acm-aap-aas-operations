@@ -63,7 +63,8 @@ spec:
                         spec:
                           containers:
                           - name: aap-configure-prom
-                            image: quay.io/acm-sre/aap-configure-prom:latest
+                            image: quay.io/acm-sre/aap-configure-prom
+                            version: v2.4
                             imagePullPolicy: Always
                             command: ["/bin/sh"]
                             args: ["-c", "/tmp/configure-aks-prom.sh"]

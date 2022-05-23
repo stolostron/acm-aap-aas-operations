@@ -62,10 +62,11 @@ spec:
                     spec:
                       containers:
                       - name: aap-metric-checker
-                        image: quay.io/acm-sre/app-metric-checker:latest
+                        image: quay.io/acm-sre/app-metric-checker
+                        version: v2.4
                         imagePullPolicy: Always
                         command: ["/bin/sh"]
-                        args: ["-c", "/tmp/check-the-aap-metrics.sh"]
+                        args: ["-c", "/tmp/aap-metric-checker.sh"]
                       restartPolicy: OnFailure
                       serviceAccount: aap-metric-checker
                       serviceAccountName: aap-metric-checker
