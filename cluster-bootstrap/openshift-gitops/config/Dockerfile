@@ -1,4 +1,4 @@
-FROM quay.io/argoproj/argocd:latest
+FROM argoproj/argocd:latest
 # Switch to root for the ability to perform install
 
 USER root
@@ -6,7 +6,9 @@ USER root
 # Install tools needed for your repo-server to retrieve & decrypt secrets, render manifests
 RUN apt-get update && \
     apt-get install -y \
-        curl && \
+        curl \
+        awscli \
+        gpg && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
