@@ -50,3 +50,4 @@ data:
       - kube_statefulset_status_replicas_available
       - kube_statefulset_replicas
       - acm_managed_cluster_info
+      - kube_namespace_labels
