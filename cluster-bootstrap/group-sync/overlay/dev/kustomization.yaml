@@ -3,5 +3,5 @@ kind: Kustomization
 
 resources:
 - ../../base
-- azure-access-token.yaml
-- azure-group-sync.yaml
+- github-access-token.yaml
+- github-group-sync.yaml

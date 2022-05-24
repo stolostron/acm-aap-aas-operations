@@ -9,7 +9,7 @@ spec:
   providers:
     - name: github
       github:
-        organization: stolostron
+        organization: ACM-APP-SRE
         credentialsSecret:
           name: github-group-sync
           namespace: group-sync-operator
