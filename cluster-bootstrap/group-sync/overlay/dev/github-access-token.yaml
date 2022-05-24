@@ -6,6 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
     avp.kubernetes.io/path: "/sre-dev/data/group-sync"
+    avp.kubernetes.io/secret-version: "4"
 stringData:
   token: <GITHUB_PERSONAL_ACCESS_TOKEN>
 type: Opaque
