@@ -1,13 +1,27 @@
 ---
 
-- name: Validate variables
+- name: Validate ENV variable
   fail:
-    msg: "Required variable {{ item }} has not been provided"
-  when: (vars[item] is undefined) or (vars[item]| length == 0)
+    msg: "Required variable ENVhas not been provided"
+  when: (ENV is undefined) or (ENV| length == 0)
+
+- name: Validate none local deployment variables
+  fail:
+    msg: "Required variable {{ item }} has not been provided for {{ ENV }} deployment"
+  when:
+    - ENV != "local" 
+    - (vars[item] is undefined) or (vars[item]| length == 0)
   loop:
-    - ENV
     - VAULT_ADDRESS
     - VAULT_TOKEN
+  
+- name: Validate local deployment variables
+  fail:
+    msg: "Required variable {{ item }} has not been provided for local deployment"
+  when:
+    - ENV == "local" 
+    - (vars[item] is undefined) or (vars[item]| length == 0)  
+  loop:
     - PULL_SECRET
     - S3_BUCKET_NAME
     - S3_ENDPOINT
