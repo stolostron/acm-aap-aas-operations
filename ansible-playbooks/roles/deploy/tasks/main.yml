@@ -1,8 +1,19 @@
 ---
 
-- fail:
-    msg: Please define the required variables - ENV, PULL_SECRET, S3_BUCKET_NAME, S3_ENDPOINT, AWS_ACCESS_KEY, AWS_SECRET_KEY, SLACK_API_URL
-  when: (ENV| length == 0) or (PULL_SECRET| length == 0) or (S3_BUCKET_NAME| length == 0) or (S3_ENDPOINT| length == 0) or (AWS_ACCESS_KEY| length == 0) or (AWS_SECRET_KEY| length == 0) or (SLACK_API_URL| length == 0)
+- name: Validate variables
+  fail:
+    msg: "Required variable {{ item }} has not been provided"
+  when: (vars[item] is undefined) or (vars[item]| length == 0)
+  loop:
+    - ENV
+    - VAULT_ADDRESS
+    - VAULT_TOKEN
+    - PULL_SECRET
+    - S3_BUCKET_NAME
+    - S3_ENDPOINT
+    - AWS_ACCESS_KEY
+    - AWS_SECRET_KEY
+    - SLACK_API_URL
 
 - name: Deploy Openshift GitOps
   shell: |-
