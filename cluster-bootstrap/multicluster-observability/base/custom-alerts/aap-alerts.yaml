@@ -21,7 +21,7 @@ data:
         for: 10m
         labels:
           severity: warning
-          team: acm-sre
+          team: aoc-sre
           service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodRestartingTooMuch.md
       - alert: AAPPodFrequentlyRestarting
@@ -32,7 +32,7 @@ data:
         for: 2m
         labels:
           severity: warning
-          team: acm-sre
+          team: aoc-sre
           service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodFrequentlyRestarting.md
       - alert: AAPPodContainerTerminated
@@ -43,7 +43,7 @@ data:
         for: 10m
         labels:
           severity: critical
-          team: acm-sre
+          team: aoc-sre
           service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodContainerTerminated.md
       - alert: AAPPodNotReady
@@ -54,7 +54,7 @@ data:
         for: 0m
         labels:
           severity: critical
-          team: acm-sre
+          team: aoc-sre
           service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodNotReady.md
       - alert: AAPDeploymentReplicasMismatch
@@ -65,7 +65,7 @@ data:
         for: 5m
         labels:
           severity: critical
-          team: acm-sre
+          team: aoc-sre
           service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPDeploymentReplicasMismatch.md
       - alert: AAPStatefulSetReplicasMismatch
@@ -76,7 +76,7 @@ data:
         for: 5m
         labels:
           severity: critical
-          team: acm-sre
+          team: aoc-sre
           service: aap
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPStatefulSetReplicasMismatch.md
     - name: AdvancedClusterManagement
@@ -94,12 +94,23 @@ data:
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/PolicyNotCompliant.md
       - alert: MetricsCollectorMissing
         annotations:
-          description: Metrics collector Pod missing on some managed clusters for longer than 5 minutes
+          description: Metrics collector Pod missing on some managed clusters for longer than 10 minutes
           summary: Metrics collector Pod missing on some managed clusters
         expr: sum(kube_pod_info{namespace="open-cluster-management-addon-observability", pod=~"metrics-collector-deployment.*"}) != sum(acm_managed_cluster_info{clusterID!=""})
-        for: 5m
+        for: 10m
         labels:
           severity: critical
           team: acm-sre
           service: observability
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/MetricsCollectorMissing.md
+      - alert: ManagedClusterMissing
+        annotations:
+          description: Managed cluster missing from ACM Hub for longer than 10 minutes
+          summary: Managed cluster missing from ACM Hub
+        expr: sum(kube_namespace_labels{label_cluster_open_cluster_management_io_managed_cluster!=""}) != sum(acm_managed_cluster_info{managed_cluster_id!=""})
+        for: 10m
+        labels:
+          severity: critical
+          team: acm-sre
+          service: managedcluster
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/ManagedClusterMissing.md
