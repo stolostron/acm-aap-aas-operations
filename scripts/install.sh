@@ -81,8 +81,21 @@ printf "=====================Create openshift-config application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/openshift-config
 
 if [ $1 != "local" ]; then
+    printf "=====================Create Group Sync application ...\n"
+    kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/group-sync
+
     printf "=====================Create SSO application ...\n"
     kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/sso
 fi
 
-printf "✓ Cluster bootstrap completed with ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics!\n\n"
+printf "Cluster bootstrap completed with following componnents/configurations: \n"
+printf "✓ ACM \n"
+printf "✓ MultiCluster Observability \n"
+printf "✓ Grafana-dev \n"
+printf "✓ Prometheus config \n"
+printf "✓ Patch operator \n"
+printf "✓ Openshift config \n"
+if [ $1 != "local" ]; then
+    printf "✓ Group Sync \n"
+    printf "✓ SSO \n"
+fi

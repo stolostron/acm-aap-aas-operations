@@ -63,7 +63,11 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   └── overlay
     │       ├── dev  
     │       ├── dev-managed-premium 
-    │       └── local                           
+    │       └── local
+    ├── group-sync                          # Deploy Group Sync operator to auto sync the teams
+    │   ├── base   
+    │   └── overlay
+    │       └── dev
     ├── multicluster-observability
     │   ├── base
     │   │   ├── custom-alerts                # Custom alerts configuration
