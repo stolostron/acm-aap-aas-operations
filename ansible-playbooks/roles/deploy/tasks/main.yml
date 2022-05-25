@@ -4,27 +4,11 @@
     msg: Please define the required variables - ENV, PULL_SECRET, S3_BUCKET_NAME, S3_ENDPOINT, AWS_ACCESS_KEY, AWS_SECRET_KEY, SLACK_API_URL
   when: (ENV| length == 0) or (PULL_SECRET| length == 0) or (S3_BUCKET_NAME| length == 0) or (S3_ENDPOINT| length == 0) or (AWS_ACCESS_KEY| length == 0) or (AWS_SECRET_KEY| length == 0) or (SLACK_API_URL| length == 0)
 
-- name: Deploy ACM management hub cluster
+- name: Deploy Openshift GitOps
   shell: |-
-    generate_pull_secret()
-    {
-    TMP_DIR=$(mktemp -d)
-    echo $TMP_DIR
-    cd $TMP_DIR
-    cat > ./kustomization.yaml <<-EOF 
-    generatorOptions:
-      disableNameSuffixHash: true
-    namespace: open-cluster-management
-    secretGenerator:
-    - name: multiclusterhub-operator-pull-secret
-      type: "kubernetes.io/dockerconfigjson"	
-      literals:
-        - .dockerconfigjson={{ PULL_SECRET }}
-    EOF
-    kubectl create namespace open-cluster-management --dry-run=client -o yaml | kubectl apply -f -
-    kubectl apply -k .
-    cd - && rm -rf $TMP_DIR
-    }
+    if [ {{ ENV }} != "local" ]; then
+      sed -i'' --expression 's@<VAULT_ADDRESS>@'{{ VAULT_ADDRESS }}'@g;s@<VAULT_TOKEN>@'{{ VAULT_TOKEN }}'@g' ./../../cluster-bootstrap/openshift-gitops/config/argocd.yaml
+    fi
 
     printf "=====================Create Openshift Gitops Subscription...\n"
     kubectl apply -k ./../../cluster-bootstrap/openshift-gitops/deploy
@@ -56,6 +40,34 @@
     while [[ $(kubectl get pods -n openshift-gitops --no-headers --ignore-not-found | awk '/openshift-gitops-repo-server/' | wc -l) -ne 1 ]]; 
         do echo "Waiting for openshift-gitops-repo-server with vault plugin start up and running" && sleep 30;
     done
+    printf "✓ Openshift Gitops deployed successful!"
+  register: result
+
+- name: debug
+  debug:
+    msg: "{{ result.stdout_lines }}" 
+
+- name: Deploy ACM management hub cluster
+  shell: |-
+    generate_pull_secret()
+    {
+    TMP_DIR=$(mktemp -d)
+    echo $TMP_DIR
+    cd $TMP_DIR
+    cat > ./kustomization.yaml <<-EOF 
+    generatorOptions:
+      disableNameSuffixHash: true
+    namespace: open-cluster-management
+    secretGenerator:
+    - name: multiclusterhub-operator-pull-secret
+      type: "kubernetes.io/dockerconfigjson"	
+      literals:
+        - .dockerconfigjson={{ PULL_SECRET }}
+    EOF
+    kubectl create namespace open-cluster-management --dry-run=client -o yaml | kubectl apply -f -
+    kubectl apply -k .
+    cd - && rm -rf $TMP_DIR
+    }
 
     if [ {{ ENV }} == "local" ]; then
         generate_pull_secret
