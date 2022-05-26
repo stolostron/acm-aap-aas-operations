@@ -52,14 +52,6 @@
     printf "=====================Waiting for configured Gitops repo server up and running...\n"
     kubectl wait --for=condition=Ready pods --all -n openshift-gitops --timeout=5m
     printf "=====================Openshift Gitops deploy successful!\n"
-
-    printf "=====================Use the following info to login Openshift Gitops web console:\n"
-    printf "Web console URL: https://"
-    kubectl get route openshift-gitops-server -n openshift-gitops -o 'jsonpath={.spec.host}'
-    printf "\n"
-    printf "# admin.username\n"
-    printf "admin\n"
-    oc extract secret/openshift-gitops-cluster -n openshift-gitops --to=-
     sleep 10
 
     while [[ $(kubectl get pods -n openshift-gitops --no-headers --ignore-not-found | awk '/openshift-gitops-repo-server/' | wc -l) -ne 1 ]]; 
