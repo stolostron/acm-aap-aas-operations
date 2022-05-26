@@ -13,6 +13,19 @@ data:
     groups:
     - name: AnsibleAutomationPlatform
       rules:
+      - alert: AAPMetricEndpointDown
+        annotations:
+          description: AAP metric endpoint has disappeared from Prometheus target discovery
+          summary: Target disappeared from Prometheus target discovery
+        expr: |
+            sum(up{job="serviceMonitor/open-cluster-management-addon-observability/aap-metrics"}) != sum(acm_managed_cluster_info{managed_cluster_id!=""}) - 1
+            or absent(up{job="serviceMonitor/open-cluster-management-addon-observability/aap-metrics"}) == 1
+        for: 15m
+        labels:
+          severity: critical
+          team: aoc-sre
+          service: aap
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPMetricEndpointDown.md
       - alert: AAPPodRestartingTooMuch
         annotations:
           description: AAP Pod in {{$labels.namespace}} restart more than 10 times over 10 minutes
