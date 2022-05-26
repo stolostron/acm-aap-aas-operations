@@ -9,6 +9,7 @@ Now we provide the following alerts for AAP monitoring:
 Alert | Description
 ---  | ------
 AAPDeploymentReplicasMismatch | AAP Deployment in `ansible-automation-platform` namespace actual number of replicas is inconsistent with the set number of replicas over 5 minutes
+AAPMetricEndpointDown | AAP metric endpoint has disappeared from Prometheus target discovery
 AAPPodContainerTerminated | AAP Pod in `ansible-automation-platform` namespace has been in terminated state for longer than 10 minutes
 AAPPodFrequentlyRestarting | AAP Pod in `ansible-automation-platform` namespace is restarting many times over 2 minutes
 AAPPodNotReady | AAP Pod in `ansible-automation-platform` namespace has been in a non-ready state for longer than 15 minutes
