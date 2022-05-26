@@ -3,6 +3,7 @@
 - [create-kubeconfig.yml](#create-kubeconfig)
 - [operator-mgmt.yml](#operator-mgmt)
 - [automation-test-reset.yml](#automation-test-reset)
+- [deploy-acm-stack.yml](#deploy-acm-stack)
 
 ## <a name="create-kubeconfig"></a>[create-kubeconfig.yml](playbooks/automation-test-reset.yml)
 use to generate kubeconfig for the target clusters
@@ -147,4 +148,14 @@ AKS_MRG: mrg-...-preview-20220331094426  # managed application resource group na
 AKS_NAME: aks-...-centralus              # AKS k8s service name
 AKS_SUB: e47e6908-...                    # subscription id of the AKS cluster
 managed_application: acmaocdevtest0418   # name of the managed application, we'll add this label to the managed cluster CR
+```
+
+## <a name="deploy-acm-stack"></a>[deploy-acm-stack.yml](playbooks/deploy-acm-stack.yml)
+Deploy hub cluster with ACM stacks and configurations for monitoring.
+
+### Example to deploy prod hub cluster
+```
+export K8S_AUTH_KUBECONFIG=/path/to/hub/kubeconfig
+
+ansible-playbook playbooks/deploy-acm-stack.yml -e "ENV=prod VAULT_ADDRESS=<VAULT_ADDRESS> VAULT_TOKEN=<VAULT_TOKEN>"
 ```

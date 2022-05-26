@@ -119,6 +119,9 @@
 
         printf "=====================Create SSO application ...\n"
         kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/sso
+
+        printf "=====================Create Github issue auto generator application ...\n"
+        kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/alertmanager-to-github
     fi
 
     printf "Cluster bootstrap completed with following components/configurations: \n"
@@ -131,6 +134,7 @@
     if [ {{ ENV }} != "local" ]; then
         printf "✓ Group Sync \n"
         printf "✓ SSO \n"
+        printf "✓ Github issue auto generator \n"
     fi
   register: result
 
