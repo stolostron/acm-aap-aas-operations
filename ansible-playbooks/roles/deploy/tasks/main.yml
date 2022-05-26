@@ -1,0 +1,178 @@
+---
+
+- name: Validate ENV variable
+  fail:
+    msg: "Required variable ENVhas not been provided"
+  when: (ENV is undefined) or (ENV| length == 0)
+
+- name: Validate none local deployment variables
+  fail:
+    msg: "Required variable {{ item }} has not been provided for {{ ENV }} deployment"
+  when:
+    - ENV != "local" 
+    - (vars[item] is undefined) or (vars[item]| length == 0)
+  loop:
+    - VAULT_ADDRESS
+    - VAULT_TOKEN
+  
+- name: Validate local deployment variables
+  fail:
+    msg: "Required variable {{ item }} has not been provided for local deployment"
+  when:
+    - ENV == "local" 
+    - (vars[item] is undefined) or (vars[item]| length == 0)  
+  loop:
+    - PULL_SECRET
+    - S3_BUCKET_NAME
+    - S3_ENDPOINT
+    - AWS_ACCESS_KEY
+    - AWS_SECRET_KEY
+    - SLACK_API_URL
+
+- name: Deploy Openshift GitOps
+  shell: |-
+    if [ {{ ENV }} != "local" ]; then
+      sed -i'' --expression 's@<VAULT_ADDRESS>@'{{ VAULT_ADDRESS }}'@g;s@<VAULT_TOKEN>@'{{ VAULT_TOKEN }}'@g' ./../../cluster-bootstrap/openshift-gitops/config/argocd.yaml
+    fi
+
+    printf "=====================Create Openshift Gitops Subscription...\n"
+    kubectl apply -k ./../../cluster-bootstrap/openshift-gitops/deploy
+
+    while [[ $(kubectl get ns openshift-gitops --no-headers --ignore-not-found | wc -l) -eq 0 ]]; 
+        do echo "Waiting for openshift-gitops namespace to be created" && sleep 30;
+    done
+
+    printf "=====================Waiting for Openshift Gitops start up and running...\n"
+    kubectl wait --for=condition=Ready pods --all -n openshift-gitops --timeout=5m
+    printf "=====================Openshift Gitops deploy successful!\n"
+
+    printf "=====================Create and config Openshift Gitops instance with Vault plugin configed...\n"
+    kubectl apply -k ./../../cluster-bootstrap/openshift-gitops/config
+
+    printf "=====================Waiting for configured Gitops repo server up and running...\n"
+    kubectl wait --for=condition=Ready pods --all -n openshift-gitops --timeout=5m
+    printf "=====================Openshift Gitops deploy successful!\n"
+    sleep 10
+
+    while [[ $(kubectl get pods -n openshift-gitops --no-headers --ignore-not-found | awk '/openshift-gitops-repo-server/' | wc -l) -ne 1 ]]; 
+        do echo "Waiting for openshift-gitops-repo-server with vault plugin start up and running" && sleep 30;
+    done
+    printf "✓ Openshift Gitops deployed successful!"
+  register: result
+
+- name: debug
+  debug:
+    msg: "{{ result.stdout_lines }}" 
+
+- name: Deploy ACM management hub cluster
+  shell: |-
+    generate_pull_secret()
+    {
+    TMP_DIR=$(mktemp -d)
+    echo $TMP_DIR
+    cd $TMP_DIR
+    cat > ./kustomization.yaml <<-EOF 
+    generatorOptions:
+      disableNameSuffixHash: true
+    namespace: open-cluster-management
+    secretGenerator:
+    - name: multiclusterhub-operator-pull-secret
+      type: "kubernetes.io/dockerconfigjson"	
+      literals:
+        - .dockerconfigjson={{ PULL_SECRET }}
+    EOF
+    kubectl create namespace open-cluster-management --dry-run=client -o yaml | kubectl apply -f -
+    kubectl apply -k .
+    cd - && rm -rf $TMP_DIR
+    }
+
+    if [ {{ ENV }} == "local" ]; then
+        generate_pull_secret
+    fi
+    printf "=====================Create ACM Argocd application ...\n"
+    kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/acm
+
+    printf "=====================Create MultiCluster Observability Argocd application ...\n"
+    if [ {{ ENV }} == "local" ]; then
+        generate_pull_secret
+        sed -i'' 's/<S3_BUCKET_NAME>/'{{ S3_BUCKET_NAME }}'/g;s/<S3_ENDPOINT>/'{{ S3_ENDPOINT }}'/g;s/<AWS_ACCESS_KEY>/'{{ AWS_ACCESS_KEY }}'/g;s/<AWS_SECRET_KEY>/'{{ AWS_SECRET_KEY }}'/g' ./../../cluster-bootstrap/multicluster-observability/overlay/local/thanos-storage-aws-secret.yaml
+        kubectl create namespace open-cluster-management-observability --dry-run=client -o yaml | kubectl apply -f -
+        kubectl apply -f ./../../cluster-bootstrap/multicluster-observability/overlay/local/thanos-storage-aws-secret.yaml
+    fi
+    kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/multicluster-observability
+
+    printf "=====================Create Grafana-dev Argocd application ...\n"
+    kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/grafana-dev
+
+    printf "=====================Create Prometheus config Argocd application ...\n"
+    kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/prometheus-config
+
+    printf "=====================Create Patch-operator application ...\n"
+    kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/patch-operator
+
+    printf "=====================Create openshift-config application ...\n"
+    kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/openshift-config
+
+    if [ {{ ENV }} != "local" ]; then
+        printf "=====================Create Group Sync application ...\n"
+        kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/group-sync
+
+        printf "=====================Create SSO application ...\n"
+        kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/sso
+    fi
+
+    printf "Cluster bootstrap completed with following components/configurations: \n"
+    printf "✓ ACM \n"
+    printf "✓ MultiCluster Observability \n"
+    printf "✓ Grafana-dev \n"
+    printf "✓ Prometheus config \n"
+    printf "✓ Patch operator \n"
+    printf "✓ Openshift config \n"
+    if [ {{ ENV }} != "local" ]; then
+        printf "✓ Group Sync \n"
+        printf "✓ SSO \n"
+    fi
+  register: result
+
+- name: debug
+  debug:
+    msg: "{{ result.stdout_lines }}" 
+
+- name: Alert Manager configuration
+  shell: |-
+    generate_url_secret()
+    {
+      while [[ $(kubectl get route -n open-cluster-management multicloud-console --no-headers --ignore-not-found | wc -l) -eq 0 ]]; do echo "Waiting for creating ACM route" && sleep 60; done
+
+      while [[ $(kubectl get route -n open-cluster-management-observability alertmanager --no-headers --ignore-not-found | wc -l) -eq 0 ]]; do echo "waiting for creating Alertmanager route" && sleep 60; done
+
+      ACM_CONSOLE_URL="$(kubectl get route -n open-cluster-management multicloud-console -o jsonpath="{.spec.host}")"
+
+      ALERTMANAGER_URL="$(kubectl get route -n open-cluster-management-observability alertmanager -o jsonpath="{.spec.host}")"
+
+      echo -n $ACM_CONSOLE_URL > ./acm_url.txt
+      echo -n $ALERTMANAGER_URL > ./alertmanager_url.txt
+
+      kubectl create secret generic console-url -n openshift-gitops --from-file=ACM_CONSOLE_URL=./acm_url.txt --from-file=ALERTMANAGER_URL=./alertmanager_url.txt
+
+      rm -f ./acm_url.txt
+      rm -f ./alertmanager_url.txt
+    }
+
+    printf 'Generating a secret that contains acm & alert manager URL for Alert Manager config usage later...\n'
+    generate_url_secret
+    printf 'Secret generate successful!\n'
+
+    printf "=====================Create Alert manager config Argocd application ...\n"
+    if [ {{ ENV }} == "local" ]; then
+      sed -i'' --expression 's@<SLACK_API_URL>@'{{ SLACK_API_URL }}'@g' ./../../cluster-bootstrap/alert-manager-config/overlay/local/app-alertmanager-config.yaml
+      kubectl apply -k ./../../cluster-bootstrap/alert-manager-config/overlay/local
+    else
+      kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/alert-manager-config
+    fi
+    printf "✓ Alert Manager configuration created!"
+  register: result
+
+- name: debug
+  debug:
+    msg: "{{ result.stdout_lines }}"
