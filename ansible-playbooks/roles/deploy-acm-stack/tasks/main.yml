@@ -88,19 +88,35 @@
     done
   register: result
 
-- name: Read definition template file from the Ansible controller file system
-  kubernetes.core.k8s:
-    state: present
-    template: 'multiclusterhub-operator-pull-secret.yaml.j2'
-  when:
-    ENV == 'local'
-
 - name: Create open-cluster-management namespace
   kubernetes.core.k8s:
     name: open-cluster-management
     api_version: v1
     kind: Namespace
     state: present
+  when:
+    ENV == 'local'
+
+- name: Create open-cluster-management-observability namespace
+  kubernetes.core.k8s:
+    name: open-cluster-management-observability
+    api_version: v1
+    kind: Namespace
+    state: present
+  when:
+    ENV == 'local'
+
+- name: Create ACM pull secret
+  kubernetes.core.k8s:
+    state: present
+    template: 'multiclusterhub-operator-pull-secret.yaml.j2'
+  when:
+    ENV == 'local'
+
+- name: Create thanos storage secret
+  kubernetes.core.k8s:
+    state: present
+    template: 'thanos-storage-aws-secret.yaml.j2'
   when:
     ENV == 'local'
 
@@ -115,10 +131,17 @@
     - "prometheus-config"
     - "patch-operator"
     - "openshift-config"
+
+- name: Apply ArgoCD Applications for none local environment
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/../../cluster-bootstrap/argocd-apps/{{ ENV }}/{{ item }}/application.yaml"
+  loop:
     - "group-sync"
     - "sso"
-    # special case
-    # - "alertmanager-to-github"
+    - "alertmanager-to-github"
+  when:
+    ENV != 'local'
 
 - name: Wait for ACM Route creation
   kubernetes.core.k8s_info:
@@ -158,14 +181,18 @@
         namespace: openshift-gitops
       type: Opaque
 
-- name: Alert Manager configuration
+- name: Config Alert Manager for none local environment
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/../../cluster-bootstrap/argocd-apps/{{ ENV }}/{{ item }}/application.yaml"
+  loop:
+    - "alert-manager-config"
+  when:
+    ENV != 'local'
+
+- name: Config Alert Manager for local environment
   shell: |-
-    # printf "=====================Create Alert manager config Argocd application ...\n"
-    # if [ {{ ENV }} == "local" ]; then
-    #   sed -i'' --expression 's@<SLACK_API_URL>@'{{ SLACK_API_URL }}'@g' ./../../cluster-bootstrap/alert-manager-config/overlay/local/app-alertmanager-config.yaml
-    #   kubectl apply -k ./../../cluster-bootstrap/alert-manager-config/overlay/local
-    # else
-    #   kubectl apply -k ./../../cluster-bootstrap/argocd-apps/{{ ENV }}/alert-manager-config
-    # fi
-    printf "✓ Alert Manager configuration created!"
-  register: result
+    sed -i'' --expression 's@<SLACK_API_URL>@'{{ SLACK_API_URL }}'@g' ./../../cluster-bootstrap/alert-manager-config/overlay/local/app-alertmanager-config.yaml
+    kubectl apply -k ./../../cluster-bootstrap/alert-manager-config/overlay/local
+  when:
+    ENV == 'local'
