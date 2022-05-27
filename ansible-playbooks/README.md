@@ -83,7 +83,7 @@ They can be used separately by using tags.
 
 ### Example
 ```
-ansible-playbook -i ansible-playbooks/inventories/vm-inventory_azure_rm.yml ansible-playbooks/playbooks/bastion.yml -t vm -e "{\"rhsm\":{\"username\":\"USERNAME\",\"password\":\"PASSWORD\"}}"
+ansible-playbook -i ansible-playbooks/inventories/vm-inventory_azure_rm.yml ansible-playbooks/playbooks/bastion.yml -t vm -e "{\"rhsm_username\":\"USERNAME\",\"rhsm_password\":\"PASSWORD\"}"
 ansible-playbook -i ansible-playbooks/inventories/vm-inventory_azure_rm.yml ansible-playbooks/playbooks/bastion.yml -t users
 ```
 ## <a name="import-collection"></a>[import-aap-aks-collection.yml](playbooks/import-aap-aks-collection.yml)

@@ -1,3 +1,2 @@
-rhsm:
-  username: ""
-  password: ""
+rhsm_username: ""
+rhsm_password: ""
