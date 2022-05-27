@@ -1,0 +1,545 @@
+---
+# This is the reference playbook that is used to develop the flow.
+# Another version of this playbook is also avaiable in the AOC project.
+
+- hosts: localhost
+  gather_facts: false
+  connection: local
+
+  vars:
+    # The following line is necessary because the generated inventory file
+    # has this set to true.  We don't need to use sudo for the following
+    # operations.
+    ansible_become: false
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+  collections:
+    - awx.awx
+    - azure.azcollection
+
+  tasks:
+    - name: Switch to values based on target
+      ansible.builtin.include_vars:
+        file: "{{ 'vars-' + lookup('vars', 'target') + '.yml' }}"
+    - ansible.builtin.set_fact:
+        azure_resource_group: "{{ azure_resource_group | default(cluster_name) }}"
+        azure_cluster_resource_group: "{{ azure_cluster_resource_group | default(cluster_name + '-cluster') }}"
+
+    - name: Retrieve our secrets from Azure Key Vault
+      azure_rm_keyvaultsecret_info:
+        vault_uri: "{{ vault_uri }}"
+        name: "acm-sre-{{ target }}-secrets"
+      register: secrets_from_kv
+      no_log: True
+    - ansible.builtin.fail:
+        msg: "Secret named acm-sre-{{ target }}-secrets not found in {{ vault_uri }}!"
+      when: secrets_from_kv.secrets | length == 0
+    - name: Create temporary file
+      ansible.builtin.tempfile:
+        state: file
+        suffix: temp
+      register: tempfile_1
+    - name: Copy to temporary file
+      ansible.builtin.copy:
+        content: "{{ secrets_from_kv.secrets[0].secret | b64decode }}"
+        dest: "{{ tempfile_1.path }}"
+      no_log: True
+    - ansible.builtin.include_vars:
+        file: "{{ tempfile_1.path }}"
+      no_log: True
+    - name: Remove the temporary file
+      ansible.builtin.file:
+        path: "{{ tempfile_1.path }}"
+        state: absent
+      when: tempfile_1.path is defined
+
+# Define some facts based on env values
+    - name: Set some facts
+      ansible.builtin.set_fact:
+        phase: "[{{ phase_name }}]"
+        target_ssh_keys: "[{{ phase_name }}] SSH Keys"
+    # need to be split as it references other facts
+    - name: Set more facts
+      ansible.builtin.set_fact:
+        workflow_name: "{{ phase }} Deploy ACM Hub"
+        inventory_name: "{{ phase }} Azure inventory"
+        inventory_credentials: "{{ phase }} Azure Service Principal"
+        azure_vars: "{{ phase }} Azure Vars"
+
+# Common parts - same for all the phases
+    - name: Create project for stolostron/ocp4-azure-ipi repository
+      project:
+        organization: "Red Hat - ACM"
+        name: "stolostron/ocp4-azure-ipi"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        scm_url: "https://github.com/stolostron/ocp4-azure-ipi.git"
+        scm_type: git
+        validate_certs: false
+
+    - name: Create project for stolostron/acm-aap-aas-operations repository
+      project:
+        organization: "Red Hat - ACM"
+        name: "stolostron/acm-aap-aas-operations"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        scm_url: "https://github.com/stolostron/acm-aap-aas-operations.git"
+        scm_type: git
+        validate_certs: false
+
+    - name: Add permissions to team to access project
+      role:
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        team: "ACM SRE"
+        role: "admin"
+        projects:
+          - "stolostron/ocp4-azure-ipi"
+          - "stolostron/acm-aap-aas-operations"
+        validate_certs: false
+
+    - name: Configure ACM SRE Playbook execution environment
+      execution_environment:
+        organization: "Red Hat - ACM"
+        name: "ACM SRE Playbook Execution Environment"
+        description: "Execution environment for running ACM SRE playbooks."
+        image: "quay.io/cdoan_rh/azure_ee_supported:1.11.1"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        validate_certs: false
+
+# Common parts - same for all the phases
+    - name: "Add RHSM credentials"
+      credential_type:
+        name: "RHSM credentials"
+        description: "Credentials to register a RHEL system"
+        kind: cloud
+        inputs:
+          fields:
+            - id: username
+              type: string
+              label: username
+            - id: password
+              type: string
+              label: password
+              secret: true
+          required:
+            - username
+            - password
+        injectors:
+          extra_vars:
+            rhsm_username: '{%raw%}{{username}}{%endraw%}'
+            rhsm_password: '{%raw%}{{password}}{%endraw%}'
+        state: present
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        validate_certs: false
+
+    - name: "Add Controller credentials with hostname"
+      credential_type:
+        name: "Controller credentials with hostname"
+        description: "Credentials to administer a controller"
+        kind: cloud
+        inputs:
+          fields:
+            - id: hostname
+              type: string
+              label: hostname
+            - id: username
+              type: string
+              label: username
+            - id: password
+              type: string
+              label: password
+              secret: true
+          required:
+            - username
+            - password
+        injectors:
+          extra_vars:
+            inventory_hostname: '{%raw%}{{hostname}}{%endraw%}'
+            admin_username: '{%raw%}{{username}}{%endraw%}'
+            admin_password: '{%raw%}{{password}}{%endraw%}'
+        state: present
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        validate_certs: false
+
+    - name: "Add OCP4 Azure Vars Yaml"
+      credential_type:
+        name: "OCP4 Azure Vars Yaml"
+        description: "OCP4 Azure Vars Yaml"
+        kind: cloud
+        inputs:
+          fields:
+            - id: public_ssh_key
+              type: string
+              label: public_ssh_key
+            - id: private_ssh_key
+              type: string
+              label: private_ssh_key
+              secret: true
+            - id: ocp4_pull_secret
+              type: string
+              label: ocp4_pull_secret
+              secret: true
+          required:
+            - private_ssh_key
+            - public_ssh_key
+            - ocp4_pull_secret
+        injectors:
+          extra_vars:
+            public_ssh_key: '{%raw%}{{public_ssh_key}}{%endraw%}'
+            private_ssh_key: '{%raw%}{{private_ssh_key}}{%endraw%}'
+            ocp4_pull_secret: '{%raw%}{{ocp4_pull_secret[1:-1]}}{%endraw%}'
+        state: present
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        validate_certs: false
+
+    - name: "Add ArgoCD HashiCorp Vault credentials"
+      credential_type:
+        name: "ArgoCD HashiCorp Vault credentials"
+        description: "ArgoCD HashiCorp Vault credentials"
+        kind: cloud
+        inputs:
+          fields:
+            - id: server
+              type: string
+              label: server
+            - id: token
+              type: string
+              label: token
+              secret: true
+          required:
+            - server
+            - token
+        injectors:
+          extra_vars:
+            VAULT_ADDRESS: '{%raw%}{{server}}{%endraw%}'
+            VAULT_TOKEN: '{%raw%}{{token}}{%endraw%}'
+        state: present
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        validate_certs: false
+
+# Credentials - one per each phase
+    - name: Configure credentials for Azure SP
+      credential:
+        team: "ACM SRE"
+        name: "{{ phase }} Azure Service Principal"
+        description: "Credentials for Azure Service Principal"
+        credential_type: "Microsoft Azure Resource Manager"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        inputs:
+          client: "{{ client_id }}"
+          secret: "{{ client_secret }}"
+          subscription: "{{ subscription_id }}"
+          tenant: "{{ tenant_id }}"
+        validate_certs: false
+
+    - name: Configure credentials for ACM OCP4 Deployment
+      credential:
+        team: "ACM SRE"
+        name: "{{ phase }} Azure Vars"
+        description: "Azure Vars for ACM SRE"
+        credential_type: "OCP4 Azure Vars Yaml"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        inputs:
+          public_ssh_key: "{{ public_ssh_key }}"
+          private_ssh_key: "{{ private_ssh_key }}" # b64encoded
+          ocp4_pull_secret: "{{ ocp4_pull_secret }}"
+        validate_certs: false
+
+    - name: Configure credentials for RHSM
+      credential:
+        team: "ACM SRE"
+        name: "{{ phase }} RHSM"
+        description: "Credentials for RHSM registration"
+        credential_type: "RHSM credentials"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        inputs:
+          username: "{{ rhsm_username }}"
+          password: "{{ rhsm_password }}"
+        validate_certs: false
+
+    - name: Configure credentials for the controller
+      credential:
+        team: "ACM SRE"
+        name: "{{ phase }} Controller credentials with hostname"
+        description: "Credentials for controller"
+        credential_type: "Controller credentials with hostname"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        inputs:
+          hostname: "{{ inventory_hostname }}"
+          username: "{{ admin_username }}"
+          password: "{{ admin_password }}"
+        validate_certs: false
+
+    - name: Configure credentials for SSH
+      credential:
+        team: "ACM SRE"
+        name: "{{ target_ssh_keys }}"
+        description: "SSH keys for machine access"
+        credential_type: "Machine"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        inputs:
+          username: "{{ ssh_username }}"
+          ssh_key_data: "{{ private_ssh_key | b64decode }}"
+        validate_certs: false
+
+    - name: Configure credentials for ArgoCD Vault
+      credential:
+        team: "ACM SRE"
+        name: "{{ phase }} ArgoCD Vault"
+        description: "ArgoCD Vault credentials"
+        credential_type: "ArgoCD HashiCorp Vault credentials"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        inputs:
+          server: "{{ argocd_vault_uri }}"
+          token: "{{ argocd_vault_token }}"
+        validate_certs: false
+  
+# Azure Inventory - per phase
+    - name: "Add inventory"
+      inventory:
+        name: "{{ inventory_name }}"
+        description: "Inventory for {{ phase }}"
+        organization: "Red Hat - ACM"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        state: present
+    - name: Add inventory source
+      inventory_source:
+        name: "{{ inventory_source_name }}"
+        description: "Azure inventory for {{ phase }}"
+        inventory: "{{ inventory_name }}"
+        credential: "{{ inventory_credentials }}"
+        overwrite: True
+        update_on_launch: True
+        organization: "Red Hat - ACM"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        source: azure_rm
+        source_vars:
+          keyed_groups:
+          - separator: ""
+            key: tags.type | default('no-type')
+
+# Job templates - per phase
+    - name: Create job template for OCP4 Azure IPI
+      job_template:
+        organization: "Red Hat - ACM"
+        name: "{{ phase }} Create OCP4 ACM HUB"
+        description: "Creates an OCP4 Private Azure cluster with NatGateway egress."
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        job_type: "run"
+        inventory: "ACM localhost"
+        ask_limit_on_launch: "no"
+        credentials:
+          - "{{ inventory_credentials }}"
+          - "{{ azure_vars }}"
+        execution_environment: "ACM SRE Playbook Execution Environment"
+        project: "stolostron/ocp4-azure-ipi"
+        playbook: "install-private.yml"
+        validate_certs: false
+        extra_vars:
+          azure_client_id: "{%raw%}{{ lookup('env', 'AZURE_CLIENT_ID') }}{%endraw%}"
+          azure_subscription_id: "{%raw%}{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}{%endraw%}"
+          azure_secret: "{%raw%}{{ lookup('env', 'AZURE_SECRET') }}{%endraw%}"
+          azure_tenant: "{%raw%}{{ lookup('env', 'AZURE_TENANT') }}{%endraw%}"
+          bypass_vault_folder_requirement: true
+          ocp4_version: '4.10.16'
+          cluster_name: "{{ cluster_name }}"
+          azure_resource_group: "{{ azure_resource_group }}"
+          azure_cluster_resource_group: "{{ azure_cluster_resource_group }}"
+          azure_location: "{{ azure_location }}"
+          azure_dns_root: "{{ azure_dns_root }}"
+          azure_dns_zone: "{{ azure_dns_zone }}"
+          skip_provider: true
+          egress: "natgateway"
+          azure_outboundtype: "UserDefinedRouting"
+          azure_vm_size: Standard_B2s
+          azure_vm_os_disk_size_gb: 490
+          azure_vm_image_offer: RHEL
+          azure_vm_image_publisher: RedHat
+          azure_vm_image_sku: "8-lvm-gen2"
+          azure_vm_image_version: latest
+          master_instance_type: "Standard_D4ds_v5"
+          master_instance_count: 3
+          worker_instance_type: Standard_D8ds_v5
+          worker_instance_count: 3
+
+    - name: Create job template for Bastion configuration
+      job_template:
+        organization: "Red Hat - ACM"
+        name: "{{ phase }} Configure bastion"
+        description: "Configures a bastion VM."
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        job_type: "run"
+        inventory: "{{ inventory_name }}"
+        ask_limit_on_launch: "no"
+        credentials:
+          - "{{ inventory_credentials }}"
+          - "{{ phase }} RHSM"
+          - "{{ target_ssh_keys }}"
+        execution_environment: "ACM SRE Playbook Execution Environment"
+        project: "stolostron/acm-aap-aas-operations"
+        playbook: "ansible-playbooks/playbooks/bastion.yml"
+        validate_certs: false
+        extra_vars:
+          vault_uri: "{{ vault_uri }}"
+          cluster_name: "{{ cluster_name }}"
+
+    - name: Create job template for Inventory update
+      job_template:
+        organization: "Red Hat - ACM"
+        name: "{{ phase }} Update Azure inventory source"
+        description: "Updates an inventory source."
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        job_type: "run"
+        inventory: "{{ inventory_name }}"
+        ask_limit_on_launch: "no"
+        credentials:
+          - "{{ phase }} Controller credentials with hostname"
+        execution_environment: "ACM SRE Playbook Execution Environment"
+        project: "stolostron/acm-aap-aas-operations"
+        playbook: "ansible-playbooks/playbooks/update-inventory.yml"
+        validate_certs: false
+        extra_vars:
+          inventory_name: "{{ inventory_name }}"
+          inventory_source_name: "{{ inventory_source_name }}"
+
+    - name: Create job template for Cluster configuration
+      job_template:
+        organization: "Red Hat - ACM"
+        name: "{{ phase }} Deploy Cluster configuration with ArgoCD"
+        description: "Deploys all the Hub components inside a stack."
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        job_type: "run"
+        inventory: "{{ inventory_name }}"
+        ask_limit_on_launch: "no"
+        credentials:
+          - "{{ target_ssh_keys }}"
+          - "{{ phase }} ArgoCD Vault"
+        execution_environment: "ACM SRE Playbook Execution Environment"
+        project: "stolostron/acm-aap-aas-operations"
+        playbook: "ansible-playbooks/playbooks/deploy-acm-stack.yml"
+        validate_certs: false
+        extra_vars:
+          ENV: "{{ argocd_env }}"
+          cluster_name: "{{ cluster_name }}"
+          K8S_AUTH_KUBECONFIG: "/root/{{ cluster_name }}/auth/kubeconfig"
+
+# Workflow - per phase
+    - name: Create workflow to deploy the Hub
+      block:
+      - name: Create a workflow job template
+        tower_workflow_job_template:
+          name: "{{ workflow_name }}"
+          organization: "Red Hat - ACM"
+          controller_host: "{{ inventory_hostname }}"
+          controller_username: "{{ admin_username }}"
+          controller_password: "{{ admin_password }}"
+
+      - name: Create 4th node
+        tower_workflow_job_template_node:
+          identifier: "{{ phase }} Configure hub"
+          workflow_job_template: "{{ workflow_name }}"
+          unified_job_template: "{{ phase }} Deploy Cluster configuration with ArgoCD"
+          organization: "Red Hat - ACM"
+          inventory: "{{ inventory_name }}"
+          controller_host: "{{ inventory_hostname }}"
+          controller_username: "{{ admin_username }}"
+          controller_password: "{{ admin_password }}"
+
+      - name: Create 3rd node
+        tower_workflow_job_template_node:
+          identifier: "{{ phase }} Configure bastion"
+          workflow_job_template: "{{ workflow_name }}"
+          unified_job_template: "{{ phase }} Configure bastion"
+          organization: "Red Hat - ACM"
+          inventory: "{{ inventory_name }}"
+          controller_host: "{{ inventory_hostname }}"
+          controller_username: "{{ admin_username }}"
+          controller_password: "{{ admin_password }}"
+          success_nodes:
+            - "{{ phase }} Configure hub"
+
+      - name: Create 2nd node
+        tower_workflow_job_template_node:
+          identifier: "{{ phase }} Update Azure inventory source"
+          workflow_job_template: "{{ workflow_name }}"
+          unified_job_template: "{{ phase }} Update Azure inventory source"
+          organization: "Red Hat - ACM"
+          inventory: "{{ inventory_name }}"
+          controller_host: "{{ inventory_hostname }}"
+          controller_username: "{{ admin_username }}"
+          controller_password: "{{ admin_password }}"
+          success_nodes:
+            - "{{ phase }} Configure bastion"
+
+      - name: Create 1st node
+        tower_workflow_job_template_node:
+          identifier: "{{ phase }} Create OCP4 ACM HUB"
+          workflow_job_template: "{{ workflow_name }}"
+          unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
+          inventory: "ACM localhost"
+          organization: "Red Hat - ACM"
+          controller_host: "{{ inventory_hostname }}"
+          controller_username: "{{ admin_username }}"
+          controller_password: "{{ admin_password }}"
+          success_nodes:
+            - "{{ phase }} Update Azure inventory source"
+
+      - name: Add permissions to ACM SRE team to run these job templates
+        role:
+          controller_host: "{{ inventory_hostname }}"
+          controller_username: "{{ admin_username }}"
+          controller_password: "{{ admin_password }}"
+          team: "ACM SRE"
+          role: "execute"
+          job_templates:
+            - "{{ phase }} Create OCP4 ACM HUB"
+            - "{{ phase }} Configure bastion"
+            - "{{ phase }} Update Azure inventory source"
+            - "{{ phase }} Deploy Cluster configuration with ArgoCD"
+          workflows:
+            - "{{ workflow_name }}"
+          validate_certs: false
+
+    - name: Include DEV only job templates and workflows
+      ansible.builtin.include_tasks:
+        file: aap-controller-workflow-dev.yml
+      when: target == 'openshiftdev'
+

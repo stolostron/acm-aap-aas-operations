@@ -1,0 +1,8 @@
+phase_name: "OPENSHIFTDEV"
+cluster_name: "testdev-aap"
+azure_location: "westeurope"
+azure_dns_root: stolostron.io
+azure_dns_zone: "az.stolostron.io"
+inventory_source_name: "azure-openshiftdev"
+vault_uri: "https://kv-acmsre-team.vault.azure.net"
+argocd_env: "testing"

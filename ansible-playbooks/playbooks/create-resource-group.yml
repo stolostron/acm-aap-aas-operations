@@ -1,0 +1,28 @@
+---
+# This playbook creates an Azure Resource Group if it doesn't exist already.
+
+- hosts: localhost
+  gather_facts: false
+  connection: local
+
+  vars:
+    # The following line is necessary because the generated inventory file
+    # has this set to true.  We don't need to use sudo for the following
+    # operations.
+    ansible_become: false
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+  collections:
+    - azure.azcollection
+
+  tasks:
+    - name: Check if resource group exists
+      azure_rm_resourcegroup_info:
+        name: "{{ resource_group }}"
+      register: result
+
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: "{{ resource_group_location | default('westeurope')}}"
+      when: result.resourcegroups | length == 0

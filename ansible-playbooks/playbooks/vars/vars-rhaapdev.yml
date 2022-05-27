@@ -1,0 +1,10 @@
+phase_name: "RHAAPDEV"
+cluster_name: "acm1"
+azure_resource_group: "rg-acm"
+azure_cluster_resource_group: "rg-acm-cluster"
+azure_location: "eastus"
+azure_dns_root: mgmtdev.ansiblecloud.com
+azure_dns_zone: "az.mgmtdev.ansiblecloud.com"
+inventory_source_name: "azure-rhaapdev"
+vault_uri: "https://kv-aoc-team.vault.azure.net/"
+argocd_env: "dev"

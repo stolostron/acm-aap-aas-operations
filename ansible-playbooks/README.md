@@ -1,9 +1,44 @@
 # [playbooks](playbooks/)
+- [aap-controller-workflow-setup.yml](#controller-workflow)
 - [bastion.yml](#bastion)
 - [create-kubeconfig.yml](#create-kubeconfig)
 - [operator-mgmt.yml](#operator-mgmt)
 - [automation-test-reset.yml](#automation-test-reset)
 - [deploy-acm-stack.yml](#deploy-acm-stack)
+
+## <a name="controller-workflow"></a>[aap-controller-workflow-setup.yml](playbooks/aap-controller-workflow-setup.yml)
+Playbook that setups an AAP controller from scratch to configure the workflows to deploy an hub.
+Prerequisites:
+* a configuration file with the proper name in playbooks/vars for any non secret configuration. This contains also the address of an Azure Key Vault
+* in this Key Vault, you need 1 secret that contains a Base64 encoded string with the following content:
+```
+# AAP credentials
+admin_username: 
+admin_password: 
+inventory_hostname:
+# Azure credentials 
+client_id: 
+client_secret: 
+tenant_id: 
+subscription_id: 
+# VM/OCP4 parameters
+ssh_username: "az-admin"
+public_ssh_key: <clear>
+private_ssh_key: <base64 encoded>
+ocp4_pull_secret: |-
+    '<content>'
+# Subscription for RHEL
+rhsm_username: ""
+rhsm_password: ""
+# Argocd vault
+argocd_vault_uri: ""
+argocd_vault_token: ""
+```
+
+Playbook can then be used with this:
+```
+ansible-playbook ansible-playbooks/playbooks/aap-controller-workflow-setup.yml -e target=openshiftdev
+```
 
 ## <a name="create-kubeconfig"></a>[create-kubeconfig.yml](playbooks/automation-test-reset.yml)
 use to generate kubeconfig for the target clusters
