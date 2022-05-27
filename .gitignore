@@ -11,3 +11,4 @@ ansible-playbooks/kubeconfig
 ansible-playbooks/default.yml
 ansible-playbooks/venv/
 ansible-playbooks/vars/
+vars.yml
