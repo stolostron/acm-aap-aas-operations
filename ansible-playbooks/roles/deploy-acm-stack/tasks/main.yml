@@ -95,6 +95,15 @@
   when:
     ENV == 'local'
 
+- name: Create open-cluster-management namespace
+  kubernetes.core.k8s:
+    name: open-cluster-management
+    api_version: v1
+    kind: Namespace
+    state: present
+  when:
+    ENV == 'local'
+
 - name: Apply ArgoCD Applications
   kubernetes.core.k8s:
     state: present
