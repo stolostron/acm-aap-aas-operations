@@ -155,7 +155,7 @@ Deploy hub cluster with ACM stacks and configurations for monitoring.
 
 ### Example to deploy prod hub cluster
 ```
-export K8S_AUTH_KUBECONFIG=/path/to/hub/kubeconfig
+export KUBECONFIG=/path/to/kubeconfig
 
 ansible-playbook playbooks/deploy-acm-stack.yml -e "ENV=prod VAULT_ADDRESS=<VAULT_ADDRESS> VAULT_TOKEN=<VAULT_TOKEN>"
 ```
