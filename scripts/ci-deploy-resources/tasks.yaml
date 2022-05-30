@@ -69,7 +69,7 @@ spec:
     command:
     - /bin/bash
     - -c
-    image: quay.io/acm-sre/ocm-utils:v2.4
+    image: quay.io/acm-sre/ocm-utils@sha256:39846d8b9a3027f3412c7b210beb5c45c17d26c900cd9143d623dfd14882decf
     name: apply
     resources: {}
     workingDir: /workspace/source
@@ -111,7 +111,7 @@ spec:
     command:
     - /bin/bash
     - -c
-    image: quay.io/acm-sre/ocm-utils:v2.4
+    image: quay.io/acm-sre/ocm-utils@sha256:39846d8b9a3027f3412c7b210beb5c45c17d26c900cd9143d623dfd14882decf
     name: apply
     resources: {}
     workingDir: /workspace/source
@@ -147,7 +147,7 @@ spec:
     command:
     - /bin/bash
     - -c
-    image: quay.io/acm-sre/ocm-utils:v2.4
+    image: quay.io/acm-sre/ocm-utils@sha256:39846d8b9a3027f3412c7b210beb5c45c17d26c900cd9143d623dfd14882decf
     name: apply
     resources: {}
     workingDir: /workspace/source

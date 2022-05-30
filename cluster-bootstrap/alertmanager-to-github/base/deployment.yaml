@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: alertmanager-to-github
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: alertmanager-to-github
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: alertmanager-to-github
-        image: quay.io/acm-sre/alertmanager-to-github:v2.4
+        image: quay.io/acm-sre/alertmanager-to-github@sha256:7fc1fdc63b8e7e69119ee8e1360175e7dc17704798b0281c188d87222329f390
         resources:
           limits:
             cpu: 100m

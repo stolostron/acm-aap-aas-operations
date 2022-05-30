@@ -62,7 +62,7 @@ spec:
                     spec:
                       containers:
                       - name: aap-metric-checker
-                        image: quay.io/acm-sre/app-metric-checker:v2.4
+                        image: quay.io/acm-sre/app-metric-checker@sha256:2265e629e1fd079a1d155b56b707665636d1716344c7351905caeb2a6029d7f6
                         imagePullPolicy: Always
                         command: ["/bin/sh"]
                         args: ["-c", "/tmp/aap-metric-checker.sh"]
