@@ -6,3 +6,4 @@ namespace: openshift-gitops
 resources:
   - ../deploy
   - ../config
+  - operatorgroup.yaml
