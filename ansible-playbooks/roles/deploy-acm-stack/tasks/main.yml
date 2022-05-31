@@ -31,7 +31,7 @@
 
 - name: Update argocd configuration
   template:
-    src: argocd.yaml
+    src: argocd.yaml.j2
     dest: ./../../cluster-bootstrap/openshift-gitops/config/argocd.yaml
 
 - name: Apply openshift-gitops subscription
@@ -184,8 +184,8 @@
     ENV != 'local'
 
 - name: Config Alert Manager for local deployment
-  shell: |-
-    sed -i'' --expression 's@<SLACK_API_URL>@'{{ SLACK_API_URL }}'@g' {{ playbook_dir }}/../../cluster-bootstrap/alert-manager-config/overlay/local/app-alertmanager-config.yaml
-    kubectl apply -k ./../../cluster-bootstrap/alert-manager-config/overlay/local
+  kubernetes.core.k8s:
+    state: present
+    template: 'app-alertmanager-config.yaml.j2'
   when:
     ENV == 'local'
