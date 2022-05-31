@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: acm
+  name: argocd
   namespace: openshift-gitops
 spec:
   destination:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/openshift-gitops/overlay/local
+    path: cluster-bootstrap/openshift-gitops/overlay/dev
     repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
     targetRevision: argo
   syncPolicy:
