@@ -70,11 +70,13 @@
     - "{{ playbook_dir }}/../../cluster-bootstrap/openshift-gitops/config/repository.yaml"
     - "{{ playbook_dir }}/../../cluster-bootstrap/openshift-gitops/config/rolebinding.yaml"
 
-- name: Wait for Openshift GitOps
-  shell: |-
-    while [[ $(kubectl get pods -n openshift-gitops --no-headers --ignore-not-found | awk '/openshift-gitops-repo-server/' | wc -l) -ne 1 ]]; 
-        do echo "Waiting for openshift-gitops-repo-server with vault plugin start up and running" && sleep 30;
-    done
+- name: Wait for openshift-gitops pods to come up
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: openshift-gitops
+  register: pod_list
+  until: pod_list|json_query('resources[*].status.phase')|unique == ["Running"]
+  retries: 15
   delay: 10
 
 - name: Create open-cluster-management namespace for local deployment
