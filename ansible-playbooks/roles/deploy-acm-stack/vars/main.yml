@@ -7,3 +7,6 @@ AWS_SECRET_KEY: ""
 SLACK_API_URL: ""
 VAULT_ADDRESS: ""
 VAULT_TOKEN: ""
+
+acm_repo: "https://github.com/stolostron/acm-aap-aas-operations.git"
+acm_repo_version: "main"
