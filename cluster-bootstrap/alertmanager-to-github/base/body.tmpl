@@ -1,6 +1,6 @@
 {{- $payload := .Payload -}}
 
-**Description:** {{index .Payload.CommonAnnotations "description"}}
+**Description:** {{if index .Payload.CommonAnnotations "description"}} {{index .Payload.CommonAnnotations "description"}} {{else}} {{index .Payload.CommonAnnotations "message"}} {{end}}
 
 <!-- A clear and concise description for the incident -->
 
