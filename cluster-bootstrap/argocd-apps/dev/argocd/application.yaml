@@ -11,6 +11,8 @@ spec:
     path: cluster-bootstrap/openshift-gitops/overlay/dev
     repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
     targetRevision: argo
+    plugin:
+      name: argocd-vault-plugin-kustomize  
   syncPolicy:
     automated:
       prune: false
