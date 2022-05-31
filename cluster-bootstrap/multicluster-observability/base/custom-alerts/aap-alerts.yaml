@@ -96,9 +96,9 @@ data:
       rules:
       - alert: PolicyNotCompliant
         annotations:
-          description: Policy {{$labels.policy}} is not compliant on {{$labels.cluster}} for longer than 5 minutes
+          description: Policy {{$labels.policy}} in the namespace {{$labels.cluster_namespace}} is not compliant on cluster {{$labels.cluster_namespace}} for longer than 5 minutes
           summary: Policy is not compliant
-        expr: sum(policy:policy_governance_info:propagated_noncompliant_count) by (cluster, clusterID, policy) > 0
+        expr: sum(policy_governance_info{type="propagated"}) by (cluster_namespace, policy, cluster) > 0
         for: 5m
         labels:
           severity: critical
