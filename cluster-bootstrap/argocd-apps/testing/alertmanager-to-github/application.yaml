@@ -8,7 +8,7 @@ spec:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/alertmanager-to-github/overlay/dev
+    path: cluster-bootstrap/alertmanager-to-github/overlay/testing
     repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
     targetRevision: main
     plugin:
