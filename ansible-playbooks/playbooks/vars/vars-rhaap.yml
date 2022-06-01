@@ -1,10 +1,10 @@
-phase_name: "RHAAPPROD"
+phase_name: "RHAAP"
 cluster_name: "acm10"
 azure_resource_group: "rg-acm"
 azure_cluster_resource_group: "rg-acm-cluster"
 azure_location: "eastus"
-azure_dns_root: mgmtdev.ansiblecloud.com #TODO CHECK
-azure_dns_zone: "az.mgmtdev.ansiblecloud.com" #TODO CHECK
-inventory_source_name: "azure-rhaapprod"
+azure_dns_root: mgmt.ansiblecloud.com
+azure_dns_zone: "az.mgmt.ansiblecloud.com"
+inventory_source_name: "azure-rhaap"
 vault_uri: "https://kv-aoc-team.vault.azure.net/" #TODO CHECK
 argocd_env: "prod"
