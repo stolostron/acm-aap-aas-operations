@@ -29,17 +29,39 @@
     - AWS_SECRET_KEY
     - SLACK_API_URL
 
+- name: Create temporary build directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: -temp
+  register: tempdir
+
+- name: Install a list of packages with a list variable
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - git
+
+- name: Git checkout repo to remote bastion
+  ansible.builtin.git:
+    repo: "{{ acm_repo }}"
+    version: "{{ acm_repo_version }}"
+    dest: "{{ tempdir.path }}/acm-aap-aas-operations"
+
+- set_fact:
+    working_dir: "{{ tempdir.path }}/acm-aap-aas-operations"
+
 - name: Update argocd configuration
   template:
     src: argocd.yaml.j2
-    dest: ./../../cluster-bootstrap/openshift-gitops/config/argocd.yaml
+    dest: "{{ working_dir }}/cluster-bootstrap/openshift-gitops/config/argocd.yaml"
 
 - name: Apply openshift-gitops subscription
   kubernetes.core.k8s:
     state: present
     src: "{{ item }}"
   loop:
-    - "{{ playbook_dir }}/../../cluster-bootstrap/openshift-gitops/deploy/subscription.yaml"
+    - "{{ working_dir }}/cluster-bootstrap/openshift-gitops/deploy/subscription.yaml"
 
 - name: Wait namespace openshift-gitops is created
   kubernetes.core.k8s_info:
@@ -66,9 +88,9 @@
     state: present
     src: "{{ item }}"
   loop:
-    - "{{ playbook_dir }}/../../cluster-bootstrap/openshift-gitops/config/argocd.yaml"
-    - "{{ playbook_dir }}/../../cluster-bootstrap/openshift-gitops/config/repository.yaml"
-    - "{{ playbook_dir }}/../../cluster-bootstrap/openshift-gitops/config/rolebinding.yaml"
+    - "{{ working_dir }}/cluster-bootstrap/openshift-gitops/config/argocd.yaml"
+    - "{{ working_dir }}/cluster-bootstrap/openshift-gitops/config/repository.yaml"
+    - "{{ working_dir }}/cluster-bootstrap/openshift-gitops/config/rolebinding.yaml"
 
 - name: Wait for openshift-gitops pods to come up
   kubernetes.core.k8s_info:
@@ -114,7 +136,7 @@
 - name: Apply ArgoCD Applications
   kubernetes.core.k8s:
     state: present
-    src: "{{ playbook_dir }}/../../cluster-bootstrap/argocd-apps/{{ ENV }}/{{ item }}/application.yaml"
+    src: "{{ working_dir }}/cluster-bootstrap/argocd-apps/{{ ENV }}/{{ item }}/application.yaml"
   loop:
     - "acm"
     - "multicluster-observability"
@@ -126,7 +148,7 @@
 - name: Apply ArgoCD Applications for {{ ENV }} environment
   kubernetes.core.k8s:
     state: present
-    src: "{{ playbook_dir }}/../../cluster-bootstrap/argocd-apps/{{ ENV }}/{{ item }}/application.yaml"
+    src: "{{ working_dir }}/cluster-bootstrap/argocd-apps/{{ ENV }}/{{ item }}/application.yaml"
   loop:
     - "group-sync"
     - "sso"
@@ -179,7 +201,7 @@
 - name: Config Alert Manager for {{ ENV }} environment
   kubernetes.core.k8s:
     state: present
-    src: "{{ playbook_dir }}/../../cluster-bootstrap/argocd-apps/{{ ENV }}/{{ item }}/application.yaml"
+    src: "{{ working_dir }}/cluster-bootstrap/argocd-apps/{{ ENV }}/{{ item }}/application.yaml"
   loop:
     - "alert-manager-config"
   when:
@@ -191,3 +213,9 @@
     template: 'app-alertmanager-config.yaml.j2'
   when:
     ENV == 'local'
+
+- name: Use the registered var and the file module to remove the temporary file
+  ansible.builtin.file:
+    path: "{{ tempdir.path }}"
+    state: absent
+  when: tempdir.path is defined
