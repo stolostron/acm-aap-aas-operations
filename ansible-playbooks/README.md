@@ -153,9 +153,15 @@ managed_application: acmaocdevtest0418   # name of the managed application, we'l
 ## <a name="deploy-acm-stack"></a>[deploy-acm-stack.yml](playbooks/deploy-acm-stack.yml)
 Deploy hub cluster with ACM stacks and configurations for monitoring.
 
+ENV values: `testing` | `dev` | `prod`
+
+* `testing` will be our default ENV setting. All our deployments should use testing.
+* `dev` is restricted to the current `acm1` cluster deployed in RHAAPDEV. This will have alertmanager setting to send alerts to the AOC channel.
+* `prod` is restricted to the current `acm10` cluster deployed in RHAAP. 
+
 ### Example to deploy prod hub cluster
 ```
 export KUBECONFIG=/path/to/kubeconfig
 
-ansible-playbook playbooks/deploy-acm-stack.yml -e "ENV=prod VAULT_ADDRESS=<VAULT_ADDRESS> VAULT_TOKEN=<VAULT_TOKEN>"
+ansible-playbook playbooks/deploy-acm-stack.yml -e "ENV=testing VAULT_ADDRESS=<VAULT_ADDRESS> VAULT_TOKEN=<VAULT_TOKEN>"
 ```
