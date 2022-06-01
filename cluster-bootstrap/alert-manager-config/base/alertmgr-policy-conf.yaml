@@ -59,7 +59,13 @@ spec:
                           continue: true
                         - receiver: aoc-receiver
                           matchers:
-                            - severity =~ "warning|critical"
+                            - team = "aoc-sre"
+                          continue: true
+                        # this receiver is a duplicate of aoc-receiver, make sure
+                        # we can know which alert have sent to AOC private channel
+                        - receiver: acm-aoc-receiver
+                          matchers:
+                            - team = "aoc-sre"
                           continue: true
                         - receiver: pagerduty-acm-aoc-critical
                           matchers:
@@ -101,6 +107,29 @@ spec:
                         slack_configs:
                         - channel: aoc-azure-alerts
                           api_url: <AOC_SLACK_API_URL>
+                          actions:
+                            - name: "links"
+                              text: "Grafana :grafana:"
+                              type: "button"
+                              url: https://{{fromSecret "openshift-gitops" "console-url" "ACM_CONSOLE_URL" | base64dec}}{{`/grafana/explore?orgId=1&left=["now-1h","now","Observatorium",{"expr":"ALERTS{alertname=\"{{ .CommonLabels.alertname }}\",cluster=\"{{ .CommonLabels.cluster }}\"}","context":"explore"},{"mode":"Metrics"},{"ui":[true,true,true,"none"]}]`}}'
+                          footer: |
+                            "{{`{{ .CommonLabels.cluster }}`}}"
+                          mrkdwn_in:
+                            - text
+                            - actions
+                          text: |-
+                            "{{`{{ range .Alerts }}`}}"
+                              :failed: - *Alerts:* "{{`{{ .Annotations.summary }}`}}"
+                              :green_book: - *Description:* "{{`{{ .Annotations.description }}`}}"
+                              :clipboard: - *Details:*
+                              "{{`{{ range .Labels.SortedPairs }} • *{{ .Name }}:* {{ .Value }} {{ printf "\n" }} {{ end }}`}}"
+                            "{{`{{ end }}`}}"
+                          title: "{{`[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }} ({{ .CommonLabels.severity }})`}}"
+                          title_link: http://{{fromSecret "openshift-gitops" "console-url" "ALERTMANAGER_URL" | base64dec}}/#/alerts
+                      - name: acm-aoc-receiver
+                        slack_configs:
+                        - channel: team-aoc-sre-dev-alerts
+                          api_url: <AOC_MOCK_SLACK_API_URL>
                           actions:
                             - name: "links"
                               text: "Grafana :grafana:"
