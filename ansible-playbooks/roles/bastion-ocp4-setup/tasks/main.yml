@@ -9,3 +9,31 @@
     src: prompt.sh.j2
     dest: /etc/profile.d/custom-prompt.sh
     mode: '0755'
+
+- name: Check if secret exists already
+  azure.azcollection.azure_rm_keyvaultsecret_info:
+    vault_uri: "{{ vault_uri }}"
+    name: "acm-sre-{{ ocp4_metadata.clusterName }}-kubeconfig"
+  register: result
+  when: vault_uri is defined
+  delegate_to: localhost
+
+- name: Get the remote kubeconfig
+  ansible.builtin.slurp:
+    src: "{{ root_path }}/auth/kubeconfig"
+  register: kubeconfig
+  ignore_errors: true
+  when: vault_uri is defined
+
+- name: Upload kubeconfig to Azure KeyVault if not already there
+  azure.azcollection.azure_rm_keyvaultsecret:
+    secret_name: "acm-sre-{{ ocp4_metadata.clusterName }}-kubeconfig" # pragma: allowlist secret
+    secret_value: "{{ kubeconfig['content'] }}" # Base 64 encoded
+    keyvault_uri: "{{ vault_uri }}"
+    content_type: "Kubeconfig for an OCP4 cluster"
+    tags:
+        owner: "acm-sre"
+        kubeconfig: "yes"
+        clustername: "{{ ocp4_metadata.clusterName }}"
+  when: kubeconfig is not failed and vault_uri is defined and (result.secrets | length == 0)
+  delegate_to: localhost
