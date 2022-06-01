@@ -1,0 +1,117 @@
+---
+
+- hosts: all
+  become: false
+  vars:
+    ACM_HUB_RG: "{{ ACM_HUB_VNET_RG }}-cluster"
+    ACM_HUB_DNS_ZONE: "az.stolostron.io"
+    ACM_HUB_VNET: "ocp4-vnet"
+  tasks:
+
+    - name: Verify variables are set
+      debug:
+        msg:
+          - "HUB RG:        {{ ACM_HUB_RG }}"
+          - "HUB VNET RG:   {{ ACM_HUB_VNET_RG }}"
+          - "HUB VNET NAME: {{ ACM_HUB_VNET }}"
+          - "HUB ZONE:      {{ ACM_HUB_DNS_ZONE }}"
+
+    - name: Get facts for one resource group
+      azure_rm_resourcegroup_info:
+        name: "{{ ACM_HUB_VNET_RG }}"
+      register: rg_info
+
+    - set_fact:
+        location: "{{ rg_info.resourcegroups.0.location }}"
+
+    - name: Get the subnet id for control-plane subnet
+      azure.azcollection.azure_rm_subnet_info:
+        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        virtual_network_name: "{{ ACM_HUB_VNET }}"
+        name: "control-plane"
+      register: subnet_control_plane
+
+    - name: Get the subnet id for compute subnet
+      azure.azcollection.azure_rm_subnet_info:
+        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        virtual_network_name: "{{ ACM_HUB_VNET }}"
+        name: "compute"
+      register: subnet_compute
+
+    - name: List current frontendIPConfiguration for a RG
+      azure.azcollection.azure_rm_resource_info:
+        api_version: "2021-08-01"
+        resource_group: "{{ ACM_HUB_RG }}"
+        provider: network
+        resource_type: loadbalancers
+        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        subresource:
+          - type: frontendIPConfigurations
+      register: lb
+
+    - name: Disable private link service network policies on subnet
+      azure.azcollection.azure_rm_subnet:
+        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        name: "control-plane"
+        virtual_network_name: "{{ ACM_HUB_VNET }}"
+        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        address_prefix_cidr: "{{ data1.address_prefix_cidr }}"
+        address_prefixes_cidr: "{{ data1.address_prefixes_cidr }}"
+        private_link_service_network_policies: "Disabled"
+      vars: 
+        data1: "{{ subnet_control_plane.subnets | first }}"
+
+    - name: Create a private link service for control-plane subnet
+      azure.azcollection.azure_rm_resource:
+        api_version: "2021-08-01"
+        resource_group: "{{ ACM_HUB_RG }}"
+        provider: network
+        resource_type: privatelinkservices
+        resource_name: "api-privatelink"
+        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        body:
+          location: "{{ location }}"
+          properties:
+            loadBalancerFrontendIpConfigurations:
+              - id: "{{ item.id }}"
+            ipConfigurations:
+              - name: "control-plane"
+                properties:
+                  subnet:
+                    id: "{{ subnet_control_plane.subnets[0].id }}"
+      loop: "{{ lb | community.general.json_query('response[*].properties.frontendIPConfigurations') | list | flatten }}"
+      when: '"public" not in item.name and item.properties.subnet is defined and "control-plane" in item.properties.subnet.id'
+      ignore_errors: true
+
+    - name: Disable private link service network policies on subnet
+      azure.azcollection.azure_rm_subnet:
+        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        name: "compute"
+        virtual_network_name: "{{ ACM_HUB_VNET }}"
+        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        address_prefix_cidr: "{{ data2.address_prefix_cidr }}"
+        address_prefixes_cidr: "{{ data2.address_prefixes_cidr }}"
+        private_link_service_network_policies: "Disabled"
+      vars: 
+        data2: "{{ subnet_compute.subnets | first }}"
+
+    - name: Create a private link service for compute subnet
+      azure.azcollection.azure_rm_resource:
+        api_version: "2021-08-01"
+        resource_group: "{{ ACM_HUB_RG }}"
+        provider: network
+        resource_type: privatelinkservices
+        resource_name: "apps-privatelink"
+        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        body:
+          location: "{{ location }}"
+          properties:
+            loadBalancerFrontendIpConfigurations:
+              - id: "{{ item.id }}"
+            ipConfigurations:
+              - name: "compute"
+                properties:
+                  subnet:
+                    id: "{{ subnet_compute.subnets[0].id }}"
+      loop: "{{ lb | community.general.json_query('response[*].properties.frontendIPConfigurations') | list | flatten }}"
+      when: '"public" not in item.name and item.properties.subnet is defined and "compute" in item.properties.subnet.id'
