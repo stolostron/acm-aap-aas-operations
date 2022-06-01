@@ -53,6 +53,7 @@ spec:
                             - severity =~ "warning|critical"
                           continue: true
                         - receiver: to-github
+                          group_by: ['...']
                           matchers:
                             - alertname =~ ".*"
                           continue: true
