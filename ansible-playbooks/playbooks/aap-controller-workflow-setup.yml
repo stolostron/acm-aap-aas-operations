@@ -361,7 +361,7 @@
         controller_username: "{{ admin_username }}"
         controller_password: "{{ admin_password }}"
         job_type: "run"
-        inventory: "ACM localhost"
+        inventory: "{{ acm_localhost_inventory }}"
         ask_limit_on_launch: "no"
         credentials:
           - "{{ inventory_credentials }}"
@@ -537,7 +537,7 @@
           identifier: "{{ phase }} Create OCP4 ACM HUB"
           workflow_job_template: "{{ workflow_name }}"
           unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
-          inventory: "ACM localhost"
+          inventory: "{{ acm_localhost_inventory }}"
           organization: "Red Hat - ACM"
           controller_host: "{{ inventory_hostname }}"
           controller_username: "{{ admin_username }}"

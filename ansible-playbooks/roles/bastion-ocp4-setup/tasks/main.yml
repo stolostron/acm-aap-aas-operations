@@ -15,6 +15,7 @@
     vault_uri: "{{ vault_uri }}"
     name: "acm-sre-{{ ocp4_metadata.clusterName }}-kubeconfig"
   register: result
+  no_log: true
   when: vault_uri is defined
   delegate_to: localhost
 
@@ -23,17 +24,32 @@
     src: "{{ root_path }}/auth/kubeconfig"
   register: kubeconfig
   ignore_errors: true
+  no_log: true
   when: vault_uri is defined
 
-- name: Upload kubeconfig to Azure KeyVault if not already there
+- name: Check if kubeconfig changed so we can update it in case of need
+  ansible.builtin.set_fact:
+    kubeconfig_to_upload: "{{ kubeconfig['content'] != result.secrets[0].secret }}"
+  when: kubeconfig is not failed and result.secrets | length == 1
+  no_log: true
+- name: Check if no kubeconfig uploaded yet so we can upload
+  ansible.builtin.set_fact:
+    kubeconfig_to_upload: true
+  when: kubeconfig is not failed and result.secrets | length == 0
+- name: No kubeconfig found, nothing to upload
+  ansible.builtin.set_fact:
+    kubeconfig_to_upload: false
+  when: kubeconfig is failed
+
+- name: Upload kubeconfig to Azure KeyVault when needed
   azure.azcollection.azure_rm_keyvaultsecret:
     secret_name: "acm-sre-{{ ocp4_metadata.clusterName }}-kubeconfig" # pragma: allowlist secret
     secret_value: "{{ kubeconfig['content'] }}" # Base 64 encoded
     keyvault_uri: "{{ vault_uri }}"
-    content_type: "Kubeconfig for an OCP4 cluster"
+    content_type: "Cluster-admin kubeconfig for the OCP4 cluster named {{ ocp4_metadata.clusterName }}"
     tags:
-        owner: "acm-sre"
-        kubeconfig: "yes"
-        clustername: "{{ ocp4_metadata.clusterName }}"
-  when: kubeconfig is not failed and vault_uri is defined and (result.secrets | length == 0)
+      owner: "acm-sre"
+      kubeconfig: "yes"
+      clustername: "{{ ocp4_metadata.clusterName }}"
+  when: vault_uri is defined and kubeconfig_to_upload
   delegate_to: localhost
