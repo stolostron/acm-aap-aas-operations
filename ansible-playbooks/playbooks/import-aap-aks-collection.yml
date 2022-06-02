@@ -1,12 +1,9 @@
 - hosts: localhost
-  connection: local
   become: false
+
+  collections:
+    - azure.azcollection
+
   tasks:
   - include_role:
       name: ../roles/connect-aks-to-acm-hub-collection
-  - include_role:
-      name: ../roles/import-managedcluster-default-invoke  
-  
-  # Enable when we enable AAP w/ private endpoint to the ACM private link
-  # - include_role:
-  #   name: ../roles/import-managedcluster-default-collection
