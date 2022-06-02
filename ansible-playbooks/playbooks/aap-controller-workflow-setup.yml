@@ -483,6 +483,8 @@
         validate_certs: false
         extra_vars:
           cluster_name: "{{ cluster_name }}"
+          azure_resource_group: "{{ azure_resource_group }}"
+          azure_cluster_resource: "{{ azure_cluster_resource }}"
 
 # Workflow - per phase
     - name: Create workflow to deploy the Hub
@@ -491,6 +493,17 @@
         tower_workflow_job_template:
           name: "{{ workflow_name }}"
           organization: "Red Hat - ACM"
+          controller_host: "{{ inventory_hostname }}"
+          controller_username: "{{ admin_username }}"
+          controller_password: "{{ admin_password }}"
+
+      - name: Create 5th node
+        tower_workflow_job_template_node:
+          identifier: "{{ phase }} Create Private Link Service"
+          workflow_job_template: "{{ workflow_name }}"
+          unified_job_template: "{{ phase }} Create Private Link Service"
+          organization: "Red Hat - ACM"
+          inventory: "{{ inventory_name }}"
           controller_host: "{{ inventory_hostname }}"
           controller_username: "{{ admin_username }}"
           controller_password: "{{ admin_password }}"
@@ -505,6 +518,8 @@
           controller_host: "{{ inventory_hostname }}"
           controller_username: "{{ admin_username }}"
           controller_password: "{{ admin_password }}"
+          success_nodes:
+            - "{{ phase }} Create Private Link Service"
 
       - name: Create 3rd node
         tower_workflow_job_template_node:
