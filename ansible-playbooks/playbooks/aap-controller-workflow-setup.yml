@@ -12,6 +12,7 @@
     # operations.
     ansible_become: false
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    acm_localhost_inventory: "ACM localhost"
 
   collections:
     - awx.awx
@@ -76,6 +77,7 @@
         controller_password: "{{ admin_password }}"
         scm_url: "https://github.com/stolostron/ocp4-azure-ipi.git"
         scm_type: git
+        scm_update_on_launch: true
         validate_certs: false
 
     - name: Create project for stolostron/acm-aap-aas-operations repository
@@ -87,6 +89,7 @@
         controller_password: "{{ admin_password }}"
         scm_url: "https://github.com/stolostron/acm-aap-aas-operations.git"
         scm_type: git
+        scm_update_on_launch: true
         validate_certs: false
 
     - name: Add permissions to team to access project
@@ -460,6 +463,26 @@
           ENV: "{{ argocd_env }}"
           cluster_name: "{{ cluster_name }}"
           K8S_AUTH_KUBECONFIG: "/root/{{ cluster_name }}/auth/kubeconfig"
+
+    - name: Create job template for Adding Private Link Service
+      job_template:
+        organization: "Red Hat - ACM"
+        name: "{{ phase }} Create Private Link Service"
+        description: "Add private link service so private AKS can connect to ACM."
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        job_type: "run"
+        inventory: "{{ acm_localhost_inventory }}"
+        ask_limit_on_launch: "no"
+        credentials:
+          - "{{ phase }} Azure Service Principal"
+        execution_environment: "ACM SRE Playbook Execution Environment"
+        project: "stolostron/acm-aap-aas-operations"
+        playbook: "ansible-playbooks/playbooks/add-private-link-acm.yml"
+        validate_certs: false
+        extra_vars:
+          cluster_name: "{{ cluster_name }}"
 
 # Workflow - per phase
     - name: Create workflow to deploy the Hub
