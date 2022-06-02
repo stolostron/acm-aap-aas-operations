@@ -3,7 +3,7 @@
 - hosts: all
   become: false
   vars:
-    ACM_HUB_RG: "{{ azure_resource_group }}-cluster"
+    ACM_HUB_RG: "{{ azure_cluster_resource_group }}"
     ACM_HUB_VNET: "ocp4-vnet"
     subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}"
   tasks:
