@@ -504,7 +504,7 @@
           workflow_job_template: "{{ workflow_name }}"
           unified_job_template: "{{ phase }} Create Private Link Service"
           organization: "Red Hat - ACM"
-          inventory: "{{ inventory_name }}"
+          inventory: "{{ acm_localhost_inventory }}"
           controller_host: "{{ inventory_hostname }}"
           controller_username: "{{ admin_username }}"
           controller_password: "{{ admin_password }}"
