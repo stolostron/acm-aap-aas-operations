@@ -3,22 +3,21 @@
 - hosts: all
   become: false
   vars:
-    ACM_HUB_RG: "{{ ACM_HUB_VNET_RG }}-cluster"
-    ACM_HUB_DNS_ZONE: "az.stolostron.io"
+    ACM_HUB_RG: "{{ azure_resource_group }}-cluster"
     ACM_HUB_VNET: "ocp4-vnet"
+    subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}"
   tasks:
 
     - name: Verify variables are set
       debug:
         msg:
           - "HUB RG:        {{ ACM_HUB_RG }}"
-          - "HUB VNET RG:   {{ ACM_HUB_VNET_RG }}"
+          - "HUB VNET RG:   {{ azure_resource_group }}"
           - "HUB VNET NAME: {{ ACM_HUB_VNET }}"
-          - "HUB ZONE:      {{ ACM_HUB_DNS_ZONE }}"
 
     - name: Get facts for one resource group
       azure_rm_resourcegroup_info:
-        name: "{{ ACM_HUB_VNET_RG }}"
+        name: "{{ azure_resource_group }}"
       register: rg_info
 
     - set_fact:
@@ -26,14 +25,14 @@
 
     - name: Get the subnet id for control-plane subnet
       azure.azcollection.azure_rm_subnet_info:
-        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        resource_group: "{{ azure_resource_group }}"
         virtual_network_name: "{{ ACM_HUB_VNET }}"
         name: "control-plane"
       register: subnet_control_plane
 
     - name: Get the subnet id for compute subnet
       azure.azcollection.azure_rm_subnet_info:
-        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        resource_group: "{{ azure_resource_group }}"
         virtual_network_name: "{{ ACM_HUB_VNET }}"
         name: "compute"
       register: subnet_compute
@@ -44,17 +43,17 @@
         resource_group: "{{ ACM_HUB_RG }}"
         provider: network
         resource_type: loadbalancers
-        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        subscription_id: "{{ subscription_id }}"
         subresource:
           - type: frontendIPConfigurations
       register: lb
 
     - name: Disable private link service network policies on subnet
       azure.azcollection.azure_rm_subnet:
-        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        resource_group: "{{ azure_resource_group }}"
         name: "control-plane"
         virtual_network_name: "{{ ACM_HUB_VNET }}"
-        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        subscription_id: "{{ subscription_id }}"
         address_prefix_cidr: "{{ data1.address_prefix_cidr }}"
         address_prefixes_cidr: "{{ data1.address_prefixes_cidr }}"
         private_link_service_network_policies: "Disabled"
@@ -68,7 +67,7 @@
         provider: network
         resource_type: privatelinkservices
         resource_name: "api-privatelink"
-        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        subscription_id: "{{ subscription_id }}"
         body:
           location: "{{ location }}"
           properties:
@@ -85,10 +84,10 @@
 
     - name: Disable private link service network policies on subnet
       azure.azcollection.azure_rm_subnet:
-        resource_group: "{{ ACM_HUB_VNET_RG }}"
+        resource_group: "{{ azure_resource_group }}"
         name: "compute"
         virtual_network_name: "{{ ACM_HUB_VNET }}"
-        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        subscription_id: "{{ subscription_id }}"
         address_prefix_cidr: "{{ data2.address_prefix_cidr }}"
         address_prefixes_cidr: "{{ data2.address_prefixes_cidr }}"
         private_link_service_network_policies: "Disabled"
@@ -102,7 +101,7 @@
         provider: network
         resource_type: privatelinkservices
         resource_name: "apps-privatelink"
-        subscription_id: "{{ SUBSCRIPTION_ID }}"
+        subscription_id: "{{ subscription_id }}"
         body:
           location: "{{ location }}"
           properties:
