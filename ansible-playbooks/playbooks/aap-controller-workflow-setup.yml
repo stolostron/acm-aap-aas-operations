@@ -484,7 +484,7 @@
         extra_vars:
           cluster_name: "{{ cluster_name }}"
           azure_resource_group: "{{ azure_resource_group }}"
-          azure_cluster_resource: "{{ azure_cluster_resource }}"
+          azure_cluster_resource_group: "{{ azure_cluster_resource_group }}"
 
 # Workflow - per phase
     - name: Create workflow to deploy the Hub
@@ -493,6 +493,7 @@
         tower_workflow_job_template:
           name: "{{ workflow_name }}"
           organization: "Red Hat - ACM"
+          ask_scm_branch_on_launch: false
           controller_host: "{{ inventory_hostname }}"
           controller_username: "{{ admin_username }}"
           controller_password: "{{ admin_password }}"
@@ -572,6 +573,7 @@
             - "{{ phase }} Configure bastion"
             - "{{ phase }} Update Azure inventory source"
             - "{{ phase }} Deploy Cluster configuration with ArgoCD"
+            - "{{ phase }} Create Private Link Service"
           workflows:
             - "{{ workflow_name }}"
           validate_certs: false
