@@ -28,10 +28,10 @@ data:
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPMetricEndpointDown.md
       - alert: AAPPodRestartingTooMuch
         annotations:
-          description: AAP Pod in {{$labels.namespace}} restart more than 10 times over 10 minutes
+          description: AAP Pod in {{$labels.namespace}} restart more than 100 times over 60 minutes
           summary: AAP Pod in {{$labels.namespace}} restarting too much
-        expr: sum(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform"}) by (cluster, namespace, pod, container) > 10
-        for: 10m
+        expr: sum(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform"}) by (cluster, namespace, pod, container) > 100
+        for: 60m
         labels:
           severity: warning
           team: aoc-sre
