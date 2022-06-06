@@ -153,6 +153,7 @@
     - "group-sync"
     - "sso"
     - "alertmanager-to-github"
+    - "argocd"
   when:
     ENV != 'local'
 
