@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: aap-metric-simulator
+  name: aap-metric-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aap-metric-simulator
+  template:
+    metadata:
+      labels:
+        app: aap-metric-simulator
+    spec:
+      containers:
+      - args:
+        - --web.listen-address=0.0.0.0:8080
+        - --collector.disable-defaults
+        - --collector.textfile
+        - --web.disable-exporter-metrics
+        - --collector.textfile.directory=/var/node_exporter/textfile
+        image: quay.io/prometheus/node-exporter:latest
+        imagePullPolicy: IfNotPresent
+        name: aap-metric-simulator
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        volumeMounts:
+        - name: textfile
+          mountPath: /var/node_exporter/textfile
+      volumes:
+      - name: textfile
+        configMap:
+          name: aap-metric-simulator

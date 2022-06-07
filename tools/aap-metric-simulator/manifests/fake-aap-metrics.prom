@@ -1,0 +1,121 @@
+# HELP awx_system_info AWX System Information
+# TYPE awx_system_info gauge
+awx_system_info{external_logger_enabled="False",external_logger_type="None",insights_analytics="True",install_uuid="c3964fa6-7eba-4c32-a51b-2a41566ac17b",license_expiry="2723837",license_type="enterprise",pendo_tracking="detailed",tower_url_base="https://towerhost",tower_version="4.1.0"} 1.0
+# HELP awx_organizations_total Number of organizations
+# TYPE awx_organizations_total gauge
+awx_organizations_total 3.0
+# HELP awx_users_total Number of users
+# TYPE awx_users_total gauge
+awx_users_total 1.0
+# HELP awx_teams_total Number of teams
+# TYPE awx_teams_total gauge
+awx_teams_total 0.0
+# HELP awx_inventories_total Number of inventories
+# TYPE awx_inventories_total gauge
+awx_inventories_total 4.0
+# HELP awx_projects_total Number of projects
+# TYPE awx_projects_total gauge
+awx_projects_total 4.0
+# HELP awx_job_templates_total Number of job templates
+# TYPE awx_job_templates_total gauge
+awx_job_templates_total 4.0
+# HELP awx_workflow_job_templates_total Number of workflow job templates
+# TYPE awx_workflow_job_templates_total gauge
+awx_workflow_job_templates_total 1.0
+# HELP awx_hosts_total Number of hosts
+# TYPE awx_hosts_total gauge
+awx_hosts_total{type="all"} 301.0
+awx_hosts_total{type="active"} 201.0
+# HELP awx_schedules_total Number of schedules
+# TYPE awx_schedules_total gauge
+awx_schedules_total 5.0
+# HELP awx_sessions_total Number of sessions
+# TYPE awx_sessions_total gauge
+awx_sessions_total{type="all"} 0.0
+awx_sessions_total{type="user"} 0.0
+awx_sessions_total{type="anonymous"} 0.0
+# HELP awx_running_jobs_total Number of running jobs on the system
+# TYPE awx_running_jobs_total gauge
+awx_running_jobs_total 11.0
+# HELP awx_pending_jobs_total Number of pending jobs on the system
+# TYPE awx_pending_jobs_total gauge
+awx_pending_jobs_total 0.0
+# HELP awx_status_total Status of Job launched
+# TYPE awx_status_total gauge
+awx_status_total{status="error"} 6.0
+awx_status_total{status="failed"} 5.0
+awx_status_total{status="running"} 11.0
+awx_status_total{status="successful"} 3220.0
+# HELP awx_instance_capacity Capacity of each node in the system
+# TYPE awx_instance_capacity gauge
+awx_instance_capacity{hostname="automation-controller-7f8f85f579-gkbk4",instance_uuid="89340c8c-4452-4154-959d-173d179356bc"} 139.0
+# HELP awx_instance_cpu CPU cores on each node in the system
+# TYPE awx_instance_cpu gauge
+awx_instance_cpu{hostname="automation-controller-7f8f85f579-gkbk4",instance_uuid="89340c8c-4452-4154-959d-173d179356bc"} 4.0
+# HELP awx_instance_memory RAM (Kb) on each node in the system
+# TYPE awx_instance_memory gauge
+awx_instance_memory{hostname="automation-controller-7f8f85f579-gkbk4",instance_uuid="89340c8c-4452-4154-959d-173d179356bc"} 1.6791171072e+010
+# HELP awx_instance_info Info about each node in the system
+# TYPE awx_instance_info gauge
+awx_instance_info{enabled="True",hostname="automation-controller-7f8f85f579-gkbk4",instance_uuid="89340c8c-4452-4154-959d-173d179356bc",managed_by_policy="True",version="4.1.0"} 1.0
+# HELP awx_instance_launch_type_total Type of Job launched
+# TYPE awx_instance_launch_type_total gauge
+awx_instance_launch_type_total{launch_type="manual",node="automation-controller-7f8f85f579-gkbk4"} 7.0
+awx_instance_launch_type_total{launch_type="scheduled",node="automation-controller-7f8f85f579-gkbk4"} 9.0
+awx_instance_launch_type_total{launch_type="dependency",node="automation-controller-7f8f85f579-gkbk4"} 4.0
+awx_instance_launch_type_total{launch_type="dependency",node="automation-controller-7d897fdd4f-jhzmr"} 2.0
+# HELP awx_instance_status_total Status of Job launched
+# TYPE awx_instance_status_total gauge
+awx_instance_status_total{node="automation-controller-7f8f85f579-gkbk4",status="successful"} 20.0
+awx_instance_status_total{node="automation-controller-7d897fdd4f-jhzmr",status="successful"} 1.0
+awx_instance_status_total{node="automation-controller-7d897fdd4f-jhzmr",status="failed"} 1.0
+# HELP awx_instance_consumed_capacity Consumed capacity of each node in the system
+# TYPE awx_instance_consumed_capacity gauge
+awx_instance_consumed_capacity{hostname="automation-controller-7f8f85f579-gkbk4",instance_uuid="89340c8c-4452-4154-959d-173d179356bc"} 0.0
+# HELP awx_instance_remaining_capacity Remaining capacity of each node in the system
+# TYPE awx_instance_remaining_capacity gauge
+awx_instance_remaining_capacity{hostname="automation-controller-7f8f85f579-gkbk4",instance_uuid="89340c8c-4452-4154-959d-173d179356bc"} 139.0
+# HELP awx_license_instance_total Total number of managed hosts provided by your license
+# TYPE awx_license_instance_total gauge
+awx_license_instance_total 16.0
+# HELP awx_license_instance_free Number of remaining managed hosts provided by your license
+# TYPE awx_license_instance_free gauge
+awx_license_instance_free 0.0
+# HELP callback_receiver_events_queue_size_redis Current number of events in redis queue
+# TYPE callback_receiver_events_queue_size_redis gauge
+callback_receiver_events_queue_size_redis{node="automation-controller-7f8f85f579-gkbk4"} 1
+# HELP callback_receiver_events_popped_redis Number of events popped from redis
+# TYPE callback_receiver_events_popped_redis gauge
+callback_receiver_events_popped_redis{node="automation-controller-7f8f85f579-gkbk4"} 29329948
+# HELP callback_receiver_events_in_memory Current number of events in memory (in transfer from redis to db)
+# TYPE callback_receiver_events_in_memory gauge
+callback_receiver_events_in_memory{node="automation-controller-7f8f85f579-gkbk4"} 11
+# HELP callback_receiver_batch_events_errors Number of times batch insertion failed
+# TYPE callback_receiver_batch_events_errors gauge
+callback_receiver_batch_events_errors{node="automation-controller-7f8f85f579-gkbk4"} 1
+# HELP callback_receiver_events_insert_db_seconds Time spent saving events to database
+# TYPE callback_receiver_events_insert_db_seconds gauge
+callback_receiver_events_insert_db_seconds{node="automation-controller-7f8f85f579-gkbk4"} 271852.2900683816
+# HELP callback_receiver_events_insert_db Number of events batch inserted into database
+# TYPE callback_receiver_events_insert_db gauge
+callback_receiver_events_insert_db{node="automation-controller-7f8f85f579-gkbk4"} 29326992
+# HELP callback_receiver_batch_events_insert_db Number of events batch inserted into database
+# TYPE callback_receiver_batch_events_insert_db histogram
+callback_receiver_batch_events_insert_db_bucket{le="10",node="automation-controller-7f8f85f579-gkbk4"} 3697417
+callback_receiver_batch_events_insert_db_bucket{le="50",node="automation-controller-7f8f85f579-gkbk4"} 4543934
+callback_receiver_batch_events_insert_db_bucket{le="150",node="automation-controller-7f8f85f579-gkbk4"} 4546271
+callback_receiver_batch_events_insert_db_bucket{le="350",node="automation-controller-7f8f85f579-gkbk4"} 4546273
+callback_receiver_batch_events_insert_db_bucket{le="650",node="automation-controller-7f8f85f579-gkbk4"} 4546273
+callback_receiver_batch_events_insert_db_bucket{le="2000",node="automation-controller-7f8f85f579-gkbk4"} 4546273
+callback_receiver_batch_events_insert_db_bucket{le="+Inf",node="automation-controller-7f8f85f579-gkbk4"} 4546273
+callback_receiver_batch_events_insert_db_count{node="automation-controller-7f8f85f579-gkbk4"} 4546273
+callback_receiver_batch_events_insert_db_sum{node="automation-controller-7f8f85f579-gkbk4"} 29326987
+# HELP subsystem_metrics_pipe_execute_seconds Time spent saving metrics to redis
+# TYPE subsystem_metrics_pipe_execute_seconds gauge
+subsystem_metrics_pipe_execute_seconds{node="automation-controller-7f8f85f579-gkbk4"} 568.3127799563517
+# HELP subsystem_metrics_pipe_execute_calls Number of calls to pipe_execute
+# TYPE subsystem_metrics_pipe_execute_calls gauge
+subsystem_metrics_pipe_execute_calls{node="automation-controller-7f8f85f579-gkbk4"} 535529
+# HELP subsystem_metrics_send_metrics_seconds Time spent sending metrics to other nodes
+# TYPE subsystem_metrics_send_metrics_seconds gauge
+subsystem_metrics_send_metrics_seconds{node="automation-controller-7f8f85f579-gkbk4"} 1247.070619608101
