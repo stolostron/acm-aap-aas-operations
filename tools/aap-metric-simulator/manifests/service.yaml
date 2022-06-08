@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: aap-metric-simulator
+  name: automation-controller-service
   labels:
-    app: aap-metric-simulator
+    app.kubernetes.io/name: automation-controller
 spec:
   ports:
   - port: 8080
@@ -11,4 +11,4 @@ spec:
     targetPort: 8080
     name: metrics
   selector:
-    app: aap-metric-simulator
+    app.kubernetes.io/name: automation-controller

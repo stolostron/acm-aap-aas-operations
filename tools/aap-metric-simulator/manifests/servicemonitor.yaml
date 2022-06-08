@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: aap-metrics
+  namespace: open-cluster-management-addon-observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: automation-controller
+  namespaceSelector:
+    matchNames:
+    - ansible-automation-platform
+  endpoints:
+  - port: metrics
+    honorLabels: false
+    interval: 30s
+    path: /api/v2/metrics
+    # relabelings:
+    # - action: keep
+    #   sourceLabels:
+    #   - __meta_kubernetes_service_label_app_kubernetes_io_component
+    #   regex: automationcontroller
+    basicAuth:
+      password:
+        name: automation-controller-auth
+        key: password
+      username:
+        name: automation-controller-auth
+        key: user

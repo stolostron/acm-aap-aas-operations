@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- You must install ACM
+- You must install ACM 2.5+
 - You must enable Observability service
 - You must import an AKS cluster to ACM Hub
 
@@ -12,26 +12,27 @@
 $ kubectl apply -k ./manifests/
 namespace/ansible-automation-platform created
 clusterrolebinding.rbac.authorization.k8s.io/aap-metric-accessor created
-configmap/aap-metric-simulator created
-service/aap-metric-simulator created
-deployment.apps/aap-metric-simulator created
+configmap/automation-controller created
+service/automation-controller-service created
+deployment.apps/automation-controller created and what
 ```
 
-### add job to prometheus conf
+### deploy the servicemonitor
 
 ```
-- job_name: serviceMonitor/open-cluster-management-addon-observability/aap-metrics
-  honor_labels: false
-  kubernetes_sd_configs:
-  - role: endpoints
-    namespaces:
-      names:
-      - ansible-automation-platform
-  scrape_interval: 30s
-  metrics_path: /metrics
-  scheme: http
+$ kubectl apply -f manifests/servicemonitor.yaml
+servicemonitor.monitoring.coreos.com/aap-metrics created
 ```
 
 ### check the AAP metric
 
+- Check the AAP metrics on the Observability Grafana console:
+
 ![](/images/aap-metric-from-simulator.png)
+
+- Use the port-forwad to check the AAP metrics:
+
+```
+$ kubectl port-forward -n ansible-automation-platform automation-controller-5ff4c78c9-jtrzd 8080:8080
+```
+Open this url: http://localhost:8080/api/v2/metrics

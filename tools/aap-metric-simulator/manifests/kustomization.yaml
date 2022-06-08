@@ -9,7 +9,7 @@ resources:
   - ns.yaml
 
 configMapGenerator:
-- name: aap-metric-simulator
+- name: automation-controller
   files:
   - fake-aap-metrics.prom
 generatorOptions:
