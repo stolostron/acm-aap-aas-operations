@@ -18,8 +18,8 @@ data:
           description: AAP metric endpoint has disappeared from Prometheus target discovery
           summary: Target disappeared from Prometheus target discovery
         expr: |
-            sum(up{job="serviceMonitor/open-cluster-management-addon-observability/aap-metrics"}) != sum(acm_managed_cluster_info{managed_cluster_id!=""}) - 1
-            or absent(up{job="serviceMonitor/open-cluster-management-addon-observability/aap-metrics"}) == 1
+            sum(up{namespace="ansible-automation-platform", job="automation-controller-service"}) != sum(acm_managed_cluster_info{managed_cluster_id!=""}) - 1
+            or absent(up{namespace="ansible-automation-platform", job="automation-controller-service"}) == 1
         for: 15m
         labels:
           severity: critical

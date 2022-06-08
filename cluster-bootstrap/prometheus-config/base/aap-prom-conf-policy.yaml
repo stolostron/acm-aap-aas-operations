@@ -26,57 +26,41 @@ spec:
         object-templates:
           - complianceType: musthave
             objectDefinition:
-              apiVersion: rbac.authorization.k8s.io/v1
-              kind: ClusterRoleBinding
-              metadata:
-                name: aap-prom-conf
-              roleRef:
-                apiGroup: rbac.authorization.k8s.io
-                kind: ClusterRole
-                name: cluster-admin
-              subjects:
-                - kind: ServiceAccount
-                  name: prometheus-k8s
-                  namespace: open-cluster-management-addon-observability
-                - kind: ServiceAccount
-                  name: kubectl-client
-                  namespace: open-cluster-management-addon-observability
-          - complianceType: musthave
-            objectDefinition:
               apiVersion: v1
-              kind: ServiceAccount
+              data:
+                user: YWRtaW4K
+                password: '{{fromSecret "ansible-automation-platform" "automation-controller-admin-password" "password"}}'
+              kind: Secret
               metadata:
-                name: kubectl-client
+                name: automation-controller-auth
                 namespace: open-cluster-management-addon-observability
+              type: Opaque
           - complianceType: musthave
             objectDefinition:
-                apiVersion: batch/v1
-                kind: CronJob
-                metadata:
-                  name: aap-configure-prom
-                  namespace: open-cluster-management-addon-observability
-                spec:
-                  schedule: "*/10 * * * *"
-                  jobTemplate:
-                    spec:
-                      template:
-                        spec:
-                          containers:
-                          - name: aap-configure-prom
-                            image: quay.io/acm-sre/aap-configure-prom@sha256:9e2a6b80d2b1466edd6ac7294a3725c5bb2552ed1d8e878ec2eb824e4491fa98
-                            imagePullPolicy: Always
-                            command: ["/bin/sh"]
-                            args: ["-c", "/tmp/configure-aks-prom.sh"]
-                            resources:
-                              limits:
-                                cpu: 100m
-                                memory: 100Mi
-                              requests:
-                                cpu: 10m
-                                memory: 10Mi
-                          restartPolicy: OnFailure
-                          serviceAccount: kubectl-client
-                          serviceAccountName: kubectl-client
+              apiVersion: monitoring.coreos.com/v1
+              kind: ServiceMonitor
+              metadata:
+                name: aap-metrics
+                namespace: open-cluster-management-addon-observability
+              spec:
+                selector:
+                  matchLabels:
+                    app.kubernetes.io/name: automation-controller
+                namespaceSelector:
+                  matchNames:
+                  - ansible-automation-platform
+                endpoints:
+                - port: metrics
+                  honorLabels: false
+                  interval: 30s
+                  path: /api/v2/metrics
+                  basicAuth:
+                    password:
+                      name: automation-controller-auth
+                      key: password
+                    username:
+                      name: automation-controller-auth
+                      key: user
         remediationAction: inform
         severity: low
 ---
