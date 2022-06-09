@@ -43,7 +43,7 @@ spec:
       containers:
       - args:
         - -config=/etc/grafana/grafana.ini
-        image: quay.io/stolostron/grafana:2.4.2-SNAPSHOT-2022-01-10-20-20-33
+        image: quay.io/stolostron/grafana:2.5.0-SNAPSHOT-2022-06-08-14-23-40
         imagePullPolicy: Always
         name: grafana-dev
         ports:
@@ -70,7 +70,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
-        image: quay.io/stolostron/grafana-dashboard-loader:2.4.2-SNAPSHOT-2022-01-10-20-20-33
+        image: quay.io/stolostron/grafana-dashboard-loader:2.5.0-SNAPSHOT-2022-06-08-14-23-40
         imagePullPolicy: Always
         name: grafana-dashboard-loader
         resources:

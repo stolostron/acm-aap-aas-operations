@@ -8,11 +8,11 @@ resources:
 images:
 - name: quay.io/stolostron/grafana
   newName: quay.io/stolostron/grafana
-  newTag: 2.4.2-SNAPSHOT-2022-01-10-20-20-33
+  newTag: 2.5.0-SNAPSHOT-2022-06-08-14-23-40
 
 - name: quay.io/stolostron/grafana-dashboard-loader
   newName: quay.io/stolostron/grafana-dashboard-loader
-  newTag: 2.4.2-SNAPSHOT-2022-01-10-20-20-33
+  newTag: 2.5.0-SNAPSHOT-2022-06-08-14-23-40
 
 patchesJson6902:
 - target:
