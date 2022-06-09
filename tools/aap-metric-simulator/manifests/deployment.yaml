@@ -2,28 +2,29 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: aap-metric-simulator
-  name: aap-metric-simulator
+    app.kubernetes.io/name: automation-controller
+  name: automation-controller
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aap-metric-simulator
+      app.kubernetes.io/name: automation-controller
   template:
     metadata:
       labels:
-        app: aap-metric-simulator
+        app.kubernetes.io/name: automation-controller
     spec:
       containers:
       - args:
         - --web.listen-address=0.0.0.0:8080
         - --collector.disable-defaults
+        - --web.telemetry-path=/api/v2/metrics
         - --collector.textfile
         - --web.disable-exporter-metrics
         - --collector.textfile.directory=/var/node_exporter/textfile
         image: quay.io/prometheus/node-exporter:latest
         imagePullPolicy: IfNotPresent
-        name: aap-metric-simulator
+        name: automation-controller
         resources:
           limits:
             cpu: 100m
@@ -37,4 +38,4 @@ spec:
       volumes:
       - name: textfile
         configMap:
-          name: aap-metric-simulator
+          name: automation-controller
