@@ -3,19 +3,17 @@ kind: Patch
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "10"
-  name: apiserver
+  name: apps-ingress-controller
   namespace: openshift-gitops
 spec:
   serviceAccountRef:
     name: openshift-gitops-argocd-application-controller
   patches:
-    apiserver-etcd:
+    apps-ingress-controller:
       targetObjectRef:
-        apiVersion: config.openshift.io/v1
-        kind: APIServer
-        name: cluster
-      patchTemplate: |
-        spec:
-          encryption:
-            type: aescbc
+        apiVersion: operator.openshift.io/v1
+        kind: IngressController
+        name: default
+        namespace: openshift-ingress-operator
+      patchTemplate: '{"spec":{"defaultCertificate": {"name": "apps-domain-tls"}}}'
       patchType: application/merge-patch+json

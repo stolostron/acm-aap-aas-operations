@@ -1,19 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: patch-operator
+  name: cert-manager-config
   namespace: openshift-gitops
 spec:
   destination:
     name: in-cluster
   project: default
   source:
-    path: cluster-bootstrap/patch-operator/overlay/testing
+    path: cluster-bootstrap/cert-manager-config/overlay/testing
     repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
     targetRevision: main
   syncPolicy:
     automated:
-      prune: true
+      prune: false
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

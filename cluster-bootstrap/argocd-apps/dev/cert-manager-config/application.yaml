@@ -11,11 +11,10 @@ spec:
     path: cluster-bootstrap/cert-manager-config/overlay/dev
     repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
     targetRevision: main
-    plugin:
-      name: argocd-vault-plugin-kustomize
   syncPolicy:
     automated:
       prune: false
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
