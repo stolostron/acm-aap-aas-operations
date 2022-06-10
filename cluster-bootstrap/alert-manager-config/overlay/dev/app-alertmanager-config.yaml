@@ -5,4 +5,4 @@ metadata:
   namespace: open-cluster-management-observability
   annotations:
     avp.kubernetes.io/path: "/sre-dev/data/alert-manager"
-    avp.kubernetes.io/secret-version: "10"
+    avp.kubernetes.io/secret-version: "11"
