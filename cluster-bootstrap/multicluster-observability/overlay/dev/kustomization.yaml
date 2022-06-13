@@ -7,3 +7,6 @@ resources:
 - ../../base
 - multiclusterhub-operator-pull-secret.yaml
 - thanos-storage-aws-secret.yaml
+
+patchesStrategicMerge:
+- aap-alerts.yaml
