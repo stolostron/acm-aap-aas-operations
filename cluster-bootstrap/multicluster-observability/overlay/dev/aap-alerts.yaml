@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    note: generated
+  labels:
+    type: generated
+  name: thanos-ruler-custom-rules
+  namespace: open-cluster-management-observability
+data:
+  custom_rules.yaml: |
+    groups:
+    - name: AnsibleAutomationPlatform
+      rules:
+      - alert: AAPMetricEndpointDown
+        annotations:
+          description: AAP metric endpoint has disappeared from Prometheus target discovery
+          summary: Target disappeared from Prometheus target discovery
+        expr: |
+            sum(up{namespace="ansible-automation-platform", job="automation-controller-service"}) != sum(acm_managed_cluster_info{managed_cluster_id!=""}) - 1
+            or absent(up{namespace="ansible-automation-platform", job="automation-controller-service"}) == 1
+        for: 15m
+        labels:
+          severity: critical
+          team: aoc-sre
+          service: aap
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPMetricEndpointDown.md
+      - alert: AAPPodRestartingTooMuch
+        annotations:
+          description: AAP Pod in {{$labels.namespace}} restart more than 100 times over 60 minutes
+          summary: AAP Pod in {{$labels.namespace}} restarting too much
+        expr: sum(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform"}) by (cluster, namespace, pod, container) > 100
+        for: 60m
+        labels:
+          severity: warning
+          team: aoc-sre
+          service: aap
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodRestartingTooMuch.md
+      - alert: AAPPodFrequentlyRestarting
+        annotations:
+          description: AAP Pod in {{$labels.namespace}} is restarting {{ printf "%.2f" $value }} times over 2 minutes
+          summary: AAP Pod in {{$labels.namespace}} frequently restarting
+        expr: increase(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform"}[1m]) > 3
+        for: 2m
+        labels:
+          severity: warning
+          team: aoc-sre
+          service: aap
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodFrequentlyRestarting.md
+      - alert: AAPPodContainerTerminated
+        annotations:
+          description: AAP Pod in {{$labels.namespace}} has been in terminated state for longer than 10 minutes
+          summary: AAP Pod in {{$labels.namespace}} has been in terminated state
+        expr: kube_pod_container_status_terminated_reason{reason=~"OOMKilled|Error|ContainerCannotRun", namespace="ansible-automation-platform"} > 0
+        for: 10m
+        labels:
+          severity: critical
+          team: aoc-sre
+          service: aap
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodContainerTerminated.md
+      - alert: AAPPodNotReady
+        annotations:
+          description: AAP Pod in {{$labels.namespace}} has been in a non-ready state for longer than 15 minutes
+          summary: AAP Pod in {{$labels.namespace}} not ready
+        expr: min_over_time(sum by (cluster, namespace, pod, container) (kube_pod_status_phase{phase=~"Pending|Unknown|Failed",namespace="ansible-automation-platform"})[15m:1m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          team: aoc-sre
+          service: aap
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPPodNotReady.md
+      - alert: AAPDeploymentReplicasMismatch
+        annotations:
+          description: AAP Deployment in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
+          summary: AAP Deployment in {{$labels.namespace}} does not match the expected number of replicas
+        expr: kube_deployment_status_replicas_available{namespace="ansible-automation-platform"} != kube_deployment_spec_replicas{namespace="ansible-automation-platform"}
+        for: 5m
+        labels:
+          severity: critical
+          team: aoc-sre
+          service: aap
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPDeploymentReplicasMismatch.md
+      - alert: AAPStatefulSetReplicasMismatch
+        annotations:
+          description: AAP StatefulSet in {{$labels.namespace}} actual number of replicas is inconsistent with the set number of replicas over 5 minutes
+          summary: AAP StatefulSet in {{$labels.namespace}} does not match the expected number of replicas
+        expr: kube_statefulset_status_replicas_available{namespace="ansible-automation-platform"} != kube_statefulset_replicas{namespace="ansible-automation-platform"}
+        for: 5m
+        labels:
+          severity: critical
+          team: aoc-sre
+          service: aap
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPStatefulSetReplicasMismatch.md
+    - name: AdvancedClusterManagement
+      rules:
+      - alert: PolicyNotCompliant
+        annotations:
+          description: Policy {{$labels.policy}} in the namespace {{$labels.cluster_namespace}} is not compliant on cluster {{$labels.cluster_namespace}} for longer than 5 minutes
+          summary: Policy is not compliant
+        expr: sum(policy_governance_info{type="propagated"}) by (cluster_namespace, policy, cluster) > 0
+        for: 5m
+        labels:
+          severity: critical
+          team: acm-sre
+          service: policy
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/PolicyNotCompliant.md
+      - alert: MetricsCollectorMissing
+        annotations:
+          description: Metrics collector Pod missing on some managed clusters for longer than 10 minutes
+          summary: Metrics collector Pod missing on some managed clusters
+        expr: sum(kube_pod_info{namespace="open-cluster-management-addon-observability", pod=~"metrics-collector-deployment.*"}) != sum(acm_managed_cluster_info{clusterID!=""})
+        for: 10m
+        labels:
+          severity: critical
+          team: acm-sre
+          service: observability
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/MetricsCollectorMissing.md
+      - alert: ManagedClusterMissing
+        annotations:
+          description: Managed cluster missing from ACM Hub for longer than 10 minutes
+          summary: Managed cluster missing from ACM Hub
+        expr: sum(kube_namespace_labels{label_cluster_open_cluster_management_io_managed_cluster!=""}) != sum(acm_managed_cluster_info{managed_cluster_id!=""})
+        for: 10m
+        labels:
+          severity: critical
+          team: acm-sre
+          service: managedcluster
+          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/ManagedClusterMissing.md
