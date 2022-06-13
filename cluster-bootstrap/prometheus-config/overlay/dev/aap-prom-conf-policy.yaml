@@ -1,0 +1,95 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: prom-conf-policy
+  namespace: open-cluster-management-addon-observability
+  annotations:
+    policy.open-cluster-management.io/standards: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/categories: NIST SP 800-53
+    policy.open-cluster-management.io/controls: CM Configuration Management
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: prom-conf-policy
+      spec:
+        namespaceSelector:
+          exclude:
+            - kube-*
+          include:
+            - open-cluster-management-addon-observability
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data:
+                user: YWRtaW4K
+                password: '{{fromSecret "ansible-automation-platform" "automation-controller-admin-password" "password"}}'
+              kind: Secret
+              metadata:
+                name: automation-controller-auth
+                namespace: open-cluster-management-addon-observability
+              type: Opaque
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: monitoring.coreos.com/v1
+              kind: ServiceMonitor
+              metadata:
+                name: aap-metrics
+                namespace: open-cluster-management-addon-observability
+              spec:
+                selector:
+                  matchLabels:
+                    app.kubernetes.io/name: automation-controller
+                namespaceSelector:
+                  matchNames:
+                  - ansible-automation-platform
+                endpoints:
+                - port: metrics
+                  honorLabels: false
+                  interval: 30s
+                  path: /api/v2/metrics
+                  basicAuth:
+                    password:
+                      name: automation-controller-auth
+                      key: password
+                    username:
+                      name: automation-controller-auth
+                      key: user
+        remediationAction: inform
+        severity: low
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-prom-conf-policy
+  namespace: open-cluster-management-addon-observability
+placementRef:
+  name: placement-prom-conf-policy
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: prom-conf-policy
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-prom-conf-policy
+  namespace: open-cluster-management-addon-observability
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: vendor
+        operator: In
+        values:
+          - AKS
