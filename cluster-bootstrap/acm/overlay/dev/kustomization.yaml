@@ -7,3 +7,6 @@ resources:
 - ../../base
 - subscription.yaml
 - multiclusterhub-operator-pull-secret.yaml
+
+patchesStrategicMerge:
+- multiclusterhub.yaml
