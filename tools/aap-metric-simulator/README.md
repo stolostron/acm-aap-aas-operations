@@ -13,8 +13,9 @@ $ kubectl apply -k ./manifests/
 namespace/ansible-automation-platform created
 clusterrolebinding.rbac.authorization.k8s.io/aap-metric-accessor created
 configmap/automation-controller created
+secret/automation-controller-admin-password created
 service/automation-controller-service created
-deployment.apps/automation-controller created and what
+deployment.apps/automation-controller created
 ```
 
 ### deploy the servicemonitor
