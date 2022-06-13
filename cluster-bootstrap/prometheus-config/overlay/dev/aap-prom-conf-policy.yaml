@@ -28,7 +28,7 @@ spec:
             objectDefinition:
               apiVersion: v1
               data:
-                user: YWRtaW4K
+                user: YWRtaW4=
                 password: '{{fromSecret "ansible-automation-platform" "automation-controller-admin-password" "password"}}'
               kind: Secret
               metadata:
