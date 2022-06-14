@@ -70,11 +70,9 @@ spec:
                         - receiver: pagerduty-acm-aoc-critical
                           matchers:
                             - severity = "critical"
-                            - team = "acm-sre"
                         - receiver: pagerduty-acm-aoc-warning
                           matchers:
                             - severity = "warning"
-                            - team = "acm-sre"
 
                     receivers:
                       - name: ignored-cert-manager-argo-alert
