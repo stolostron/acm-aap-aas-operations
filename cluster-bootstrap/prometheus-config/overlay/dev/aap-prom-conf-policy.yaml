@@ -28,7 +28,7 @@ spec:
             objectDefinition:
               apiVersion: v1
               data:
-                user: YWRtaW4K
+                user: YWRtaW4=
                 password: '{{fromSecret "ansible-automation-platform" "automation-controller-admin-password" "password"}}'
               kind: Secret
               metadata:
@@ -43,24 +43,29 @@ spec:
                 name: aap-metrics
                 namespace: open-cluster-management-addon-observability
               spec:
-                selector:
-                  matchLabels:
-                    app.kubernetes.io/name: automation-controller
-                namespaceSelector:
-                  matchNames:
-                  - ansible-automation-platform
                 endpoints:
-                - port: metrics
+                - basicAuth:
+                    password:
+                      key: password
+                      name: automation-controller-auth
+                    username:
+                      key: user
+                      name: automation-controller-auth
                   honorLabels: false
                   interval: 30s
                   path: /api/v2/metrics
-                  basicAuth:
-                    password:
-                      name: automation-controller-auth
-                      key: password
-                    username:
-                      name: automation-controller-auth
-                      key: user
+                  port: http
+                  relabelings:
+                  - action: keep
+                    regex: automationcontroller
+                    sourceLabels:
+                    - __meta_kubernetes_service_label_app_kubernetes_io_component
+                namespaceSelector:
+                  matchNames:
+                  - ansible-automation-platform
+                selector:
+                  matchLabels:
+                    app.kubernetes.io/component: automationcontroller
         remediationAction: inform
         severity: low
 ---

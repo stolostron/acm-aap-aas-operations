@@ -9,6 +9,6 @@ spec:
   - port: 8080
     protocol: TCP
     targetPort: 8080
-    name: metrics
+    name: http
   selector:
     app.kubernetes.io/name: automation-controller

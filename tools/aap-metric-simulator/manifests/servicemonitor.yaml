@@ -11,7 +11,7 @@ spec:
     matchNames:
     - ansible-automation-platform
   endpoints:
-  - port: metrics
+  - port: http
     honorLabels: false
     interval: 30s
     path: /api/v2/metrics
