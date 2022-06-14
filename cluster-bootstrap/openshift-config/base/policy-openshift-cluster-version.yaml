@@ -1,0 +1,77 @@
+
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: upgrade-cluster-policy
+  namespace: openshift-config
+  annotations:
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: upgrade-cluster-conf-policy
+        spec:
+          remediationAction: inform
+          severity: low
+          evaluationInterval:
+            compliant: 1m
+            noncompliant: 1m
+          namespaceSelector:
+            exclude:
+              - kube-*
+            include:
+              - openshift-config       
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: config.openshift.io/v1
+                kind: ClusterVersion
+                metadata:
+                  name: version
+                spec:
+                  clusterID: '{{ (lookup "config.openshift.io/v1" "ClusterVersion" "" "version").spec.clusterID }}'
+                  channel: stable-4.10
+                  desiredUpdate:
+                    #force: true
+                    version: 4.10.16
+  remediationAction: enforce
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-upgrade-cluster-policy
+  namespace: openshift-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+placementRef:
+  name: placement-upgrade-cluster-policy
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: upgrade-cluster-policy
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-upgrade-cluster-policy
+  namespace: openshift-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - local-cluster

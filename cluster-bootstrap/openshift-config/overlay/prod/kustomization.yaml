@@ -5,3 +5,13 @@ namespace: openshift-gitops
 
 bases:
 - ../../base
+
+patches:
+- target:
+    kind: Policy
+    name: upgrade-cluster-policy
+    namespace: openshift-config
+  patch: |-
+    - op: replace
+      path: /spec/disabled
+      value: true
