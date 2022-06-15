@@ -10,7 +10,8 @@
     dest: /etc/profile.d/custom-prompt.sh
     mode: '0755'
 
-- name: Check if secret exists already
+# Upload install kubeconfig
+- name: Check if kubeconfig secret exists already
   azure.azcollection.azure_rm_keyvaultsecret_info:
     vault_uri: "{{ vault_uri }}"
     name: "acm-sre-{{ ocp4_metadata.clusterName }}-kubeconfig"
@@ -52,4 +53,117 @@
       kubeconfig: "yes"
       clustername: "{{ ocp4_metadata.clusterName }}"
   when: vault_uri is defined and kubeconfig_to_upload
+  delegate_to: localhost
+
+# Create a Service Account and upload its token to AKV
+- name: Check if token secret exists already
+  azure.azcollection.azure_rm_keyvaultsecret_info:
+    vault_uri: "{{ vault_uri }}"
+    name: "acm-sre-{{ ocp4_metadata.clusterName }}-aap-import-token"
+  register: result
+#  no_log: true
+  when: vault_uri is defined
+  delegate_to: localhost
+
+- name: Get namespaces - fake call to check if certs are valid
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Namespace
+    name: default
+    kubeconfig: "{{ root_path }}/auth/kubeconfig"
+  register: ns
+  when: vault_uri is defined
+  ignore_errors: true
+
+- ansible.builtin.set_fact:
+    kubeconfig_ssl_certs_valid: false
+  when: '"SSL: CERTIFICATE_VERIFY_FAILED" in ns.msg'
+- ansible.builtin.set_fact:
+    kubeconfig_ssl_certs_valid: true
+  when: '"SSL: CERTIFICATE_VERIFY_FAILED" not in ns.msg'
+- ansible.builtin.set_fact:
+    sa_namespace: "acm-infra"
+
+- name: Check if apiserver has certificates
+  kubernetes.core.k8s_info:
+    api_version: config.openshift.io/v1
+    kind: APIServer
+    name: cluster
+    kubeconfig: "{{ root_path }}/auth/kubeconfig"
+    validate_certs: "{{ kubeconfig_ssl_certs_valid }}"
+  register: apiserver
+
+- name: Remove self signed certs from kubeconfig if not valid anymore and we have loaded certs
+  ansible.builtin.lineinfile:
+    backup: true
+    dest: "{{ root_path }}/auth/kubeconfig"
+    state: absent
+    regexp: "certificate-authority-data: .*"
+  when: apiserver is defined and apiserver.resources[0].spec.servingCerts is defined and not kubeconfig_ssl_certs_valid
+
+- name: Create Service Account for import purposes
+  kubernetes.core.k8s:
+    state: present
+    template:
+      - path: "service-account-import.yaml.j2"
+    kubeconfig: "{{ root_path }}/auth/kubeconfig"
+    validate_certs: "{{ kubeconfig_ssl_certs_valid }}"
+
+- name: Create a cluster role binding
+  kubernetes.core.k8s:
+    state: present
+    template:
+      - path: "clusterrolebinding.yaml.j2"
+    kubeconfig: "{{ root_path }}/auth/kubeconfig"
+    validate_certs: "{{ kubeconfig_ssl_certs_valid }}"
+  when: vault_uri is defined
+
+- name: Get Service Account
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ServiceAccount
+    name: aap-import
+    namespace: "{{ sa_namespace }}"
+    kubeconfig: "{{ root_path }}/auth/kubeconfig"
+    validate_certs: "{{ kubeconfig_ssl_certs_valid }}"
+  register: sa
+  when: vault_uri is defined
+
+- name: Get Service Account Token
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: '{{ (sa.resources[0].secrets | selectattr("name", "match", "^aap-import-token.*"))[0].name }}'
+    namespace: "{{ sa_namespace }}"
+    kubeconfig: "{{ root_path }}/auth/kubeconfig"
+    validate_certs: "{{ kubeconfig_ssl_certs_valid }}"
+  register: token
+  when: vault_uri is defined
+
+- name: Check if token changed so we can update it in case of need
+  ansible.builtin.set_fact:
+    token_to_upload: "{{ token.resources[0].data.token != result.secrets[0].secret }}"
+  when: token is not failed and result.secrets | length == 1
+  no_log: true
+- name: Check if no kubeconfig uploaded yet so we can upload
+  ansible.builtin.set_fact:
+    token_to_upload: true
+  when: token is not failed and result.secrets | length == 0
+- name: No token found, nothing to upload
+  ansible.builtin.set_fact:
+    token_to_upload: false
+  when: token is failed
+
+- name: Upload token to Azure KeyVault when needed
+  azure.azcollection.azure_rm_keyvaultsecret:
+    secret_name: "acm-sre-{{ ocp4_metadata.clusterName }}-aap-import-token" # pragma: allowlist secret
+    secret_value: "{{ token.resources[0].data.token }}" # Base 64 encoded
+    keyvault_uri: "{{ vault_uri }}"
+    content_type: "Service account token to be used for importing cluster to Hub {{ ocp4_metadata.clusterName }}"
+    tags:
+      owner: "acm-sre"
+      kubeconfig: "no"
+      clustername: "{{ ocp4_metadata.clusterName }}"
+      aap-import: "yes"
+  when: vault_uri is defined and token_to_upload
   delegate_to: localhost
