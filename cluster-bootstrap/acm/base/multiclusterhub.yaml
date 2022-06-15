@@ -9,4 +9,4 @@ metadata:
 spec:
   availabilityConfig: High
   imagePullSecret: multiclusterhub-operator-pull-secret
-  enableClusterProxyAddon: true
+  enableClusterProxyAddon: false
