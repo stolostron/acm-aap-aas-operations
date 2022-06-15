@@ -143,6 +143,8 @@
     - "grafana-dev"
     - "prometheus-config"
     - "patch-operator"
+    - "cert-manager"
+    - "cert-manager-config"
     - "openshift-config"
 
 - name: Apply ArgoCD Applications for {{ ENV }} environment

@@ -11,8 +11,6 @@ spec:
     path: cluster-bootstrap/patch-operator/overlay/dev
     repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
     targetRevision: main
-    plugin:
-      name: argocd-vault-plugin-kustomize
   syncPolicy:
     automated:
       prune: true

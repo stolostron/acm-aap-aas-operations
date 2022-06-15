@@ -4,7 +4,9 @@ azure_resource_group: "rg-acm"
 azure_cluster_resource_group: "rg-acm-cluster"
 azure_location: "eastus"
 azure_dns_root: mgmt.ansiblecloud.com
-azure_dns_zone: "az.mgmt.ansiblecloud.com"
+azure_dns_zone: "az.mgmt.ansiblecloud.com" # TODO az -> to replace with na
 inventory_source_name: "azure-rhaap"
 vault_uri: "https://kv-aoc-team.vault.azure.net/" #TODO CHECK
 argocd_env: "prod"
+parent_dns_zone: "az.mgmt.ansiblecloud.com" # TODO az -> to replace with na
+parent_dns_zone_resource_group: "rg-core-infrastructure" # RG for parent public DNS zone

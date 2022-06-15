@@ -3,4 +3,4 @@ kind: Namespace
 metadata:
   name: patch-operator
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "-2"

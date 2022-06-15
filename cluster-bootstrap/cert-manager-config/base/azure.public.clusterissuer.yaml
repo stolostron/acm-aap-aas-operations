@@ -1,0 +1,96 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: azure-clusterissuer-policy
+  namespace: cert-manager
+  annotations:
+    policy.open-cluster-management.io/standards: NIST-CSF
+    policy.open-cluster-management.io/categories: PR.IP Information Protection Processes and Procedures
+    policy.open-cluster-management.io/controls: PR.IP-1 Baseline Configuration
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: azure-cluster-issuer-conf-policy
+        spec:
+          namespaceSelector:
+            exclude:
+              - kube-*
+            include:
+              - cert-manager
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: cert-manager.io/v1
+                kind: ClusterIssuer
+                metadata:
+                  name: public-issuer
+                  namespace: cert-manager
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "3"
+                spec:
+                  acme:
+                    email: acm-cicd@redhat.com
+                    privateKeySecretRef:
+                      name: letsencrypt-account-key
+                    server: https://acme-v02.api.letsencrypt.org/directory
+                    solvers:
+                    - dns01:
+                        cnameStrategy: Follow
+                        azureDNS:
+                          clientID: '{{fromSecret "cert-manager" "azuredns-config" "azure_client_id" | base64dec}}'
+                          clientSecretSecretRef:
+                          # The following is the secret we created in Kubernetes. Issuer will use this to present challenge to Azure DNS.
+                            name: azuredns-config
+                            key: azure_client_secret
+                          subscriptionID: '{{fromSecret "cert-manager" "azuredns-config" "azure_subscription_id" | base64dec}}'
+                          tenantID: '{{fromSecret "cert-manager" "azuredns-config" "azure_tenant_id" | base64dec}}'
+                          resourceGroupName: '{{ (lookup "config.openshift.io/v1" "Infrastructure" "" "cluster").status.platformStatus.azure.networkResourceGroupName }}'
+                          hostedZoneName: '{{ (lookup "config.openshift.io/v1" "DNS" "" "cluster").spec.baseDomain }}'
+                          # Azure Cloud Environment, default to AzurePublicCloud
+                          environment: AzurePublicCloud
+                      selector:
+                        matchLabels:
+                          use-dns01-solver: "true"
+          remediationAction: inform
+          severity: low
+  remediationAction: enforce
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-azure-clusterissuer-policy
+  namespace: cert-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+placementRef:
+  name: placement-azure-clusterissuer-policy
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: azure-clusterissuer-policy
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-azure-clusterissuer-policy
+  namespace: cert-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - local-cluster
+

@@ -96,7 +96,7 @@
       controller_username: "{{ admin_username }}"
       controller_password: "{{ admin_password }}"
   # TODO add destroy cluster after some wait
-  - name: Create 6th node
+  - name: Create 7th node
     tower_workflow_job_template_node:
       identifier: "{{ phase }} Configure hub"
       workflow_job_template:  "{{ phase }} Full run"
@@ -106,6 +106,17 @@
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
       controller_password: "{{ admin_password }}"
+  - name: Create 6th node
+    tower_workflow_job_template_node:
+      identifier: "{{ phase }} Setup DNS"
+      workflow_job_template: "{{ phase }} Full run"
+      unified_job_template: "{{ phase }} Setup DNS"
+      organization: "Red Hat - ACM"
+      controller_host: "{{ inventory_hostname }}"
+      controller_username: "{{ admin_username }}"
+      controller_password: "{{ admin_password }}"
+      success_nodes:
+        - "{{ phase }} Configure hub"
   - name: Create 5th node
     tower_workflow_job_template_node:
       identifier: "{{ phase }} Configure bastion"
@@ -117,7 +128,7 @@
       controller_username: "{{ admin_username }}"
       controller_password: "{{ admin_password }}"
       success_nodes:
-        - "{{ phase }} Configure hub"
+        - "{{ phase }} Setup DNS"
   - name: Create 4th node
     tower_workflow_job_template_node:
       identifier: "{{ phase }} Update Azure inventory source"
