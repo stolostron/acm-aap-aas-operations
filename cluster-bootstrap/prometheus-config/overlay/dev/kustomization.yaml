@@ -5,6 +5,3 @@ namespace: open-cluster-management-observability
 
 resources:
 - ../../base
-
-patchesStrategicMerge:
-- aap-prom-conf-policy.yaml

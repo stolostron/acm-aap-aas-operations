@@ -18,8 +18,8 @@ data:
           description: AAP metric endpoint has disappeared from Prometheus target discovery
           summary: Target disappeared from Prometheus target discovery
         expr: |
-            sum(up{job="serviceMonitor/open-cluster-management-addon-observability/aap-metrics"}) != sum(acm_managed_cluster_info{managed_cluster_id!=""}) - 1
-            or absent(up{job="serviceMonitor/open-cluster-management-addon-observability/aap-metrics"}) == 1
+            sum(up{namespace="ansible-automation-platform", job="automation-controller-service"}) != sum(acm_managed_cluster_info{managed_cluster_id!=""}) - 1
+            or absent(up{namespace="ansible-automation-platform", job="automation-controller-service"}) == 1
         for: 15m
         labels:
           severity: critical
@@ -118,9 +118,9 @@ data:
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/MetricsCollectorMissing.md
       - alert: ManagedClusterMissing
         annotations:
-          description: Managed cluster missing from ACM Hub for longer than 10 minutes
+          description: Managed cluster {{$labels.managed_cluster_id}} missing from ACM Hub {{$labels.hub_cluster_id}} for longer than 10 minutes
           summary: Managed cluster missing from ACM Hub
-        expr: sum(kube_namespace_labels{label_cluster_open_cluster_management_io_managed_cluster!=""}) != sum(acm_managed_cluster_info{managed_cluster_id!=""})
+        expr: acm_managed_cluster_info{available="Unknown"} == 1
         for: 10m
         labels:
           severity: critical
