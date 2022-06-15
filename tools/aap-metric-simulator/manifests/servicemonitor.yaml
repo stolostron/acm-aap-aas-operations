@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: automation-controller
+      app.kubernetes.io/component: automationcontroller
   namespaceSelector:
     matchNames:
     - ansible-automation-platform

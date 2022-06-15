@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: automation-controller-service
   labels:
-    app.kubernetes.io/name: automation-controller
+    app.kubernetes.io/component: automationcontroller
 spec:
   ports:
   - port: 8080
@@ -11,4 +11,4 @@ spec:
     targetPort: 8080
     name: http
   selector:
-    app.kubernetes.io/name: automation-controller
+    app.kubernetes.io/component: automationcontroller
