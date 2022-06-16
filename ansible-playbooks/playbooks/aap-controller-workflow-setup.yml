@@ -322,7 +322,18 @@
           server: "{{ argocd_vault_uri }}"
           token: "{{ argocd_vault_token }}"
         validate_certs: false
-  
+
+# Localhost Inventory - unique
+    - name: "Add localhost inventory"
+      inventory:
+        name: "{{ acm_localhost_inventory }}"
+        description: "ACM localhost inventory"
+        organization: "Red Hat - ACM"
+        controller_host: "{{ inventory_hostname }}"
+        controller_username: "{{ admin_username }}"
+        controller_password: "{{ admin_password }}"
+        state: present
+
 # Azure Inventory - per phase
     - name: "Add inventory"
       inventory:
@@ -339,6 +350,7 @@
         description: "Azure inventory for {{ phase }}"
         inventory: "{{ inventory_name }}"
         credential: "{{ inventory_credentials }}"
+        execution_environment: "ACM SRE Playbook Execution Environment"
         overwrite: True
         update_on_launch: True
         organization: "Red Hat - ACM"

@@ -77,10 +77,10 @@
 
 - ansible.builtin.set_fact:
     kubeconfig_ssl_certs_valid: false
-  when: '"SSL: CERTIFICATE_VERIFY_FAILED" in ns.msg'
+  when: 'ns is failed and "SSL: CERTIFICATE_VERIFY_FAILED" in ns.msg'
 - ansible.builtin.set_fact:
     kubeconfig_ssl_certs_valid: true
-  when: '"SSL: CERTIFICATE_VERIFY_FAILED" not in ns.msg'
+  when: 'ns is not failed or (ns is failed and "SSL: CERTIFICATE_VERIFY_FAILED" not in ns.msg)'
 - ansible.builtin.set_fact:
     sa_namespace: "acm-infra"
 
