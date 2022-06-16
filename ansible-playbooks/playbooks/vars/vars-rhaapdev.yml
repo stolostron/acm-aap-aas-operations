@@ -9,4 +9,4 @@ inventory_source_name: "azure-rhaapdev"
 vault_uri: "https://kv-aoc-team.vault.azure.net/"
 argocd_env: "dev"
 parent_dns_zone: "az.mgmtdev.ansiblecloud.com" # az -> to replace with na
-parent_dns_zone_resource_group: "rg-core-infrastructure" # RG for parent public DNS zone
+parent_dns_zone_resource_group: "rg-acm" # RG for parent public DNS zone
