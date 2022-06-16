@@ -77,10 +77,10 @@
 
 - ansible.builtin.set_fact:
     kubeconfig_ssl_certs_valid: false
-  when: 'ns is failed and "SSL: CERTIFICATE_VERIFY_FAILED" in ns.msg'
+  when: '(ns.resources | length == 0) and "SSL: CERTIFICATE_VERIFY_FAILED" in ns.msg'
 - ansible.builtin.set_fact:
     kubeconfig_ssl_certs_valid: true
-  when: 'ns is not failed or (ns is failed and "SSL: CERTIFICATE_VERIFY_FAILED" not in ns.msg)'
+  when: '(ns.resources | length == 1) or ((ns.resources | length == 0) and "SSL: CERTIFICATE_VERIFY_FAILED" not in ns.msg)'
 - ansible.builtin.set_fact:
     sa_namespace: "acm-infra"
 
@@ -97,6 +97,13 @@
   ansible.builtin.lineinfile:
     backup: true
     dest: "{{ root_path }}/auth/kubeconfig"
+    state: absent
+    regexp: "certificate-authority-data: .*"
+  when: apiserver is defined and apiserver.resources[0].spec.servingCerts is defined and not kubeconfig_ssl_certs_valid
+- name: Remove self signed certs from user kubeconfig if not valid anymore and we have loaded certs
+  ansible.builtin.lineinfile:
+    backup: true
+    dest: "/root/.kube/config"
     state: absent
     regexp: "certificate-authority-data: .*"
   when: apiserver is defined and apiserver.resources[0].spec.servingCerts is defined and not kubeconfig_ssl_certs_valid
