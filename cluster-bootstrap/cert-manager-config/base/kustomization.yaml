@@ -6,3 +6,4 @@ resources:
 - apps.certificate.yaml
 - credentialsrequest.yaml
 - azure.public.clusterissuer.yaml
+- certificateexpirationpolicy.yaml

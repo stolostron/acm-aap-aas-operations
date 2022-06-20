@@ -1,0 +1,60 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: certification-expiration-policy
+  namespace: cert-manager
+  annotations:
+    policy.open-cluster-management.io/categories: SC System and Communications Protection
+    policy.open-cluster-management.io/controls: SC-8 Transmission Confidentiality and Integrity
+    policy.open-cluster-management.io/standards: NIST 800-53
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: CertificatePolicy
+        metadata:
+          name: certification-expiration-check-policy
+        spec:
+          minimumDuration: 600h # 25 days, as CM should renew past 30
+          namespaceSelector:
+            include: ["openshift-ingress", "openshift-config"]
+            exclude: ["kube-*"]
+          remediationAction: inform
+          severity: low
+  remediationAction: inform
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-certification-expiration-policy
+  namespace: cert-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+placementRef:
+  name: placement-certification-expiration-policy
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: certification-expiration-policy
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-certification-expiration-policy
+  namespace: cert-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - local-cluster
