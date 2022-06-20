@@ -42,8 +42,12 @@ spec:
                       group_interval: 5m
                       repeat_interval: 4h
                       routes:
+                        - receiver: ignored-kube-state-metrics-alert
+                          matchers:
+                            # kube-state-metrics issue: https://issues.redhat.com/browse/AAP-4197
+                            - alertname = "KubeStateMetricsListErrors"
+                            - severity = "critical"
                         # argo-cd bug: https://issues.redhat.com/browse/GITOPS-982
-                        # will remove it when this bug fixed
                         - receiver: ignored-cert-manager-argo-alert
                           matchers:
                             - alertname = "ArgoCDSyncAlert"
@@ -75,6 +79,8 @@ spec:
                             - severity = "warning"
 
                     receivers:
+                      # remove all ignored-xxx receiver when we fixed the alert issue
+                      - name: ignored-kube-state-metrics-alert
                       - name: ignored-cert-manager-argo-alert
                       - name: to-github
                         webhook_configs:
