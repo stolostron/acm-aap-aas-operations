@@ -24,37 +24,3 @@ spec:
           remediationAction: inform
           severity: low
   remediationAction: inform
----
-apiVersion: policy.open-cluster-management.io/v1
-kind: PlacementBinding
-metadata:
-  name: binding-certification-expiration-policy
-  namespace: cert-manager
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
-placementRef:
-  name: placement-certification-expiration-policy
-  kind: PlacementRule
-  apiGroup: apps.open-cluster-management.io
-subjects:
-  - name: certification-expiration-policy
-    kind: Policy
-    apiGroup: policy.open-cluster-management.io
----
-apiVersion: apps.open-cluster-management.io/v1
-kind: PlacementRule
-metadata:
-  name: placement-certification-expiration-policy
-  namespace: cert-manager
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  clusterConditions:
-    - status: 'True'
-      type: ManagedClusterConditionAvailable
-  clusterSelector:
-    matchExpressions:
-      - key: name
-        operator: In
-        values:
-          - local-cluster

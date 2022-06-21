@@ -59,38 +59,3 @@ spec:
           remediationAction: inform
           severity: low
   remediationAction: enforce
----
-apiVersion: policy.open-cluster-management.io/v1
-kind: PlacementBinding
-metadata:
-  name: binding-azure-clusterissuer-policy
-  namespace: cert-manager
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
-placementRef:
-  name: placement-azure-clusterissuer-policy
-  kind: PlacementRule
-  apiGroup: apps.open-cluster-management.io
-subjects:
-  - name: azure-clusterissuer-policy
-    kind: Policy
-    apiGroup: policy.open-cluster-management.io
----
-apiVersion: apps.open-cluster-management.io/v1
-kind: PlacementRule
-metadata:
-  name: placement-azure-clusterissuer-policy
-  namespace: cert-manager
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  clusterConditions:
-    - status: 'True'
-      type: ManagedClusterConditionAvailable
-  clusterSelector:
-    matchExpressions:
-      - key: name
-        operator: In
-        values:
-          - local-cluster
-
