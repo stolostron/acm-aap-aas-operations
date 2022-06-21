@@ -1,12 +1,12 @@
 phase_name: "RHAAP - EMEA"
-cluster_name: "acm6" # TODO checl
+cluster_name: "acm6" # TODO check
 azure_resource_group: "rg-acm"
 azure_cluster_resource_group: "rg-acm-cluster"
 azure_location: "francecentral"
 azure_dns_root: emea.mgmt.ansiblecloud.com
 azure_dns_zone: "emea.mgmt.ansiblecloud.com"
-inventory_source_name: "azure-rhaap"
-vault_uri: "https://kv-aoc-team.vault.azure.net/" #TODO CHECK
+inventory_source_name: "azure-rhaapemea"
+vault_uri: "https://kv-aoc-team.vault.azure.net" #TODO CHECK
 argocd_env: "prod"
 parent_dns_zone: emea.mgmt.ansiblecloud.com"
 parent_dns_zone_resource_group: "rg-infrastructure" # RG for parent public DNS zone

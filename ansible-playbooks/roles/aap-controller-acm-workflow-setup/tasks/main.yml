@@ -4,6 +4,13 @@
     verbosity: 2
   register: verbose_check
 
+- name: Check whether variables are defined
+  ansible.builtin.fail:
+    msg: "'{{ item }}' variable not defined!"
+  when: (vars[item] is undefined) or (vars[item]| length == 0)
+  with_items:
+  - "target"
+
 - name: Switch to values based on target
   ansible.builtin.include_vars:
     file: "{{ 'vars-' + lookup('vars', 'target') + '.yml' }}"

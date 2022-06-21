@@ -4,9 +4,20 @@
     verbosity: 2
   register: verbose_check
 
+- name: Check whether variables are defined
+  ansible.builtin.fail:
+    msg: "'{{ item }}' variable not defined!"
+  when: (vars[item] is undefined) or (vars[item]| length == 0)
+  with_items:
+  - "target"
+
+- name: Switch to values based on target
+  ansible.builtin.include_vars:
+    file: "{{ 'vars-' + lookup('vars', 'target') + '.yml' }}"
+
 - name: Set facts
   ansible.builtin.set_fact:
-    acm_secret_name: "acm-sre-{{ phase }}-secrets" # pragma: allowlist secret
+    acm_secret_name: "acm-sre-{{ target }}-secrets" # pragma: allowlist secret
 - name: Set facts
   ansible.builtin.set_fact:
     acm_secret_file_name: "{{ acm_secret_name }}.yml" # pragma: allowlist secret
@@ -73,11 +84,11 @@
     secret_name: "{{ acm_secret_name }}" # pragma: allowlist secret
     secret_value: "{{ local_file }}" # Base 64 encoded
     keyvault_uri: "{{ vault_uri }}"
-    content_type: "ACM SRE AAP credentials for {{ phase }}"
+    content_type: "ACM SRE AAP credentials for {{ target }}"
     tags:
       owner: "acm-sre"
       credentials: "yes"
-      phase: "{{ phase }}"
+      phase: "{{ target }}"
       source: "{{ acm_aoc_configuration_repo }}"
   when: vault_uri is defined and credentials_file_to_upload
   delegate_to: localhost
