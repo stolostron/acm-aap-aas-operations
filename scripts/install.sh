@@ -77,6 +77,12 @@ kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/prometheus-config
 printf "=====================Create Patch-operator application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/patch-operator
 
+printf "=====================Create cert-manager application ...\n"
+kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/cert-manager
+
+printf "=====================Create cert-manager-config application ...\n"
+kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/cert-manager-config
+
 printf "=====================Create openshift-config application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/openshift-config
 
