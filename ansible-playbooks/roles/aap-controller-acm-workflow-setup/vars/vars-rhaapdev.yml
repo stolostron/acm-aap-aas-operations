@@ -6,7 +6,7 @@ azure_location: "eastus"
 azure_dns_root: mgmtdev.ansiblecloud.com
 azure_dns_zone: "az.mgmtdev.ansiblecloud.com" # TODO az -> to replace with na
 inventory_source_name: "azure-rhaapdev"
-vault_uri: "https://kv-aoc-team.vault.azure.net/"
+vault_uri: "https://kv-aoc-team.vault.azure.net"
 argocd_env: "dev"
 parent_dns_zone: "az.mgmtdev.ansiblecloud.com" # az -> to replace with na
 parent_dns_zone_resource_group: "rg-acm" # RG for parent public DNS zone
