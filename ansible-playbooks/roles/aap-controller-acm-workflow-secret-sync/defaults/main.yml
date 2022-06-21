@@ -1,0 +1,2 @@
+vault_uri: "https://kv-acmsre-team.vault.azure.net"
+phase: "openshiftdev"
