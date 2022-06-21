@@ -7,3 +7,4 @@ resources:
 - credentialsrequest.yaml
 - azure.public.clusterissuer.yaml
 - certificateexpirationpolicy.yaml
+- policyset-certificates.yaml
