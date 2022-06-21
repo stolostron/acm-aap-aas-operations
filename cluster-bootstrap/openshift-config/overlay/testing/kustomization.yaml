@@ -5,8 +5,6 @@ namespace: openshift-gitops
 
 bases:
 - ../../base
-- apiserver-certs-patch.yaml
-- apps-ingresscontroller-patch.yaml
 
 patches:
 - target:
