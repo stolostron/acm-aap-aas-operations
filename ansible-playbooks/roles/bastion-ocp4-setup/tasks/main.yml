@@ -1,3 +1,8 @@
+- name: Configure no_log
+  debug:
+    msg: "Shown only with verbosity > 1"
+    verbosity: 2
+  register: verbose_check
 
 - name: Deploy a template to /etc/motd
   ansible.builtin.template:
@@ -16,7 +21,7 @@
     vault_uri: "{{ vault_uri }}"
     name: "acm-sre-{{ ocp4_metadata.clusterName }}-kubeconfig"
   register: result
-  no_log: true
+  no_log: "{{ verbose_check is skipped }}"
   when: vault_uri is defined
   delegate_to: localhost
 
@@ -25,14 +30,14 @@
     src: "{{ root_path }}/auth/kubeconfig"
   register: kubeconfig
   ignore_errors: true
-  no_log: true
+  no_log: "{{ verbose_check is skipped }}"
   when: vault_uri is defined
 
 - name: Check if kubeconfig changed so we can update it in case of need
   ansible.builtin.set_fact:
     kubeconfig_to_upload: "{{ kubeconfig['content'] != result.secrets[0].secret }}"
   when: kubeconfig is not failed and result.secrets | length == 1
-  no_log: true
+  no_log: "{{ verbose_check is skipped }}"
 - name: Check if no kubeconfig uploaded yet so we can upload
   ansible.builtin.set_fact:
     kubeconfig_to_upload: true
@@ -61,7 +66,7 @@
     vault_uri: "{{ vault_uri }}"
     name: "acm-sre-{{ ocp4_metadata.clusterName }}-aap-import-token"
   register: result
-#  no_log: true
+  no_log: "{{ verbose_check is skipped }}"
   when: vault_uri is defined
   delegate_to: localhost
 
@@ -151,7 +156,7 @@
   ansible.builtin.set_fact:
     token_to_upload: "{{ token.resources[0].data.token != result.secrets[0].secret }}"
   when: token is not failed and result.secrets | length == 1
-  no_log: true
+  no_log: "{{ verbose_check is skipped }}"
 - name: Check if no kubeconfig uploaded yet so we can upload
   ansible.builtin.set_fact:
     token_to_upload: true
@@ -173,4 +178,5 @@
       clustername: "{{ ocp4_metadata.clusterName }}"
       aap-import: "yes"
   when: vault_uri is defined and token_to_upload
+  no_log: "{{ verbose_check is skipped }}"
   delegate_to: localhost

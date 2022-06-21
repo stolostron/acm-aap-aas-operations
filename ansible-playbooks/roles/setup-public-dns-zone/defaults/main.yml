@@ -1,0 +1,7 @@
+# parent_dns_zone: "demo.az.red-chesterfield.com" # Parent public DNS zone
+# parent_dns_zone_resource_group: "domain" # RG for parent public DNS zone
+# azure_dns_zone: "demo.az.red-chesterfield.com" # Private zone for OCP4 cluster
+# azure_resource_group: "adecorte-test" # bastion resource group
+# azure_cluster_resource_group: "adecorte-test-cluster" # private_dns_zone_resource_group
+# cluster_name: "adecorte"
+dns_zone_creation: true # if false, we expect child DNS zone setup to be already created

@@ -1,0 +1,89 @@
+- name: Configure no_log
+  debug:
+    msg: "Shown only with verbosity > 1"
+    verbosity: 2
+  register: verbose_check
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    acm_secret_name: "acm-sre-{{ phase }}-secrets" # pragma: allowlist secret
+- name: Set facts
+  ansible.builtin.set_fact:
+    acm_secret_file_name: "{{ acm_secret_name }}.yml" # pragma: allowlist secret
+
+- name: Print vars
+  debug:
+    var: "{{ item }}"
+    verbosity: 1
+  with_items:
+    - acm_secret_name
+    - acm_secret_file_name
+
+- name: Create temporary build directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: -temp
+  register: tempdir
+
+- name: Git checkout repo
+  ansible.builtin.git:
+    repo: "{{ acm_aoc_configuration_repo }}"
+    version: "{{ acm_aoc_configuration_repo_version }}"
+    dest: "{{ tempdir.path }}/acm_aoc_secret_repo"
+
+- set_fact:
+    working_dir: "{{ tempdir.path }}/acm_aoc_secret_repo"
+
+- name: Check if secret exists already on Azure
+  azure.azcollection.azure_rm_keyvaultsecret_info:
+    vault_uri: "{{ vault_uri }}"
+    name: "{{ acm_secret_name }}"
+  register: result
+  no_log: "{{ verbose_check is skipped }}"
+  when: vault_uri is defined
+  delegate_to: localhost
+
+- name: Get the file
+  ansible.builtin.set_fact:
+    local_file: "{{lookup('file', working_dir + '/credentials/' + acm_secret_file_name, rstrip=False) | b64encode }}"
+  no_log: "{{ verbose_check is skipped }}"
+  when: vault_uri is defined
+
+- name: Print file
+  debug:
+    var: local_file
+    verbosity: 2
+
+- name: Check if secret changed so we can update it in case of need
+  ansible.builtin.set_fact:
+    credentials_file_to_upload: "{{ local_file != result.secrets[0].secret }}"
+  when: local_file | length > 0 and result.secrets | length == 1
+  no_log: "{{ verbose_check is skipped }}"
+- name: Check if no secret uploaded yet so we can upload
+  ansible.builtin.set_fact:
+    credentials_file_to_upload: true
+  when: local_file | length > 0 and result.secrets | length == 0
+- name: No local file found, nothing to upload
+  ansible.builtin.set_fact:
+    credentials_file_to_upload: false
+  when:  local_file | length == 0
+
+- name: Upload credentials to Azure Key Vault when needed
+  azure.azcollection.azure_rm_keyvaultsecret:
+    secret_name: "{{ acm_secret_name }}" # pragma: allowlist secret
+    secret_value: "{{ local_file }}" # Base 64 encoded
+    keyvault_uri: "{{ vault_uri }}"
+    content_type: "ACM SRE AAP credentials for {{ phase }}"
+    tags:
+      owner: "acm-sre"
+      credentials: "yes"
+      phase: "{{ phase }}"
+      source: "{{ acm_aoc_configuration_repo }}"
+  when: vault_uri is defined and credentials_file_to_upload
+  delegate_to: localhost
+
+- name: Remove the temporary directory
+  ansible.builtin.file:
+    path: "{{ tempdir.path }}"
+    state: absent
+  when: tempdir.path is defined
