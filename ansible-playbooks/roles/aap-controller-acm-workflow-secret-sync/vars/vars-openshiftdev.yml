@@ -1,3 +1,3 @@
 acm_aoc_configuration_repo: "https://gitlab.cee.redhat.com/acm-sre/acm-aoc-configuration.git"
 acm_aoc_configuration_repo_version: "main"
-
+vault_uri: "https://kv-acmsre-team.vault.azure.net"
