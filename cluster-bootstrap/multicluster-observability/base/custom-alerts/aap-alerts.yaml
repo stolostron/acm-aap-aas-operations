@@ -20,7 +20,7 @@ data:
         expr: |
             sum(up{namespace="ansible-automation-platform", job="automation-controller-service"}) != sum(acm_managed_cluster_info{managed_cluster_id!=""}) - 1
             or absent(up{namespace="ansible-automation-platform", job="automation-controller-service"}) == 1
-        for: 15m
+        for: 20m
         labels:
           severity: critical
           team: aoc-sre
@@ -118,12 +118,12 @@ data:
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/MetricsCollectorMissing.md
       - alert: ManagedClusterMissing
         annotations:
-          description: Managed cluster {{$labels.managed_cluster_id}} missing from ACM Hub {{$labels.hub_cluster_id}} for longer than 10 minutes
+          description: Managed cluster {{$labels.managed_cluster_id}} missing from ACM Hub {{$labels.hub_cluster_id}} for longer than 20 minutes
           summary: Managed cluster missing from ACM Hub
         expr: acm_managed_cluster_info{available="Unknown"} == 1
-        for: 10m
+        for: 20m
         labels:
-          severity: critical
+          severity: warning
           team: acm-sre
           service: managedcluster
           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/ManagedClusterMissing.md

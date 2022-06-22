@@ -2,7 +2,7 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: prom-conf-policy
-  namespace: open-cluster-management-addon-observability
+  namespace: open-cluster-management-observability
   annotations:
     policy.open-cluster-management.io/standards: CM-2 Baseline Configuration
     policy.open-cluster-management.io/categories: NIST SP 800-53
@@ -73,7 +73,7 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
   name: binding-prom-conf-policy
-  namespace: open-cluster-management-addon-observability
+  namespace: open-cluster-management-observability
 placementRef:
   name: placement-prom-conf-policy
   kind: PlacementRule
@@ -87,7 +87,7 @@ apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
   name: placement-prom-conf-policy
-  namespace: open-cluster-management-addon-observability
+  namespace: open-cluster-management-observability
 spec:
   clusterConditions:
     - status: 'True'
