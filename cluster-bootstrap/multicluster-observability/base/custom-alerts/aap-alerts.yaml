@@ -18,7 +18,7 @@ data:
           description: AAP metric endpoint has disappeared from Prometheus target discovery
           summary: Target disappeared from Prometheus target discovery
         expr: |
-            sum(up{namespace="ansible-automation-platform", job="automation-controller-service"}) != sum(acm_managed_cluster_info{managed_cluster_id!=""}) - 1
+            sum(up{namespace="ansible-automation-platform", job="automation-controller-service"}) != sum(acm_managed_cluster_info{managed_cluster_id!="", available="True"}) - 1
             or absent(up{namespace="ansible-automation-platform", job="automation-controller-service"}) == 1
         for: 20m
         labels:
@@ -109,7 +109,7 @@ data:
         annotations:
           description: Metrics collector Pod missing on some managed clusters for longer than 10 minutes
           summary: Metrics collector Pod missing on some managed clusters
-        expr: sum(kube_pod_info{namespace="open-cluster-management-addon-observability", pod=~"metrics-collector-deployment.*"}) != sum(acm_managed_cluster_info{clusterID!=""})
+        expr: sum(kube_pod_info{namespace="open-cluster-management-addon-observability", pod=~"metrics-collector-deployment.*"}) != sum(acm_managed_cluster_info{managed_cluster_id!="", available="True"})
         for: 10m
         labels:
           severity: critical
