@@ -30,6 +30,13 @@
     - acm_secret_name
     - acm_secret_file_name
 
+# TODO: check also if it exists
+- name: Check if Azure Key Vault is defined
+  ansible.builtin.fail:
+    msg: "Azure Key Vault {{ vault_uri | default('undefined') }} not found!"
+  when: vault_uri is not defined
+  delegate_to: localhost
+
 - name: Create temporary build directory
   ansible.builtin.tempfile:
     state: directory

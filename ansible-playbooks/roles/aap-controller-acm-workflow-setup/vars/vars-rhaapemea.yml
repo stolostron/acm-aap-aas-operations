@@ -6,7 +6,7 @@ azure_location: "francecentral"
 azure_dns_root: emea.mgmt.ansiblecloud.com
 azure_dns_zone: "emea.mgmt.ansiblecloud.com"
 inventory_source_name: "azure-rhaapemea"
-vault_uri: "https://kv-aoc-team.vault.azure.net" #TODO CHECK
+vault_uri: "https://kv-acm-sre-rhaapemea.vault.azure.net"
 argocd_env: "prod-emea"
 parent_dns_zone: emea.mgmt.ansiblecloud.com"
 parent_dns_zone_resource_group: "rg-core-infrastructure" # RG for parent public DNS zone
