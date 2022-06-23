@@ -1,0 +1,14 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: advanced-cluster-management
+  namespace: open-cluster-management
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  channel: release-2.5
+  installPlanApproval: Manual
+  name: advanced-cluster-management
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: advanced-cluster-management.v2.5.0

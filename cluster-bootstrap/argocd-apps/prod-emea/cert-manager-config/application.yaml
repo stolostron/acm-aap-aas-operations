@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-config
+  namespace: openshift-gitops
+spec:
+  destination:
+    name: in-cluster
+  project: default
+  source:
+    path: cluster-bootstrap/cert-manager-config/overlay/prod-emea
+    repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
+    targetRevision: emea-overlay
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

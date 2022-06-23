@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-dev
+  namespace: open-cluster-management-observability
+spec:
+  template:
+    spec:
+      containers:
+      - name: grafana-dev
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 4m
+            memory: 100Mi
+      - name: grafana-dashboard-loader
+        resources:
+          requests:
+            cpu: 4m
+            memory: 50Mi
