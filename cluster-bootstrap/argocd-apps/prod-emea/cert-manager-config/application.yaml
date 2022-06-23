@@ -9,8 +9,8 @@ spec:
   project: default
   source:
     path: cluster-bootstrap/cert-manager-config/overlay/prod-emea
-    repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
-    targetRevision: emea-overlay
+    repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
+    targetRevision: main
   syncPolicy:
     automated:
       prune: false

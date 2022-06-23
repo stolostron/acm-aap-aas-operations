@@ -9,8 +9,8 @@ spec:
   project: default
   source:
     path: cluster-bootstrap/alertmanager-to-github/overlay/prod-emea
-    repoURL: https://github.com/NemoDang/acm-aap-aas-operations.git
-    targetRevision: emea-overlay
+    repoURL: https://github.com/stolostron/acm-aap-aas-operations.git
+    targetRevision: main
     plugin:
       name: argocd-vault-plugin-kustomize
   syncPolicy:
