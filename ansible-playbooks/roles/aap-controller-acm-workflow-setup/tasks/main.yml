@@ -17,6 +17,8 @@
 - ansible.builtin.set_fact:
     azure_resource_group: "{{ azure_resource_group | default(cluster_name) }}"
     azure_cluster_resource_group: "{{ azure_cluster_resource_group | default(cluster_name + '-cluster') }}"
+    acm_organization: "Red Hat - ACM"
+    acm_sre_execution_environment: "ACM SRE Playbook Execution Environment"
 
 - name: Retrieve our secrets from Azure Key Vault
   azure_rm_keyvaultsecret_info:
@@ -62,7 +64,7 @@
 # Common parts - same for all the phases
 - name: Create project for stolostron/ocp4-azure-ipi repository
   project:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "stolostron/ocp4-azure-ipi"
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
@@ -74,7 +76,7 @@
 
 - name: Create project for stolostron/acm-aap-aas-operations repository
   project:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "stolostron/acm-aap-aas-operations"
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
@@ -96,10 +98,10 @@
       - "stolostron/acm-aap-aas-operations"
     validate_certs: false
 
-- name: Configure ACM SRE Playbook execution environment
+- name: Configure execution environment
   execution_environment:
-    organization: "Red Hat - ACM"
-    name: "ACM SRE Playbook Execution Environment"
+    organization: "{{ acm_organization }}"
+    name: "{{ acm_sre_execution_environment }}"
     description: "Execution environment for running ACM SRE playbooks."
     image: "quay.io/cdoan_rh/azure_ee_supported:1.11.1"
     controller_host: "{{ inventory_hostname }}"
@@ -320,7 +322,7 @@
   inventory:
     name: "{{ acm_localhost_inventory }}"
     description: "ACM localhost inventory"
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
@@ -331,7 +333,7 @@
   inventory:
     name: "{{ inventory_name }}"
     description: "Inventory for {{ phase }}"
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
@@ -342,10 +344,10 @@
     description: "Azure inventory for {{ phase }}"
     inventory: "{{ inventory_name }}"
     credential: "{{ inventory_credentials }}"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     overwrite: True
     update_on_launch: True
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
@@ -355,22 +357,33 @@
       - separator: ""
         key: tags.type | default('no-type')
 
+# Label - per phase
+- name: Add target label to organization
+  label:
+    name: "{{ target }}"
+    controller_host: "{{ inventory_hostname }}"
+    controller_username: "{{ admin_username }}"
+    controller_password: "{{ admin_password }}"
+    organization: "{{ acm_organization }}"
+
 # Job templates - per phase
 - name: Create job template for OCP4 Azure IPI
   job_template:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "{{ phase }} Create OCP4 ACM HUB"
     description: "Creates an OCP4 Private Azure cluster with NatGateway egress."
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
+    labels:
+      - "{{ target }}"
     job_type: "run"
     inventory: "{{ acm_localhost_inventory }}"
     ask_limit_on_launch: "no"
     credentials:
       - "{{ inventory_credentials }}"
       - "{{ azure_vars }}"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     project: "stolostron/ocp4-azure-ipi"
     playbook: "install-private.yml"
     validate_certs: false
@@ -380,7 +393,7 @@
       azure_secret: "{%raw%}{{ lookup('env', 'AZURE_SECRET') }}{%endraw%}"
       azure_tenant: "{%raw%}{{ lookup('env', 'AZURE_TENANT') }}{%endraw%}"
       bypass_vault_folder_requirement: true
-      ocp4_version: '4.10.16'
+      ocp4_version: "{{ ocp4_version }}"
       cluster_name: "{{ cluster_name }}"
       azure_resource_group: "{{ azure_resource_group }}"
       azure_cluster_resource_group: "{{ azure_cluster_resource_group }}"
@@ -396,19 +409,21 @@
       azure_vm_image_publisher: RedHat
       azure_vm_image_sku: "8-lvm-gen2"
       azure_vm_image_version: latest
-      master_instance_type: "Standard_D4ds_v5"
+      master_instance_type: "{{ master_instance_type }}"
       master_instance_count: 3
-      worker_instance_type: Standard_D8ds_v5
-      worker_instance_count: 3
+      worker_instance_type: "{{ worker_instance_type }}"
+      worker_instance_count: "{{ worker_instance_count }}"
 
 - name: Create job template for Bastion configuration
   job_template:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "{{ phase }} Configure bastion"
     description: "Configures a bastion VM."
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
+    labels:
+      - "{{ target }}"
     job_type: "run"
     inventory: "{{ inventory_name }}"
     ask_limit_on_launch: "no"
@@ -416,7 +431,7 @@
       - "{{ inventory_credentials }}"
       - "{{ phase }} RHSM"
       - "{{ target_ssh_keys }}"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     project: "stolostron/acm-aap-aas-operations"
     playbook: "ansible-playbooks/playbooks/bastion.yml"
     validate_certs: false
@@ -426,18 +441,20 @@
 
 - name: Create job template for Inventory update
   job_template:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "{{ phase }} Update Azure inventory source"
     description: "Updates an inventory source."
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
+    labels:
+      - "{{ target }}"
     job_type: "run"
     inventory: "{{ inventory_name }}"
     ask_limit_on_launch: "no"
     credentials:
       - "{{ phase }} Controller credentials with hostname"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     project: "stolostron/acm-aap-aas-operations"
     playbook: "ansible-playbooks/playbooks/update-inventory.yml"
     validate_certs: false
@@ -447,19 +464,21 @@
 
 - name: Create job template for Cluster configuration
   job_template:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "{{ phase }} Deploy Cluster configuration with ArgoCD"
     description: "Deploys all the Hub components inside a stack."
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
+    labels:
+      - "{{ target }}"
     job_type: "run"
     inventory: "{{ inventory_name }}"
     ask_limit_on_launch: "no"
     credentials:
       - "{{ target_ssh_keys }}"
       - "{{ phase }} ArgoCD Vault"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     project: "stolostron/acm-aap-aas-operations"
     playbook: "ansible-playbooks/playbooks/deploy-acm-stack.yml"
     validate_certs: false
@@ -470,18 +489,20 @@
 
 - name: Create job template for Adding Private Link Service
   job_template:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "{{ phase }} Create Private Link Service"
     description: "Add private link service so private AKS can connect to ACM."
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
+    labels:
+      - "{{ target }}"
     job_type: "run"
     inventory: "{{ acm_localhost_inventory }}"
     ask_limit_on_launch: "no"
     credentials:
       - "{{ phase }} Azure Service Principal"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     project: "stolostron/acm-aap-aas-operations"
     playbook: "ansible-playbooks/playbooks/add-private-link-acm.yml"
     validate_certs: false
@@ -492,18 +513,20 @@
 
 - name: Create job template for Public DNS Zone setup
   job_template:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "{{ phase }} Setup DNS"
     description: "Setups a public DNS zone."
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
+    labels:
+      - "{{ target }}"
     job_type: "run"
     inventory: "{{ inventory_name }}"
     ask_limit_on_launch: "no"
     credentials:
       - "{{ inventory_credentials }}"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     project: "stolostron/acm-aap-aas-operations"
     playbook: "ansible-playbooks/playbooks/setup-public-dns-zone.yml"
     validate_certs: false
@@ -521,7 +544,9 @@
   - name: Create a workflow job template
     tower_workflow_job_template:
       name: "{{ workflow_name }}"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
+      labels:
+        - "{{ target }}"
       ask_scm_branch_on_launch: false
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -532,7 +557,7 @@
       identifier: "{{ phase }} Create Private Link Service"
       workflow_job_template: "{{ workflow_name }}"
       unified_job_template: "{{ phase }} Create Private Link Service"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       inventory: "{{ acm_localhost_inventory }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -543,7 +568,7 @@
       identifier: "{{ phase }} Configure hub"
       workflow_job_template: "{{ workflow_name }}"
       unified_job_template: "{{ phase }} Deploy Cluster configuration with ArgoCD"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       inventory: "{{ inventory_name }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -556,7 +581,7 @@
       identifier: "{{ phase }} Setup DNS"
       workflow_job_template: "{{ workflow_name }}"
       unified_job_template: "{{ phase }} Setup DNS"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
       controller_password: "{{ admin_password }}"
@@ -568,7 +593,7 @@
       identifier: "{{ phase }} Configure bastion"
       workflow_job_template: "{{ workflow_name }}"
       unified_job_template: "{{ phase }} Configure bastion"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       inventory: "{{ inventory_name }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -581,7 +606,7 @@
       identifier: "{{ phase }} Update Azure inventory source"
       workflow_job_template: "{{ workflow_name }}"
       unified_job_template: "{{ phase }} Update Azure inventory source"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       inventory: "{{ inventory_name }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -595,20 +620,20 @@
       workflow_job_template: "{{ workflow_name }}"
       unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
       inventory: "{{ acm_localhost_inventory }}"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
       controller_password: "{{ admin_password }}"
       success_nodes:
         - "{{ phase }} Update Azure inventory source"
 
-  - name: Add permissions to ACM SRE team to run these job templates
+  - name: Add permissions to ACM SRE team to admin these job templates
     role:
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
       controller_password: "{{ admin_password }}"
       team: "ACM SRE"
-      role: "execute"
+      role: "admin"
       job_templates:
         - "{{ phase }} Create OCP4 ACM HUB"
         - "{{ phase }} Configure bastion"

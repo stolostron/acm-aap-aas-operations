@@ -1,12 +1,19 @@
+# general
 phase_name: "adecorte"
+# ocp setup
 cluster_name: "adecorte"
 azure_resource_group: "adecorte-test"
 azure_cluster_resource_group: "adecorte-test-cluster"
 azure_location: "westeurope"
 azure_dns_root: "demo.az.red-chesterfield.com"
 azure_dns_zone: "demo.az.red-chesterfield.com"
+master_instance_type: "Standard_D4s_v3"
+worker_instance_type: "Standard_D8s_v3"
+# AAP setup
 inventory_source_name: "azure-openshiftdev"
 vault_uri: "https://kv-acmsre-team.vault.azure.net"
+# ArgoCD
 argocd_env: "testing"
+# Additional public DNS Setup
 parent_dns_zone: "demo.az.red-chesterfield.com" # Parent public DNS zone
 parent_dns_zone_resource_group: "domain" # RG for parent public DNS zone
