@@ -1,12 +1,19 @@
+# general
 phase_name: "RHAAPDEV"
+# ocp setup
 cluster_name: "acm1"
 azure_resource_group: "rg-acm"
 azure_cluster_resource_group: "rg-acm-cluster"
 azure_location: "eastus"
-azure_dns_root: mgmtdev.ansiblecloud.com
+azure_dns_root: mgmtdev.ansiblecloud.com # TODO az -> to replace with na.mgmtdev.ansiblecloud.com
 azure_dns_zone: "az.mgmtdev.ansiblecloud.com" # TODO az -> to replace with na
+master_instance_type: "Standard_D4ds_v5"
+worker_instance_type: "Standard_D8ds_v5"
+# AAP setup
 inventory_source_name: "azure-rhaapdev"
 vault_uri: "https://kv-aoc-team.vault.azure.net"
+# ArgoCD
 argocd_env: "dev"
+# Additional public DNS Setup
 parent_dns_zone: "az.mgmtdev.ansiblecloud.com" # az -> to replace with na
 parent_dns_zone_resource_group: "rg-acm" # RG for parent public DNS zone

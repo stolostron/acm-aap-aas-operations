@@ -1,12 +1,19 @@
+# general
 phase_name: "RHAAP - EMEA"
+# ocp setup
 cluster_name: "acm10"
 azure_resource_group: "rg-acm"
 azure_cluster_resource_group: "rg-acm-cluster"
 azure_location: "francecentral"
 azure_dns_root: emea.mgmt.ansiblecloud.com
 azure_dns_zone: "emea.mgmt.ansiblecloud.com"
+master_instance_type: "Standard_D4s_v3"
+worker_instance_type: "Standard_D8s_v3"
+# AAP setup
 inventory_source_name: "azure-rhaapemea"
 vault_uri: "https://kv-acm-sre-rhaapemea.vault.azure.net"
+# ArgoCD
 argocd_env: "prod-emea"
+# Additional public DNS Setup
 parent_dns_zone: emea.mgmt.ansiblecloud.com"
 parent_dns_zone_resource_group: "rg-core-infrastructure" # RG for parent public DNS zone

@@ -1,18 +1,20 @@
 - name: Create job template for Uninstall OCP4 Azure
   job_template:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "{{ phase }} Destroy OCP4 ACM HUB"
     description: "Uninstall an OCP4 Private Azure cluster"
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
+    labels:
+      - "{{ target }}"
     job_type: "run"
     inventory: "{{ inventory_name }}"
     ask_limit_on_launch: "no"
     credentials:
       - "{{ inventory_credentials }}"
       - "{{ azure_vars }}"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     project: "stolostron/ocp4-azure-ipi"
     playbook: "uninstall-private.yml"
     validate_certs: false
@@ -22,7 +24,7 @@
       azure_secret: "{%raw%}{{ lookup('env', 'AZURE_SECRET') }}{%endraw%}"
       azure_tenant: "{%raw%}{{ lookup('env', 'AZURE_TENANT') }}{%endraw%}"
       bypass_vault_folder_requirement: true
-      ocp4_version: '4.10.16'
+      ocp4_version: "{{ ocp4_version }}"
       cluster_name: "{{ cluster_name }}"
       azure_resource_group: "{{ azure_resource_group }}"
       azure_cluster_resource_group: "{{ azure_cluster_resource_group }}"
@@ -38,25 +40,27 @@
       azure_vm_image_publisher: RedHat
       azure_vm_image_sku: "8-lvm-gen2"
       azure_vm_image_version: latest
-      master_instance_type: "Standard_D4ds_v5"
+      master_instance_type: "{{ master_instance_type }}"
       master_instance_count: 3
-      worker_instance_type: Standard_D8ds_v5
-      worker_instance_count: 3
+      worker_instance_type: "{{ worker_instance_type }}"
+      worker_instance_count: "{{ worker_instance_count }}"
 
 - name: Create job template for Bastion RG creation
   job_template:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "{{ phase }} Create service Resource Group"
     description: "Create a resource group for the deployment of the Bastion and other"
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
+    labels:
+      - "{{ target }}"
     job_type: "run"
     inventory: "{{ inventory_name }}"
     ask_limit_on_launch: "no"
     credentials:
       - "{{ phase }} Azure Service Principal"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     project: "stolostron/acm-aap-aas-operations"
     playbook: "ansible-playbooks/playbooks/create-resource-group.yml"
     validate_certs: false
@@ -66,18 +70,20 @@
 
 - name: Create job template for OCP4 RG creation
   job_template:
-    organization: "Red Hat - ACM"
+    organization: "{{ acm_organization }}"
     name: "{{ phase }} Create OCP4 Resource Group"
     description: "Create a resource group for the deployment of OCP4"
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
+    labels:
+      - "{{ target }}"
     job_type: "run"
     inventory: "{{ inventory_name }}"
     ask_limit_on_launch: "no"
     credentials:
       - "{{ phase }} Azure Service Principal"
-    execution_environment: "ACM SRE Playbook Execution Environment"
+    execution_environment: "{{ acm_sre_execution_environment }}"
     project: "stolostron/acm-aap-aas-operations"
     playbook: "ansible-playbooks/playbooks/create-resource-group.yml"
     validate_certs: false
@@ -91,17 +97,18 @@
     tower_workflow_job_template:
       name: "{{ phase }} Full run"
       ask_scm_branch_on_launch: false
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
       controller_password: "{{ admin_password }}"
+      labels:
   # TODO add destroy cluster after some wait
   - name: Create 7th node
     tower_workflow_job_template_node:
       identifier: "{{ phase }} Configure hub"
       workflow_job_template:  "{{ phase }} Full run"
       unified_job_template: "{{ phase }} Deploy Cluster configuration with ArgoCD"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       inventory: "{{ inventory_name }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -111,7 +118,7 @@
       identifier: "{{ phase }} Setup DNS"
       workflow_job_template: "{{ phase }} Full run"
       unified_job_template: "{{ phase }} Setup DNS"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
       controller_password: "{{ admin_password }}"
@@ -122,7 +129,7 @@
       identifier: "{{ phase }} Configure bastion"
       workflow_job_template: "{{ phase }} Full run"
       unified_job_template: "{{ phase }} Configure bastion"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       inventory: "{{ inventory_name }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -134,7 +141,7 @@
       identifier: "{{ phase }} Update Azure inventory source"
       workflow_job_template: "{{ phase }} Full run"
       unified_job_template: "{{ phase }} Update Azure inventory source"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       inventory: "{{ inventory_name }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -147,7 +154,7 @@
       workflow_job_template: "{{ phase }} Full run"
       unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
       inventory: "ACM localhost"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
       controller_password: "{{ admin_password }}"
@@ -158,7 +165,7 @@
       identifier: "{{ phase }} Create RG for OCP4"
       workflow_job_template: "{{ phase }} Full run"
       unified_job_template: "{{ phase }} Create OCP4 Resource Group"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       inventory: "{{ inventory_name }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -170,7 +177,7 @@
       identifier: "{{ phase }} Create RG for bastion"
       workflow_job_template: "{{ phase }} Full run"
       unified_job_template: "{{ phase }} Create service Resource Group"
-      organization: "Red Hat - ACM"
+      organization: "{{ acm_organization }}"
       inventory: "{{ inventory_name }}"
       controller_host: "{{ inventory_hostname }}"
       controller_username: "{{ admin_username }}"
@@ -178,14 +185,13 @@
       success_nodes:
         - "{{ phase }} Create RG for OCP4"
     
-
 - name: Add permissions to ACM SRE team to run these job templates
   role:
     controller_host: "{{ inventory_hostname }}"
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
     team: "ACM SRE"
-    role: "execute"
+    role: "admin"
     job_templates:
       - "{{ phase }} Destroy OCP4 ACM HUB"
       - "{{ phase }} Create OCP4 Resource Group"
