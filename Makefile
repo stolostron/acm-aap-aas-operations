@@ -23,45 +23,27 @@ lint:
 kind-test:
 	@echo "TODO: create Kind test here."
 
-# Deploy stacks(ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics)
+# Deploy stacks(ACM, MultiCluster Observability, Grafana-dev, Prometheus config and custom Alters & Metrics. etc)
 .PHONY: deploy-stacks-local
 deploy-stacks-local:
 	sh ./scripts/install.sh local
 
-.PHONY: deploy-stacks-dev
-deploy-stacks-dev:
-	sh ./scripts/install.sh dev
+.PHONY: deploy-stacks-testing
+deploy-stacks-testing:
+	sh ./scripts/install.sh testing
 
 # Deploy Alert manager policy
 .PHONY: deploy-alert-manager-local
 deploy-alert-manager-local:
 	sh ./scripts/install-alertmanager.sh local
 
-.PHONY: deploy-alert-manager-dev
-deploy-alert-manager-dev:
-	sh ./scripts/install-alertmanager.sh dev
-
-.PHONY: deploy-alert-manager-dev-private
-deploy-alert-manager-dev-private:
-	sh ./scripts/install-alertmanager.sh dev true
-
-deploy-alert-manager-dev-noalerts:
-	sh ./scripts/install-alertmanager.sh dev false true
-
-# Config cert-manager
-.PHONY: config-cert-manager-dev
-config-cert-manager-dev:
-	sh ./scripts/config-certmanager.sh dev
+.PHONY: deploy-alert-manager-testing
+deploy-alert-manager-testing:
+	sh ./scripts/install-alertmanager.sh testing
 
 # Make entries
-.PHONY: deploy-dev
-deploy-dev: deploy-stacks-dev deploy-alert-manager-dev
-
-.PHONY: deploy-dev-private
-deploy-dev-private: deploy-stacks-dev deploy-alert-manager-dev-private
-
-.PHONY: deploy-dev-noalerts
-deploy-dev-noalerts: deploy-stacks-dev deploy-alert-manager-dev-noalerts
+.PHONY: deploy-testing
+deploy-testing: deploy-stacks-testing deploy-alert-manager-testing
 
 .PHONY: deploy-local
 deploy-local: deploy-stacks-local deploy-alert-manager-local
