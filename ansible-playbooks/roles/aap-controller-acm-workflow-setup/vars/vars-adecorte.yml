@@ -10,6 +10,7 @@ azure_dns_zone: "demo.az.red-chesterfield.com"
 master_instance_type: "Standard_D4s_v3"
 worker_instance_type: "Standard_D8s_v3"
 # AAP setup
+controller_host: "https://controller.mgmtdev.ansiblecloud.com"
 inventory_source_name: "azure-openshiftdev"
 vault_uri: "https://kv-acmsre-team.vault.azure.net"
 # ArgoCD

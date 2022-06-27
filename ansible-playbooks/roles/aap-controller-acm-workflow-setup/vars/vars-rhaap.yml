@@ -10,6 +10,7 @@ azure_dns_zone: "az.mgmt.ansiblecloud.com" # TODO az -> to replace with na
 master_instance_type: "Standard_D4ds_v5"
 worker_instance_type: "Standard_D8ds_v5"
 # AAP setup
+controller_host: "https://controller.mgmtdev.ansiblecloud.com"
 inventory_source_name: "azure-rhaap"
 vault_uri: "https://kv-acm-sre-rhaap.vault.azure.net"
 # ArgoCD

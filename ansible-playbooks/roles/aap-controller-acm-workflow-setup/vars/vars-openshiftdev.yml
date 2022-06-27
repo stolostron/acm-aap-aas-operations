@@ -6,6 +6,7 @@ azure_location: "westeurope"
 azure_dns_root: "demo.az.red-chesterfield.com"
 azure_dns_zone: "demo.az.red-chesterfield.com"
 # AAP setup
+controller_host: "https://controller.mgmtdev.ansiblecloud.com"
 inventory_source_name: "azure-openshiftdev"
 vault_uri: "https://kv-acmsre-team.vault.azure.net"
 # ArgoCD

@@ -1,5 +1,5 @@
 - name: Configure no_log
-  debug:
+  ansible.builtin.debug:
     msg: "Shown only with verbosity > 1"
     verbosity: 2
   register: verbose_check
@@ -9,12 +9,13 @@
     msg: "'{{ item }}' variable not defined!"
   when: (vars[item] is undefined) or (vars[item]| length == 0)
   with_items:
-  - "target"
+    - "target"
 
 - name: Switch to values based on target
   ansible.builtin.include_vars:
     file: "{{ 'vars-' + lookup('vars', 'target') + '.yml' }}"
-- ansible.builtin.set_fact:
+- name: Switch to values based on target
+  ansible.builtin.set_fact:
     azure_resource_group: "{{ azure_resource_group | default(cluster_name) }}"
     azure_cluster_resource_group: "{{ azure_cluster_resource_group | default(cluster_name + '-cluster') }}"
     acm_organization: "Red Hat - ACM"
@@ -26,7 +27,8 @@
     name: "acm-sre-{{ target }}-secrets"
   register: secrets_from_kv
   no_log: "{{ verbose_check is skipped }}"
-- ansible.builtin.fail:
+- name: Check if secret exists
+  ansible.builtin.fail:
     msg: "Secret named acm-sre-{{ target }}-secrets not found in {{ vault_uri }}!"
   when: secrets_from_kv.secrets | length == 0
 - name: Create temporary file
@@ -39,7 +41,8 @@
     content: "{{ secrets_from_kv.secrets[0].secret | b64decode }}"
     dest: "{{ tempfile_1.path }}"
   no_log: "{{ verbose_check is skipped }}"
-- ansible.builtin.include_vars:
+- name: Import file content into vars
+  ansible.builtin.include_vars:
     file: "{{ tempfile_1.path }}"
   no_log: "{{ verbose_check is skipped }}"
 - name: Remove the temporary file
@@ -66,9 +69,9 @@
   project:
     organization: "{{ acm_organization }}"
     name: "stolostron/ocp4-azure-ipi"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     scm_url: "https://github.com/stolostron/ocp4-azure-ipi.git"
     scm_type: git
     scm_update_on_launch: true
@@ -78,9 +81,9 @@
   project:
     organization: "{{ acm_organization }}"
     name: "stolostron/acm-aap-aas-operations"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     scm_url: "https://github.com/stolostron/acm-aap-aas-operations.git"
     scm_type: git
     scm_update_on_launch: true
@@ -88,9 +91,9 @@
 
 - name: Add permissions to team to access project
   role:
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     team: "ACM SRE"
     role: "admin"
     projects:
@@ -104,9 +107,9 @@
     name: "{{ acm_sre_execution_environment }}"
     description: "Execution environment for running ACM SRE playbooks."
     image: "quay.io/cdoan_rh/azure_ee_supported:1.11.1"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     validate_certs: false
 
 # Common parts - same for all the phases
@@ -132,9 +135,9 @@
         rhsm_username: '{%raw%}{{username}}{%endraw%}'
         rhsm_password: '{%raw%}{{password}}{%endraw%}'
     state: present
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     validate_certs: false
 
 - name: "Add Controller credentials with hostname"
@@ -163,9 +166,9 @@
         admin_username: '{%raw%}{{username}}{%endraw%}'
         admin_password: '{%raw%}{{password}}{%endraw%}'
     state: present
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     validate_certs: false
 
 - name: "Add OCP4 Azure Vars Yaml"
@@ -196,9 +199,9 @@
         private_ssh_key: '{%raw%}{{private_ssh_key}}{%endraw%}'
         ocp4_pull_secret: '{%raw%}{{ocp4_pull_secret[1:-1]}}{%endraw%}'
     state: present
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     validate_certs: false
 
 - name: "Add ArgoCD HashiCorp Vault credentials"
@@ -223,9 +226,9 @@
         VAULT_ADDRESS: '{%raw%}{{server}}{%endraw%}'
         VAULT_TOKEN: '{%raw%}{{token}}{%endraw%}'
     state: present
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     validate_certs: false
 
 # Credentials - one per each phase
@@ -235,9 +238,9 @@
     name: "{{ phase }} Azure Service Principal"
     description: "Credentials for Azure Service Principal"
     credential_type: "Microsoft Azure Resource Manager"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     inputs:
       client: "{{ client_id }}"
       secret: "{{ client_secret }}"
@@ -251,9 +254,9 @@
     name: "{{ phase }} Azure Vars"
     description: "Azure Vars for ACM SRE"
     credential_type: "OCP4 Azure Vars Yaml"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     inputs:
       public_ssh_key: "{{ public_ssh_key }}"
       private_ssh_key: "{{ private_ssh_key }}" # b64encoded
@@ -266,9 +269,9 @@
     name: "{{ phase }} RHSM"
     description: "Credentials for RHSM registration"
     credential_type: "RHSM credentials"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     inputs:
       username: "{{ rhsm_username }}"
       password: "{{ rhsm_password }}"
@@ -280,13 +283,13 @@
     name: "{{ phase }} Controller credentials with hostname"
     description: "Credentials for controller"
     credential_type: "Controller credentials with hostname"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     inputs:
-      hostname: "{{ inventory_hostname }}"
-      username: "{{ admin_username }}"
-      password: "{{ admin_password }}"
+      hostname: "{{ controller_host }}"
+      username: "{{ controller_host_username }}"
+      password: "{{ controller_host_password }}"
     validate_certs: false
 
 - name: Configure credentials for SSH
@@ -295,9 +298,9 @@
     name: "{{ target_ssh_keys }}"
     description: "SSH keys for machine access"
     credential_type: "Machine"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     inputs:
       username: "{{ ssh_username }}"
       ssh_key_data: "{{ private_ssh_key | b64decode }}"
@@ -309,9 +312,9 @@
     name: "{{ phase }} ArgoCD Vault"
     description: "ArgoCD Vault credentials"
     credential_type: "ArgoCD HashiCorp Vault credentials"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     inputs:
       server: "{{ argocd_vault_uri }}"
       token: "{{ argocd_vault_token }}"
@@ -323,9 +326,9 @@
     name: "{{ acm_localhost_inventory }}"
     description: "ACM localhost inventory"
     organization: "{{ acm_organization }}"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     state: present
 
 # Azure Inventory - per phase
@@ -334,9 +337,9 @@
     name: "{{ inventory_name }}"
     description: "Inventory for {{ phase }}"
     organization: "{{ acm_organization }}"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     state: present
 - name: Add inventory source
   inventory_source:
@@ -345,25 +348,25 @@
     inventory: "{{ inventory_name }}"
     credential: "{{ inventory_credentials }}"
     execution_environment: "{{ acm_sre_execution_environment }}"
-    overwrite: True
-    update_on_launch: True
+    overwrite: true
+    update_on_launch: true
     organization: "{{ acm_organization }}"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     source: azure_rm
     source_vars:
       keyed_groups:
-      - separator: ""
-        key: tags.type | default('no-type')
+        - separator: ""
+          key: tags.type | default('no-type')
 
 # Label - per phase
 - name: Add target label to organization
   label:
     name: "{{ target }}"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     organization: "{{ acm_organization }}"
 
 # Job templates - per phase
@@ -372,9 +375,9 @@
     organization: "{{ acm_organization }}"
     name: "{{ phase }} Create OCP4 ACM HUB"
     description: "Creates an OCP4 Private Azure cluster with NatGateway egress."
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     labels:
       - "{{ target }}"
     job_type: "run"
@@ -419,9 +422,9 @@
     organization: "{{ acm_organization }}"
     name: "{{ phase }} Configure bastion"
     description: "Configures a bastion VM."
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     labels:
       - "{{ target }}"
     job_type: "run"
@@ -444,9 +447,9 @@
     organization: "{{ acm_organization }}"
     name: "{{ phase }} Update Azure inventory source"
     description: "Updates an inventory source."
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     labels:
       - "{{ target }}"
     job_type: "run"
@@ -467,9 +470,9 @@
     organization: "{{ acm_organization }}"
     name: "{{ phase }} Deploy Cluster configuration with ArgoCD"
     description: "Deploys all the Hub components inside a stack."
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     labels:
       - "{{ target }}"
     job_type: "run"
@@ -492,9 +495,9 @@
     organization: "{{ acm_organization }}"
     name: "{{ phase }} Create Private Link Service"
     description: "Add private link service so private AKS can connect to ACM."
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     labels:
       - "{{ target }}"
     job_type: "run"
@@ -516,9 +519,9 @@
     organization: "{{ acm_organization }}"
     name: "{{ phase }} Setup DNS"
     description: "Setups a public DNS zone."
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     labels:
       - "{{ target }}"
     job_type: "run"
@@ -541,106 +544,106 @@
 # Workflow - per phase
 - name: Create workflow to deploy the Hub
   block:
-  - name: Create a workflow job template
-    tower_workflow_job_template:
-      name: "{{ workflow_name }}"
-      organization: "{{ acm_organization }}"
-      labels:
-        - "{{ target }}"
-      ask_scm_branch_on_launch: false
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
+    - name: Create a workflow job template
+      tower_workflow_job_template:
+        name: "{{ workflow_name }}"
+        organization: "{{ acm_organization }}"
+        labels:
+          - "{{ target }}"
+        ask_scm_branch_on_launch: false
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
 
-  - name: Create 6th node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Create Private Link Service"
-      workflow_job_template: "{{ workflow_name }}"
-      unified_job_template: "{{ phase }} Create Private Link Service"
-      organization: "{{ acm_organization }}"
-      inventory: "{{ acm_localhost_inventory }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
+    - name: Create 6th node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Create Private Link Service"
+        workflow_job_template: "{{ workflow_name }}"
+        unified_job_template: "{{ phase }} Create Private Link Service"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ acm_localhost_inventory }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
 
-  - name: Create 5th node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Configure hub"
-      workflow_job_template: "{{ workflow_name }}"
-      unified_job_template: "{{ phase }} Deploy Cluster configuration with ArgoCD"
-      organization: "{{ acm_organization }}"
-      inventory: "{{ inventory_name }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Create Private Link Service"
+    - name: Create 5th node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Configure hub"
+        workflow_job_template: "{{ workflow_name }}"
+        unified_job_template: "{{ phase }} Deploy Cluster configuration with ArgoCD"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ inventory_name }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Create Private Link Service"
 
-  - name: Create 4th node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Setup DNS"
-      workflow_job_template: "{{ workflow_name }}"
-      unified_job_template: "{{ phase }} Setup DNS"
-      organization: "{{ acm_organization }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Configure hub"
+    - name: Create 4th node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Setup DNS"
+        workflow_job_template: "{{ workflow_name }}"
+        unified_job_template: "{{ phase }} Setup DNS"
+        organization: "{{ acm_organization }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Configure hub"
 
-  - name: Create 3rd node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Configure bastion"
-      workflow_job_template: "{{ workflow_name }}"
-      unified_job_template: "{{ phase }} Configure bastion"
-      organization: "{{ acm_organization }}"
-      inventory: "{{ inventory_name }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Setup DNS"
+    - name: Create 3rd node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Configure bastion"
+        workflow_job_template: "{{ workflow_name }}"
+        unified_job_template: "{{ phase }} Configure bastion"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ inventory_name }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Setup DNS"
 
-  - name: Create 2nd node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Update Azure inventory source"
-      workflow_job_template: "{{ workflow_name }}"
-      unified_job_template: "{{ phase }} Update Azure inventory source"
-      organization: "{{ acm_organization }}"
-      inventory: "{{ inventory_name }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Configure bastion"
+    - name: Create 2nd node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Update Azure inventory source"
+        workflow_job_template: "{{ workflow_name }}"
+        unified_job_template: "{{ phase }} Update Azure inventory source"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ inventory_name }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Configure bastion"
 
-  - name: Create 1st node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Create OCP4 ACM HUB"
-      workflow_job_template: "{{ workflow_name }}"
-      unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
-      inventory: "{{ acm_localhost_inventory }}"
-      organization: "{{ acm_organization }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Update Azure inventory source"
+    - name: Create 1st node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Create OCP4 ACM HUB"
+        workflow_job_template: "{{ workflow_name }}"
+        unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
+        inventory: "{{ acm_localhost_inventory }}"
+        organization: "{{ acm_organization }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Update Azure inventory source"
 
-  - name: Add permissions to ACM SRE team to admin these job templates
-    role:
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      team: "ACM SRE"
-      role: "admin"
-      job_templates:
-        - "{{ phase }} Create OCP4 ACM HUB"
-        - "{{ phase }} Configure bastion"
-        - "{{ phase }} Update Azure inventory source"
-        - "{{ phase }} Deploy Cluster configuration with ArgoCD"
-        - "{{ phase }} Create Private Link Service"
-        - "{{ phase }} Setup DNS"
-      workflows:
-        - "{{ workflow_name }}"
-      validate_certs: false
+    - name: Add permissions to ACM SRE team to admin these job templates
+      role:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        team: "ACM SRE"
+        role: "admin"
+        job_templates:
+          - "{{ phase }} Create OCP4 ACM HUB"
+          - "{{ phase }} Configure bastion"
+          - "{{ phase }} Update Azure inventory source"
+          - "{{ phase }} Deploy Cluster configuration with ArgoCD"
+          - "{{ phase }} Create Private Link Service"
+          - "{{ phase }} Setup DNS"
+        workflows:
+          - "{{ workflow_name }}"
+        validate_certs: false
