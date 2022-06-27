@@ -5,8 +5,8 @@ cluster_name: "acm5"
 azure_resource_group: "rg-acm"
 azure_cluster_resource_group: "rg-acm-cluster"
 azure_location: "eastus"
-azure_dns_root: mgmt.ansiblecloud.com
-azure_dns_zone: "az.mgmt.ansiblecloud.com" # TODO az -> to replace with na
+azure_dns_root: na.mgmt.ansiblecloud.com
+azure_dns_zone: "na.mgmt.ansiblecloud.com"
 master_instance_type: "Standard_D4ds_v5"
 worker_instance_type: "Standard_D8ds_v5"
 # AAP setup
@@ -16,5 +16,5 @@ vault_uri: "https://kv-acm-sre-rhaap.vault.azure.net"
 # ArgoCD
 argocd_env: "prod"
 # Additional public DNS Setup
-parent_dns_zone: "az.mgmt.ansiblecloud.com" # TODO az -> to replace with na
+parent_dns_zone: "na.mgmt.ansiblecloud.com"
 parent_dns_zone_resource_group: "rg-core-infrastructure" # RG for parent public DNS zone
