@@ -11,16 +11,10 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
 
 
 ### Deployment:
-1. Replace the `VAULT_ADDRESS` and `VAULT_TOKEN` in `cluster-bootstrap/openshift-gitops/config/argocd.yaml` with the Vault service address and read only auth token from above doc.
-   Please take care of using the correct env values for your deployment.
-   * Dev is for development env usage. 
-2. Deploy the stacks:
-   * For bootstrap a development env without alert forwarding, run `make deploy-dev-noalerts`.
-   * For bootstrap development env, run `make deploy-dev`.
-   * For bootstrap development env based on private cluster, run `make deploy-dev-private`.
+1. Replace the `VAULT_ADDRESS` and `VAULT_TOKEN` in `cluster-bootstrap/openshift-gitops/config/argocd.yaml` with the Vault service address and read only auth token from above doc. Please take care of using the correct env values for your deployment. 
+2. Run `make deploy-testing` to deploy a testing hub cluster.
 
-
-### How to setup your own cluster for testing
+### How to setup your own customized config cluster for testing
 1. Prepare your own OCP cluster, current you could resume one quickly from AWS cluster pool
 2. Fork the repo and update all the `repoURL` in `application.yaml` under `./cluster-bootstrap/argocd-apps/local` with your forked URL
 3. Fill in your tokens in `./scripts/local-install.env`. Notes: Please keep the quotes mark.
@@ -33,6 +27,9 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   ├── base
     │   └── overlay                          
     │       ├── dev
+    │       ├── prod
+    │       ├── prod-emea
+    │       ├── testing 
     │       └── local                            
     ├── acm-app                             # Deploy ansible-automation-platform through ACM application channel
     │   ├── base
@@ -45,29 +42,42 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     ├── cert-manager                        # Deploy Cert manager
     │   ├── base      
     │   └── overlay
-    │       ├── dev                            
+    │       ├── dev
+    │       ├── prod
+    │       ├── prod-emea
+    │       ├── testing         
+    │       └── local                   
     ├── cert-manager-config                 # Cert manager configuration with public issuer
     │   ├── base
     │   └── overlay
-    │       ├── dev                            
+    │       ├── dev  
+    │       ├── prod
+    │       ├── prod-emea
+    │       ├── testing                          
     │       └── stage            
     ├── alert-manager-config                # Deploy Alert manager policy configuration
     │   ├── base
     │   └── overlay
     │       ├── dev                            
-    │       ├── dev-noalerts                # Disable alerting for DEV testing
-    |       ├── dev-private                 # Add http proxy for slack alerts forwards
+    │       ├── prod
+    │       ├── prod-emea
+    │       ├── testing
     │       └── local
     ├── grafana-dev                         # Deploy Grafana dev instance configuration
     │   ├── base   
     │   └── overlay
     │       ├── dev  
-    │       ├── dev-managed-premium 
+    │       ├── prod
+    │       ├── prod-emea
+    │       ├── testing
     │       └── local
     ├── group-sync                          # Deploy Group Sync operator to auto sync the teams
     │   ├── base   
     │   └── overlay
-    │       └── dev
+    │       ├── dev
+    │       ├── prod
+    │       ├── prod-emea
+    │       └── testing
     ├── multicluster-observability
     │   ├── base
     │   │   ├── custom-alerts                # Custom alerts configuration
@@ -76,13 +86,47 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │   │   └── deploy                       # Deploy Multicluster observability
     │   └── overlay  
     │       ├── dev
+    │       ├── prod
+    │       ├── prod-emea
+    │       ├── testing    
     │       └── local
+    ├── openshift-config                     # Config patch and upgrade policy OCP 
+    │   ├── base                             
+    │   └── overlay  
+    │       ├── dev
+    │       ├── prod
+    │       ├── prod-emea
+    │       ├── testing    
+    │       └── local
+    ├── openshift-gitops                     # Config Argocd to manage itself 
+    │   ├── base
+    │   ├── config
+    │   ├── deploy                                 
+    │   └── overlay  
+    │       ├── dev
+    │       ├── prod
+    │       ├── prod-emea
+    │       └── testing
+    ├── patch-operator                       # Deploy patch-operator
+    │   ├── base                             
+    │   └── overlay  
+    │       ├── dev
+    │       ├── prod
+    │       ├── prod-emea
+    │       ├── testing   
+    │       └── local        
     ├── prometheus-config                    # Deploy Prometheus configuration
     │   ├── base                             
     │   └── overlay  
     │       ├── dev
+    │       ├── prod
+    │       ├── prod-emea
+    │       ├── testing       
     │       └── local
     └── sso                                  # Deploy SSO based on github idp
-         ├── base                             
-         └── overlay  
-               └── dev
+        ├── base                             
+        └── overlay
+            ├── prod
+            ├── prod-emea
+            ├── testing               
+            └── dev
