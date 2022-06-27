@@ -1,5 +1,5 @@
 - name: Configure no_log
-  debug:
+  ansible.builtin.debug:
     msg: "Shown only with verbosity > 1"
     verbosity: 2
   register: verbose_check
@@ -9,7 +9,7 @@
     msg: "'{{ item }}' variable not defined!"
   when: (vars[item] is undefined) or (vars[item]| length == 0)
   with_items:
-  - "target"
+    - "target"
 
 - name: Switch to values based on target
   ansible.builtin.include_vars:
@@ -23,7 +23,7 @@
     acm_secret_file_name: "{{ acm_secret_name }}.yml" # pragma: allowlist secret
 
 - name: Print vars
-  debug:
+  ansible.builtin.debug:
     var: "{{ item }}"
     verbosity: 1
   with_items:
@@ -49,7 +49,8 @@
     version: "{{ acm_aoc_configuration_repo_version }}"
     dest: "{{ tempdir.path }}/acm_aoc_secret_repo"
 
-- set_fact:
+- name: Store temp directory
+  ansible.builtin.set_fact:
     working_dir: "{{ tempdir.path }}/acm_aoc_secret_repo"
 
 - name: Check if secret exists already on Azure
@@ -63,12 +64,12 @@
 
 - name: Get the file
   ansible.builtin.set_fact:
-    local_file: "{{lookup('file', working_dir + '/credentials/' + acm_secret_file_name, rstrip=False) | b64encode }}"
+    local_file: "{{ lookup('file', working_dir + '/credentials/' + acm_secret_file_name, rstrip=False) | b64encode }}"
   no_log: "{{ verbose_check is skipped }}"
   when: vault_uri is defined
 
 - name: Print file
-  debug:
+  ansible.builtin.debug:
     var: local_file
     verbosity: 2
 
@@ -84,7 +85,7 @@
 - name: No local file found, nothing to upload
   ansible.builtin.set_fact:
     credentials_file_to_upload: false
-  when:  local_file | length == 0
+  when: local_file | length == 0
 
 - name: Upload credentials to Azure Key Vault when needed
   azure.azcollection.azure_rm_keyvaultsecret:

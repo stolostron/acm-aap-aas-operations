@@ -3,9 +3,9 @@
     organization: "{{ acm_organization }}"
     name: "{{ phase }} Destroy OCP4 ACM HUB"
     description: "Uninstall an OCP4 Private Azure cluster"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     labels:
       - "{{ target }}"
     job_type: "run"
@@ -50,9 +50,9 @@
     organization: "{{ acm_organization }}"
     name: "{{ phase }} Create service Resource Group"
     description: "Create a resource group for the deployment of the Bastion and other"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     labels:
       - "{{ target }}"
     job_type: "run"
@@ -73,9 +73,9 @@
     organization: "{{ acm_organization }}"
     name: "{{ phase }} Create OCP4 Resource Group"
     description: "Create a resource group for the deployment of OCP4"
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
     labels:
       - "{{ target }}"
     job_type: "run"
@@ -93,109 +93,109 @@
 
 - name: Create workflow to deploy the Hub
   block:
-  - name: Create a workflow job template
-    tower_workflow_job_template:
-      name: "{{ phase }} Full run"
-      ask_scm_branch_on_launch: false
-      organization: "{{ acm_organization }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      labels:
-  # TODO add destroy cluster after some wait
-  - name: Create 7th node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Configure hub"
-      workflow_job_template:  "{{ phase }} Full run"
-      unified_job_template: "{{ phase }} Deploy Cluster configuration with ArgoCD"
-      organization: "{{ acm_organization }}"
-      inventory: "{{ inventory_name }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-  - name: Create 6th node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Setup DNS"
-      workflow_job_template: "{{ phase }} Full run"
-      unified_job_template: "{{ phase }} Setup DNS"
-      organization: "{{ acm_organization }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Configure hub"
-  - name: Create 5th node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Configure bastion"
-      workflow_job_template: "{{ phase }} Full run"
-      unified_job_template: "{{ phase }} Configure bastion"
-      organization: "{{ acm_organization }}"
-      inventory: "{{ inventory_name }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Setup DNS"
-  - name: Create 4th node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Update Azure inventory source"
-      workflow_job_template: "{{ phase }} Full run"
-      unified_job_template: "{{ phase }} Update Azure inventory source"
-      organization: "{{ acm_organization }}"
-      inventory: "{{ inventory_name }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Configure bastion"
-  - name: Create 3rd node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Create OCP4 ACM HUB"
-      workflow_job_template: "{{ phase }} Full run"
-      unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
-      inventory: "ACM localhost"
-      organization: "{{ acm_organization }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Update Azure inventory source"
-  - name: Create 2nd node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Create RG for OCP4"
-      workflow_job_template: "{{ phase }} Full run"
-      unified_job_template: "{{ phase }} Create OCP4 Resource Group"
-      organization: "{{ acm_organization }}"
-      inventory: "{{ inventory_name }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Create OCP4 ACM HUB"
-  - name: Create first node
-    tower_workflow_job_template_node:
-      identifier: "{{ phase }} Create RG for bastion"
-      workflow_job_template: "{{ phase }} Full run"
-      unified_job_template: "{{ phase }} Create service Resource Group"
-      organization: "{{ acm_organization }}"
-      inventory: "{{ inventory_name }}"
-      controller_host: "{{ inventory_hostname }}"
-      controller_username: "{{ admin_username }}"
-      controller_password: "{{ admin_password }}"
-      success_nodes:
-        - "{{ phase }} Create RG for OCP4"
-    
-- name: Add permissions to ACM SRE team to run these job templates
-  role:
-    controller_host: "{{ inventory_hostname }}"
-    controller_username: "{{ admin_username }}"
-    controller_password: "{{ admin_password }}"
-    team: "ACM SRE"
-    role: "admin"
-    job_templates:
-      - "{{ phase }} Destroy OCP4 ACM HUB"
-      - "{{ phase }} Create OCP4 Resource Group"
-      - "{{ phase }} Create service Resource Group"
-    workflows:
-      - "{{ phase }} Full run"
-    validate_certs: false
+    - name: Create a workflow job template
+      tower_workflow_job_template:
+        name: "{{ phase }} Full run"
+        ask_scm_branch_on_launch: false
+        organization: "{{ acm_organization }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        labels:
+    # TODO add destroy cluster after some wait
+    - name: Create 7th node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Configure hub"
+        workflow_job_template: "{{ phase }} Full run"
+        unified_job_template: "{{ phase }} Deploy Cluster configuration with ArgoCD"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ inventory_name }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+    - name: Create 6th node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Setup DNS"
+        workflow_job_template: "{{ phase }} Full run"
+        unified_job_template: "{{ phase }} Setup DNS"
+        organization: "{{ acm_organization }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Configure hub"
+    - name: Create 5th node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Configure bastion"
+        workflow_job_template: "{{ phase }} Full run"
+        unified_job_template: "{{ phase }} Configure bastion"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ inventory_name }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Setup DNS"
+    - name: Create 4th node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Update Azure inventory source"
+        workflow_job_template: "{{ phase }} Full run"
+        unified_job_template: "{{ phase }} Update Azure inventory source"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ inventory_name }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Configure bastion"
+    - name: Create 3rd node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Create OCP4 ACM HUB"
+        workflow_job_template: "{{ phase }} Full run"
+        unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
+        inventory: "ACM localhost"
+        organization: "{{ acm_organization }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Update Azure inventory source"
+    - name: Create 2nd node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Create RG for OCP4"
+        workflow_job_template: "{{ phase }} Full run"
+        unified_job_template: "{{ phase }} Create OCP4 Resource Group"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ inventory_name }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Create OCP4 ACM HUB"
+    - name: Create first node
+      tower_workflow_job_template_node:
+        identifier: "{{ phase }} Create RG for bastion"
+        workflow_job_template: "{{ phase }} Full run"
+        unified_job_template: "{{ phase }} Create service Resource Group"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ inventory_name }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Create RG for OCP4"
+
+    - name: Add permissions to ACM SRE team to run these job templates
+      role:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
+        team: "ACM SRE"
+        role: "admin"
+        job_templates:
+          - "{{ phase }} Destroy OCP4 ACM HUB"
+          - "{{ phase }} Create OCP4 Resource Group"
+          - "{{ phase }} Create service Resource Group"
+        workflows:
+          - "{{ phase }} Full run"
+        validate_certs: false
