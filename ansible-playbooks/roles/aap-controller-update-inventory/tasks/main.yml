@@ -1,0 +1,9 @@
+- name: Update inventory source
+  inventory_source_update:
+    name: "{{ inventory_source_name }}"
+    inventory: "{{ inventory_name }}"
+    organization: "Red Hat - ACM"
+    controller_host: "{{ inventory_hostname }}"
+    controller_username: "{{ admin_username }}"
+    controller_password: "{{ admin_password }}"
+    wait: yes

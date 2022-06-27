@@ -1,7 +1,4 @@
 ---
-# This is the reference playbook that is used to develop the flow.
-# Another version of this playbook is also avaiable in the AOC project.
-
 - hosts: localhost
   gather_facts: false
   connection: local
@@ -13,17 +10,8 @@
     ansible_become: false
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
 
-  collections:
-    - awx.awx
-
   tasks:
-    - name: Update inventory source
-      inventory_source_update:
-        name: "{{ inventory_source_name }}"
-        inventory: "{{ inventory_name }}"
-        organization: "Red Hat - ACM"
-        controller_host: "{{ inventory_hostname }}"
-#        controller_host: "https://127.0.0.1:8052"
-        controller_username: "{{ admin_username }}"
-        controller_password: "{{ admin_password }}"
-        wait: yes
+  - name: Include update inventory source role
+    include_role:
+      name: ../roles/aap-controller-update-inventory
+      tasks_from: main
