@@ -1,5 +1,5 @@
 - name: "Setup environment for automation-test"
-  hosts: "{{ target_hosts }}"
+  hosts: "{{ target_hosts | default('all') }}"
   connection: local
   gather_facts: false
   tasks:
