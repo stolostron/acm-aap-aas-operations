@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
 - deploy/namespace.yaml
 - deploy/multiclusterobservability.yaml
-- custom-alerts/aap-alerts.yaml
+- custom-alerts/aap-alerts-policy.yaml
 - custom-metrics/custom-metrics.yaml
 - dashboard/clusters-by-alert.yaml
 - dashboard/alerts-by-cluster.yaml
