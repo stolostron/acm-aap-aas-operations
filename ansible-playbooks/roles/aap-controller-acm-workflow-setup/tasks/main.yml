@@ -126,7 +126,7 @@
         - id: password
           type: string
           label: password
-          secret: true
+          secret: true # pragma: allowlist secret
       required:
         - username
         - password
@@ -156,7 +156,7 @@
         - id: password
           type: string
           label: password
-          secret: true
+          secret: true # pragma: allowlist secret
       required:
         - username
         - password
@@ -184,11 +184,11 @@
         - id: private_ssh_key
           type: string
           label: private_ssh_key
-          secret: true
+          secret: true # pragma: allowlist secret
         - id: ocp4_pull_secret
           type: string
           label: ocp4_pull_secret
-          secret: true
+          secret: true # pragma: allowlist secret
       required:
         - private_ssh_key
         - public_ssh_key
@@ -217,7 +217,7 @@
         - id: token
           type: string
           label: token
-          secret: true
+          secret: true # pragma: allowlist secret
       required:
         - server
         - token
@@ -330,6 +330,18 @@
     controller_username: "{{ controller_host_username }}"
     controller_password: "{{ controller_host_password }}"
     state: present
+- name: "Add localhost to localhost intentory"
+  host:
+    name: localhost
+    description: "Fake local host"
+    inventory: "{{ acm_localhost_inventory }}"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
 
 # Azure Inventory - per phase
 - name: "Add inventory"
