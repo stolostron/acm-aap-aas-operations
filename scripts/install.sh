@@ -58,6 +58,14 @@ fi
 printf "=====================Create ACM Argocd application ...\n"
 kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/acm -n openshift-gitops
 
+while [[ $(kubectl get InstallPlan -n open-cluster-management --no-headers --ignore-not-found | wc -l) -eq 0 ]]; 
+    do echo "Waiting for ACM install plan to be created" && sleep 30;
+done
+
+printf "=====================Approve ACM install plan ...\n"
+install_plan_name=$(kubectl get InstallPlan -n open-cluster-management -o=jsonpath="{.items[0].metadata.name}")
+oc patch installplan $install_plan_name -n open-cluster-management --type merge --patch '{"spec":{"approved":true}}' 
+
 printf "=====================Create MultiCluster Observability Argocd application ...\n"
 if [ $1 == "local" ]; then
     source ./scripts/local-install.env
