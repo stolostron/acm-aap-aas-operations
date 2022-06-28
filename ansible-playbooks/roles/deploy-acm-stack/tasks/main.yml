@@ -2,7 +2,7 @@
 
 - name: Validate ENV variable
   fail:
-    msg: "Required variable ENVhas not been provided"
+    msg: "Required variable ENV has not been provided"
   when: (ENV is undefined) or (ENV| length == 0)
 
 - name: Validate {{ ENV }} deployment variables
@@ -147,6 +147,27 @@
     - "cert-manager-config"
     - "openshift-config"
 
+- name: Wait for ACM InstallPlan creation
+  kubernetes.core.k8s_info:
+    kind: InstallPlan
+    api_version: v1alpha1
+    namespace: open-cluster-management
+  register: acm_installPlan  
+  until:
+    - acm_installPlan.resources.0 is defined
+  retries: 15
+  delay: 20
+
+- name: Approve the ACM InstallPlan
+  kubernetes.core.k8s:
+    api_version: v1alpha1
+    kind: InstallPlan
+    namespace: open-cluster-management
+    name: "{{ acm_installPlan.resources.0.metadata.name }}"
+    definition: |
+      spec:
+       approved: true
+
 - name: Apply ArgoCD Applications for {{ ENV }} environment
   kubernetes.core.k8s:
     state: present
@@ -168,7 +189,7 @@
   until:
     - acm_route.resources.0 is defined 
     - acm_route.resources.0.status.ingress.0.conditions.0.type == 'Admitted'
-  retries: 15
+  retries: 20
   delay: 20
 
 - name: Wait for MCO Route creation
