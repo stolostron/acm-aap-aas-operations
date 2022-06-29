@@ -12,7 +12,7 @@
     oc get secret {{ AKS_NAME }}-import -n {{ AKS_NAME }} -ojsonpath='{.data.import\.yaml}' | base64 --decode > {{ tempdir.path }}/04_import.yaml
 
 - name: Detaching managed cluster
-  shell: |-
+  command: |-
     oc delete managedcluster {{ AKS_NAME }}
   register: detach_out
 
