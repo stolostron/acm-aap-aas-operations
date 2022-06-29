@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: alertmanager-to-github
-        image: quay.io/acm-sre/alertmanager-to-github@sha256:7fc1fdc63b8e7e69119ee8e1360175e7dc17704798b0281c188d87222329f390
+        image: quay.io/acm-sre/alertmanager-to-github@sha256:f623ae46c3ab3a589657a9747779e61ab73ff6f1ffea879d414916c376198f0c
         resources:
           limits:
             cpu: 100m
