@@ -12,7 +12,7 @@ worker_instance_type: "Standard_D8ds_v5"
 # AAP setup
 controller_host: "https://controller.mgmtdev.ansiblecloud.com"
 inventory_source_name: "azure-rhaapdev"
-vault_uri: "https://kv-aoc-team.vault.azure.net"
+vault_uri: "https://kv-acm-sre-rhaapdev.vault.azure.net"
 # ArgoCD
 argocd_env: "dev"
 # Additional public DNS Setup
