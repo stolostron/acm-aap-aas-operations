@@ -47,7 +47,7 @@
   retries: 10
   delay: 10
   when: (installplan_version is version(desired_version, operator='<=')) and
-        (installplan_info.spec.approved == false)
+        (not installplan_info.spec.approved)
 
 - name: "delay"
   wait_for:

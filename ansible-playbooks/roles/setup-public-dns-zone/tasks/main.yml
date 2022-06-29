@@ -10,7 +10,7 @@
 - name: Check whether variables are defined
   ansible.builtin.fail:
     msg: "{{ item }} var not defined!"
-  when: dns_zone_creation == true and (vars[item] is undefined) or (vars[item]| length == 0)
+  when: dns_zone_creation and (vars[item] is undefined) or (vars[item]| length == 0)
   with_items:
   - "parent_dns_zone"
   - "parent_dns_zone_resource_group"
@@ -19,29 +19,29 @@
   azure_rm_dnszone_info:
     name: "{{ parent_dns_zone }}"
     resource_group: "{{ parent_dns_zone_resource_group }}"
-  when: dns_zone_creation == true
+  when: dns_zone_creation
   register: parent_dnszone_result
-- name: Ensure parent DNS zone exists 
+- name: Ensure parent DNS zone exists
   ansible.builtin.fail:
     msg: "{{ parent_dns_zone }} missing!"
-  when: dns_zone_creation == true and parent_dnszone_result.dnszones | length == 0
+  when: dns_zone_creation and parent_dnszone_result.dnszones | length == 0
 - name: Create a Public DNS Zone
   azure_rm_dnszone:
     resource_group: "{{ azure_resource_group }}"
     name: "{{ cluster_name }}.{{ parent_dns_zone }}"
-  when: dns_zone_creation == true
+  when: dns_zone_creation
   register: dnszone_result
 
 - name: Transform NS list into dictionary
   set_fact:
     delegated_zone_ns: "{{ delegated_zone_ns + ([{'entry': item}]) }}"
   with_items: "{{ dnszone_result.state.name_servers }}"
-  when: dns_zone_creation == true
+  when: dns_zone_creation
 - name: Print the resulting dictionary
   debug:
     var: delegated_zone_ns
     verbosity: 1
-  when: dns_zone_creation == true
+  when: dns_zone_creation
 
 - name: Ensure Zone delegation by setting NS records in parent zone
   azure_rm_dnsrecordset:
@@ -51,14 +51,14 @@
     record_type: NS
     time_to_live: 300
     records: "{{ delegated_zone_ns }}"
-  when: dns_zone_creation == true
+  when: dns_zone_creation
 
 - name: Ensure child DNS zone exists
   azure_rm_dnszone_info:
     resource_group: "{{ azure_resource_group }}"
     name: "{{ cluster_name }}.{{ parent_dns_zone }}"
   register: child_dnszone_result
-- name: Ensure child DNS zone exists 
+- name: Ensure child DNS zone exists
   ansible.builtin.fail:
     msg: "{{ cluster_name }}.{{ parent_dns_zone }} missing!"
   when: child_dnszone_result.dnszones | length == 0

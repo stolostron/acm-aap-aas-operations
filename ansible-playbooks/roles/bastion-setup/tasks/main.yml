@@ -10,7 +10,7 @@
 
 - fail:
     msg: The system doesn't look like a RHEL
-  when: (os_type is changed) or (os_type is failed)
+  when: (os_type is changed) or (os_type is failed) # noqa no-handler
 
 - fail:
     msg: Please define RHSM variables
@@ -27,12 +27,12 @@
 - name: Check if there are security updates
   yum:
     security: yes
-    state: latest
+    state: latest # noqa package-latest
     name: '*'
   register: yum_output
 
 - name: Check if reboot is required
-  shell: needs-restarting -r
+  command: needs-restarting -r
   failed_when: false
   register: reboot_required
   changed_when: false
