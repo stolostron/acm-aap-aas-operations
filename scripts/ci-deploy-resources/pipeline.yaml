@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: deploy-acm-aap-aas-ops-dev
+  name: deploy-acm-aap-aas-ops-testing
   namespace: managed-services
 spec:
   params:
@@ -9,7 +9,7 @@ spec:
     description: The name of the clusterpool to use
     name: clusterPoolName
     type: string
-  - default: ci-acm-aap-aas-ops-dev
+  - default: ci-acm-aap-aas-ops-testing
     description: The name of the clusterclaim to claim
     name: clusterClaimName
     type: string
@@ -50,7 +50,7 @@ spec:
     - fetch-repo-samples
     taskRef:
       kind: Task
-      name: deploy-acm-aap-aas-ops-dev-checkout-cluster
+      name: deploy-acm-aap-aas-ops-testing-checkout-cluster
     workspaces:
     - name: source
       workspace: shared-workspace
@@ -66,16 +66,16 @@ spec:
     - checkout-cluster
     taskRef:
       kind: Task
-      name: deploy-acm-aap-aas-ops-dev-login-to-cluster
+      name: deploy-acm-aap-aas-ops-testing-login-to-cluster
     workspaces:
     - name: source
       workspace: shared-workspace
-  - name: deploy-acm-aap-aas-ops-dev
+  - name: deploy-acm-aap-aas-ops-testing
     runAfter:
     - login-to-cluster
     taskRef:
       kind: Task
-      name: deploy-acm-aap-aas-ops-dev-deploy
+      name: deploy-acm-aap-aas-ops-testing-deploy
     workspaces:
     - name: source
       workspace: shared-workspace

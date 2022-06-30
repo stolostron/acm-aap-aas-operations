@@ -1,20 +1,20 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: deploy-acm-aap-aas-ops-dev-sample
+  name: deploy-acm-aap-aas-ops-testing-sample
   namespace: managed-services
 spec:
   params:
     - name: clusterPoolName
       value: hypershift-cluster-pool
     - name: clusterClaimName
-      value: ci-acm-aap-aas-ops-dev
+      value: ci-acm-aap-aas-ops-testing
     - name: gitRepo
       value: 'https://github.com/stolostron/acm-aap-aas-operations.git'
     - name: gitBranch
       value: main
   pipelineRef:
-    name: deploy-acm-aap-aas-ops-dev
+    name: deploy-acm-aap-aas-ops-testing
   serviceAccountName: pipeline
   timeout: 1h0m0s
   workspaces:

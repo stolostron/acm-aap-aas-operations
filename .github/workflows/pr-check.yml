@@ -1,6 +1,6 @@
 # Copyright Contributors to the Open Cluster Management project
 
-name: Deploy ACM-AAP-AAS-Ops Dev
+name: Deploy ACM-AAP-AAS-Ops Testing
 
 on: 
   pull_request_target:
@@ -12,7 +12,7 @@ on:
   # workflow_dispatch:
 
 jobs:
-  pr-check-deploy-acm-aap-aas-ops-dev:
+  pr-check-deploy-acm-aap-aas-ops-testing:
     if: contains(github.event.pull_request.labels.*.name, 'ok-to-test')
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +23,7 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
           label: ok-to-test
           type: remove
-      - name: Checkout cluster and deploy ACM-AAP-AAS-Ops Dev
+      - name: Checkout cluster and deploy ACM-AAP-AAS-Ops Testing
         run: |
           echo "=== Deploying ACM-AAP-AAS-Operations ==="
           bash ./scripts/ci-deploy.sh aws ${{ github.event.pull_request.head.repo.full_name }} ${{ github.head_ref }} ${{ github.sha }}

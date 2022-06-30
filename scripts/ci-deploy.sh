@@ -18,7 +18,7 @@ echo "== Deploying ACM-AAP-AAS-Operations to ${_cloud_provider}..."
 if [[ "$_cloud_provider" == "aws" ]]; then
     oc login ${_AWS_CLUSTERPOOL_API_URL} --insecure-skip-tls-verify --token="${_AWS_CLUSTERPOOL_TOKEN}"
     oc project managed-services
-    _PIPELINERUN_NAME=deploy-acm-aap-aas-ops-dev-${_GITCOMMIT_SHORT}
+    _PIPELINERUN_NAME=deploy-acm-aap-aas-ops-testing-${_GITCOMMIT_SHORT}
       
     _PIPELINERUN_NAME=${_PIPELINERUN_NAME} yq eval -i '.metadata.name = env(_PIPELINERUN_NAME)' scripts/ci-deploy-resources/pipelinerun.yaml
     _GITREPO=https://github.com/${_GITREPO}.git yq eval -i '.spec.params |= map(select(.name == "gitRepo").value = env(_GITREPO))' scripts/ci-deploy-resources/pipelinerun.yaml
