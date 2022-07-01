@@ -17,7 +17,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: export customized dashboard
         run: |
-          dashboard_name=$(cat ./tools/grafana-dashboard-customization/dashboard-name.txt)
           echo "=== Export customized Grafana dashboard ==="
-          bash ./tools/grafana-dashboard-customization/generate-dashboard-configmap-yaml.sh $dashboard_name
+          bash ./tools/grafana-dashboard-customization/generate-dashboard-configmap-yaml.sh
       - name: create PR

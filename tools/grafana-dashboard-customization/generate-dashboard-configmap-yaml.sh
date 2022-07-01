@@ -3,6 +3,7 @@
 # Copyright Contributors to the Open Cluster Management project
 
 obs_namespace='open-cluster-management-observability'
+raw_dashboard_name=$(cat ./tools/grafana-dashboard-customization/dashboard-name.txt)
 
 if command -v python &> /dev/null
 then
@@ -18,40 +19,10 @@ else
     exit 1
 fi
 
-usage() {
-  cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] dashboard_name [configmap_path]
-       [-n namespace]
-Fetch grafana dashboard and save with a configmap.
-Available options:
--h, --help           Print this help and exit
-dashboard_name       Specified the dashboard to be fetch
-EOF
-  exit
-}
-
 start() {
-  if [ $# -eq 0 -o $# -gt 2 ]; then
-    usage
-  fi
-
   savePath="./cluster-bootstrap/multicluster-observability/base/dashboard"
   org_dashboard_name=$1
-  dashboard_name=`echo ${1//[!(a-z\A-Z\0-9\-\.)]/-} | tr '[:upper:]' '[:lower:]'`
-
-  while [[ $# -gt 0 ]]
-  do
-  key="$1"
-  case $key in
-      -h|--help)
-      usage
-      ;;
-
-      *)
-      shift
-      ;;
-  esac
-  done
+  dashboard_name=`echo ${raw_dashboard_name//[!(a-z\A-Z\0-9\-\.)]/-} | tr '[:upper:]' '[:lower:]'`
 
   podName=`kubectl get pods -n "$obs_namespace" -l app=multicluster-observability-grafana-dev --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'`
   if [ $? -ne 0 ] || [ -z "$podName" ]; then

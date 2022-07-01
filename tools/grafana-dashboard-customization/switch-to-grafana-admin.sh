@@ -58,7 +58,7 @@ start() {
       echo "Failed to switch the user <$user_name> to be grafana admin"
       exit 1
   fi
-  echo "User <$user_name> switched to be grafana admin"
+  echo "User $user_name switched to be grafana admin. Now you are ready to design your dashboard!"
 }
 
 start "$@"
