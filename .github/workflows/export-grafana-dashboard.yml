@@ -23,5 +23,5 @@ jobs:
         with:
           message: add dashboard
           committer_name: GitHub Actions
-          push: true
+          push: false
           add: 'cluster-bootstrap/multicluster-observability/dashboard/*.yaml'
