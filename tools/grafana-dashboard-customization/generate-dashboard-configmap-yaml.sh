@@ -21,7 +21,7 @@ fi
 
 start() {
   savePath="./cluster-bootstrap/multicluster-observability/base/dashboard"
-  org_dashboard_name=$1
+  org_dashboard_name=$raw_dashboard_name
   dashboard_name=`echo ${raw_dashboard_name//[!(a-z\A-Z\0-9\-\.)]/-} | tr '[:upper:]' '[:lower:]'`
 
   podName=`kubectl get pods -n "$obs_namespace" -l app=multicluster-observability-grafana-dev --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'`
