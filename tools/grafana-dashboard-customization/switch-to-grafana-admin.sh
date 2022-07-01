@@ -15,7 +15,10 @@ else
 fi
 
 start() {
-  user_name=$(oc whoami)
+
+  echo Please input your login user name:
+  
+  read user_name
 
   # if username contains the number sign '#', we need to replace it with '%23'
   # due to use it in URL parameters
