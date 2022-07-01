@@ -47,3 +47,7 @@ deploy-testing: deploy-stacks-testing deploy-alert-manager-testing
 
 .PHONY: deploy-local
 deploy-local: deploy-stacks-local deploy-alert-manager-local
+
+.PHONY: switch-to-grafana-admin
+switch-to-grafana-admin:
+	sh ./tools/grafana-dashboard-customization/switch-to-grafana-admin.sh

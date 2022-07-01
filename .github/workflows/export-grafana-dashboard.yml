@@ -1,0 +1,23 @@
+# Copyright Contributors to the Open Cluster Management project
+
+name: Export customized Grafana dashboard
+
+on: 
+  push:
+    types: [ labeled ]
+    paths:
+      - tools/grafana-dashboard-customization/**.txt
+    branches:
+      - main
+
+jobs:
+  export-grafana-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: export customized dashboard
+        run: |
+          dashboard_name=$(cat ./tools/grafana-dashboard-customization/dashboard-name.txt)
+          echo "=== Export customized Grafana dashboard ==="
+          bash ./tools/grafana-dashboard-customization/generate-dashboard-configmap-yaml.sh $dashboard_name
+      - name: create PR
