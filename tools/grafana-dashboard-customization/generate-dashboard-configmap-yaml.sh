@@ -2,8 +2,9 @@
 # Copyright (c) 2021 Red Hat, Inc.
 # Copyright Contributors to the Open Cluster Management project
 
+dashboard_name_file_path='./tools/grafana-dashboard-customization/dashboard-name.txt'
 obs_namespace='open-cluster-management-observability'
-raw_dashboard_name=$(cat ./tools/grafana-dashboard-customization/dashboard-name.txt)
+raw_dashboard_name=$(cat $dashboard_name_file_path)
 
 if command -v python &> /dev/null
 then
@@ -82,6 +83,9 @@ data:
     $dashboardJson
 EOF
   fi
+  # revert the content of dashboard name file
+  echo "Delete me and input your dashboard name here" > $dashboard_name_file_path
+
   echo "Save dashboard <$dashboard_name> to $savePath/$dashboard_name.yaml"
 }
 
