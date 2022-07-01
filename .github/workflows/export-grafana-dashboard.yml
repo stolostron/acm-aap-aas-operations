@@ -3,7 +3,7 @@
 name: Export customized Grafana dashboard
 
 on: 
-  push:
+  pull_request:
     types: [ labeled ]
     paths:
       - tools/grafana-dashboard-customization/**.txt
@@ -19,4 +19,9 @@ jobs:
         run: |
           echo "=== Export customized Grafana dashboard ==="
           bash ./tools/grafana-dashboard-customization/generate-dashboard-configmap-yaml.sh
-      - name: create PR
+      - uses: EndBug/add-and-commit@v9
+        with:
+          message: add dashboard
+          committer_name: GitHub Actions
+          push: true
+          add: 'cluster-bootstrap/multicluster-observability/dashboard/*.yaml'
