@@ -46,7 +46,7 @@ spec:
                           summary: Target disappeared from Prometheus target discovery
                         expr: |
                             sum(up{namespace="ansible-automation-platform", job="automation-controller-service"}) != sum(acm_managed_cluster_info{managed_cluster_id!="", available="True"}) - 1
-                            or absent(up{namespace="ansible-automation-platform", job="automation-controller-service"}) == 1
+                            or (absent(up{namespace="ansible-automation-platform", job="automation-controller-service"}) == 1 and sum(acm_managed_cluster_info{managed_cluster_id!="", available="True"}) == 1)
                         for: 20m
                         labels:
                           severity: critical
