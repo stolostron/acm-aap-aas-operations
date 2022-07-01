@@ -1,9 +1,8 @@
-
 - include_tasks: subscription-info.yml
 
 - name: "set csv_prefix fact"
   set_fact:
-    csv_prefix: "{{ subscription_fact.status.installedCSV | split('.') | first}}"
+    csv_prefix: "{{ subscription_fact.status.installedCSV | split('.') | first }}"
 
 - name: "set desired_version fact using subscription_fact"
   set_fact:
@@ -25,23 +24,23 @@
     installplan_version: "{{ installplan_csv | regex_search('.v[0-9].+') | regex_search('[0-9].+') }}"
 - debug:
     msg:
-      - "installplan_version: {{installplan_version}}"
-      - "desired_version: {{desired_version}}"
+      - "installplan_version: {{ installplan_version }}"
+      - "desired_version: {{ desired_version }}"
 
 - name: "approve installplan"
   kubernetes.core.k8s:
     host: "{{ cluster_proxy.cluster_url }}"
-    validate_certs: no
+    validate_certs: false
     api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
     state: patched
     api_version: "{{ installplan_info.apiVersion }}"
-    kind: "{{ installplan_info.kind}}"
+    kind: "{{ installplan_info.kind }}"
     name: "{{ installplan_info.metadata.name }}"
     namespace: "{{ installplan_info.metadata.namespace }}"
     definition:
       spec:
         approved: true
-  until: > 
+  until: >
     (result.failed == false) and
     (result.stauts | default(0) != 502)
   retries: 10
@@ -55,8 +54,8 @@
   when: (installplan_version is version(desired_version, operator='<='))
 
 # there's a edge condition that this doesn't handle!
-# if the desired_version is not reachable 
-# for example: 
+# if the desired_version is not reachable
+# for example:
 # - version available: 0.1.0 -> 0.2.0 -> 0.4.0
 # - desire version: 0.5.0
 # this will stuck at an infinit loop!
@@ -65,8 +64,8 @@
 - debug:
     msg:
       - "subscription_info.status.state: {{ subscription_info.status.state }}"
-      - "installplan_version: {{installplan_version}}"
-      - "desired_version: {{desired_version}}"
+      - "installplan_version: {{ installplan_version }}"
+      - "desired_version: {{ desired_version }}"
 
 - name: "loop untile reach desire version"
   include_tasks: ensure-operator-version.yml
@@ -76,7 +75,7 @@
 
 # - name: "fail to reach desire version"
 #   fail:
-#     msg: 
+#     msg:
 #       - "subscription name: {{ subscription_info.metadata.name }}"
 #       - "subscription namespace: {{ subscription_info.metadata.namespace }}"
 #       - "desire version: {{ desired_version }}"
@@ -86,4 +85,3 @@
 #   when: >
 #     (subscription_info.status.state != 'AtLatestKnown') or
 #     (subscription_info.status.state != 'UpgradeFailed')
-  

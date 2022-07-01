@@ -74,7 +74,7 @@
         address_prefix_cidr: "{{ data1.address_prefix_cidr }}"
         address_prefixes_cidr: "{{ data1.address_prefixes_cidr }}"
         private_link_service_network_policies: "Disabled"
-      vars: 
+      vars:
         data1: "{{ subnet_control_plane.subnets | first }}"
       when: nat_gateway.response | length == 0
 
@@ -109,7 +109,7 @@
         address_prefix_cidr: "{{ data2.address_prefix_cidr }}"
         address_prefixes_cidr: "{{ data2.address_prefixes_cidr }}"
         private_link_service_network_policies: "Disabled"
-      vars: 
+      vars:
         data2: "{{ subnet_compute.subnets | first }}"
       when: nat_gateway.response | length == 0
 

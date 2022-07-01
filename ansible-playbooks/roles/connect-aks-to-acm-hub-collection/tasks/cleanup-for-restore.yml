@@ -2,7 +2,7 @@
 
 - name: show me the info
   debug:
-    msg: "Cleanup for restore for AKS {{ AKS_NAME }} in RG {{AKS_MRG}} in subscription {{AKS_SUB}}"
+    msg: "Cleanup for restore for AKS {{ AKS_NAME }} in RG {{ AKS_MRG }} in subscription {{ AKS_SUB }}"
 
 - name: Get facts for virtual network info
   azure.azcollection.azure_rm_virtualnetwork_info:
@@ -102,7 +102,7 @@
     zone_name: "{{ OLD_HUB_PDNSZ }}"
     virtual_network: "{{ AKS_VNET }}"
     subscription_id: "{{ AKS_SUB }}"
-    registration_enabled: yes
+    registration_enabled: true
     state: absent
     tags:
       owner: "acm"

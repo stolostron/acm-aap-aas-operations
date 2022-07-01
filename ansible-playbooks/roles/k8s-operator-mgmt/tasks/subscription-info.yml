@@ -1,7 +1,7 @@
 - name: "get subscription info"
   kubernetes.core.k8s_info:
     host: "{{ cluster_proxy.cluster_url }}"
-    validate_certs: no
+    validate_certs: false
     api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
     api_version: "{{ subscription_fact.apiVersion }}"
     kind: "{{ subscription_fact.kind }}"
@@ -21,7 +21,7 @@
 
 # - name: "detect subscription ResolutionFailed"
 #   fail:
-#     msg: 
+#     msg:
 #       - "subscription ResolutionFailed"
 #       - "reason: {{ subscription_info | community.general.json_query('status.conditions[?type==`ResolutionFailed`].reason') | first }}"
 #       - "message: {{ subscription_info | community.general.json_query('status.conditions[?type==`ResolutionFailed`].message') | first }}"
@@ -31,7 +31,4 @@
     msg:
       - "operator: {{ subscription_info.metadata.name }}"
       - "installPlanApproval: {{ subscription_info.spec.installPlanApproval | default(Automatic) }}"
-      - "installplan: {{ subscription_info.status.installPlanRef | default('does not exist')}}"
-
-
-
+      - "installplan: {{ subscription_info.status.installPlanRef | default('does not exist') }}"

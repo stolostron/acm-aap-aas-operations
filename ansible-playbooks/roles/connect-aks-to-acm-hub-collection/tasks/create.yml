@@ -35,7 +35,7 @@
     zone_name: "{{ HUB_PDNSZ }}"
     virtual_network: "{{ AKS_VNET }}"
     subscription_id: "{{ AKS_SUB }}"
-    registration_enabled: yes
+    registration_enabled: true
     state: present
     tags:
       owner: "acm"

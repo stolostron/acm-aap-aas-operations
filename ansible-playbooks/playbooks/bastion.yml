@@ -3,21 +3,21 @@
 - hosts: bastion
   tasks:
     - block:
-      - name: Add only current host to the bastion_filtered group
-        add_host:
-          name: '{{ item }}'
-          groups: bastion_filtered
-        when: hostvars[item]['tags']['cluster_name'] == cluster_name
-        loop: "{{ ansible_play_hosts }}"
+        - name: Add only current host to the bastion_filtered group
+          add_host:
+            name: '{{ item }}'
+            groups: bastion_filtered
+          when: hostvars[item]['tags']['cluster_name'] == cluster_name
+          loop: "{{ ansible_play_hosts }}"
       when: cluster_name is defined
       run_once: true
 
     - block:
-      - name: Add all hosts running this playbook to the bastion_filtered group
-        add_host:
-          name: '{{ item }}'
-          groups: bastion_filtered
-        loop: "{{ ansible_play_hosts }}"
+        - name: Add all hosts running this playbook to the bastion_filtered group
+          add_host:
+            name: '{{ item }}'
+            groups: bastion_filtered
+          loop: "{{ ansible_play_hosts }}"
       when: cluster_name is not defined
       run_once: true
 
@@ -25,10 +25,10 @@
   become: true
   roles:
     - role: ../roles/bastion-ocp4-facts # get ocp4 specific facts
-      tags: [ vm, users, ocp4 ]
+      tags: [vm, users, ocp4]
     - role: ../roles/authorized-key # set up users
-      tags: [ users ]
+      tags: [users]
     - role: ../roles/bastion-setup # configure VM
-      tags: [ vm ]
+      tags: [vm]
     - role: ../roles/bastion-ocp4-setup # configure ocp4 specific stuff
-      tags: [ ocp4 ]
+      tags: [ocp4]

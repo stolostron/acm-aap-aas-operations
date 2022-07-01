@@ -7,15 +7,15 @@
 # - STORAGE_ACCOUNT
 # - STORAGE_SUBSCRIPTION
 
-#TOD (sdminonne): this for restore should be replaced with an _info to prevent creation
+# TOD (sdminonne): this for restore should be replaced with an _info to prevent creation
 - name: ensure storage account exists
   azure_rm_storageaccount:
     resource_group: "{{ STORAGE_RESOURCEGROUP }}"
-    subscription_id: "{{ STORAGE_SUBSCRIPTION}}"
+    subscription_id: "{{ STORAGE_SUBSCRIPTION }}"
     name: "{{ STORAGE_ACCOUNT }}"
     type: Standard_LRS
 
-#TODO replace this with URI
+# TODO replace this with URI
 - name: retrieve the storage account key
   shell: az storage account keys list -n {{ STORAGE_ACCOUNT }} -g {{ STORAGE_RESOURCEGROUP }} --subscription {{ STORAGE_SUBSCRIPTION }} --query [0].value -o tsv
   register: key
@@ -23,12 +23,12 @@
 - set_fact:
     STORAGE_KEY: "{{ key.stdout }}"
 
-#TODO (sdminonne): this for restore should be replaced with an _info to prevent creation
+# TODO (sdminonne): this for restore should be replaced with an _info to prevent creation
 - name: Ensure storage container exist
   azure_rm_storageblob:
     resource_group: "{{ STORAGE_RESOURCEGROUP }}"
     storage_account_name: "{{ STORAGE_ACCOUNT }}"
-    container: "{{STORAGE_CONTAINER}}"
+    container: "{{ STORAGE_CONTAINER }}"
 
 - name: Create temporary file
   ansible.builtin.tempfile:
@@ -52,7 +52,7 @@
         name: cloud-credentials-azure
         namespace: openshift-adp
       data:
-        cloud: "{{ lookup('file',  '{{tempfile_1.path}}'  ) | b64encode }}"
+        cloud: "{{ lookup('file', '{{ tempfile_1.path }}') | b64encode }}"
 
 - name: Create openshift oadp operator
   kubernetes.core.k8s:

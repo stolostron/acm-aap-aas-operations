@@ -3,16 +3,16 @@ kind: ClusterRole
 metadata:
   name: operator-mgmt
 rules:
-- apiGroups:
-  - operators.coreos.com
-  - packages.operators.coreos.com
-  resources:
-  - '*'
-  verbs:
-  - '*'
-- apiGroups:
-  - ""
-  resources:
-  - namespaces
-  verbs:
-  - '*'
+  - apiGroups:
+      - operators.coreos.com
+      - packages.operators.coreos.com
+    resources:
+      - '*'
+    verbs:
+      - '*'
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - '*'

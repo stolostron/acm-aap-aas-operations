@@ -19,7 +19,7 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
 
   tasks:
-  - name: Include DNS role
-    include_role:
-      name: ../roles/setup-public-dns-zone
-      tasks_from: main
+    - name: Include DNS role
+      include_role:
+        name: ../roles/setup-public-dns-zone
+        tasks_from: main

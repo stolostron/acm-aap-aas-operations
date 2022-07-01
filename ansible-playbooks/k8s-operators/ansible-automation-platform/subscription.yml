@@ -11,4 +11,3 @@ spec:
   sourceNamespace: olm
 status:
   installedCSV: aap-operator.v2.1.1-0.1642617585
-
