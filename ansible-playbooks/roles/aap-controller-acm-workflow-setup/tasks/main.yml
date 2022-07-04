@@ -132,8 +132,8 @@
         - password
     injectors:
       extra_vars:
-        rhsm_username: '{%raw%}{{username}}{%endraw%}'
-        rhsm_password: '{%raw%}{{password}}{%endraw%}'
+        rhsm_username: '{%raw%}{{ username }}{%endraw%}'
+        rhsm_password: '{%raw%}{{ password }}{%endraw%}'
     state: present
     controller_host: "{{ controller_host }}"
     controller_username: "{{ controller_host_username }}"
@@ -162,9 +162,9 @@
         - password
     injectors:
       extra_vars:
-        inventory_hostname: '{%raw%}{{hostname}}{%endraw%}'
-        admin_username: '{%raw%}{{username}}{%endraw%}'
-        admin_password: '{%raw%}{{password}}{%endraw%}'
+        inventory_hostname: '{%raw%}{{ hostname }}{%endraw%}'
+        admin_username: '{%raw%}{{ username }}{%endraw%}'
+        admin_password: '{%raw%}{{ password }}{%endraw%}'
     state: present
     controller_host: "{{ controller_host }}"
     controller_username: "{{ controller_host_username }}"
@@ -195,9 +195,9 @@
         - ocp4_pull_secret
     injectors:
       extra_vars:
-        public_ssh_key: '{%raw%}{{public_ssh_key}}{%endraw%}'
-        private_ssh_key: '{%raw%}{{private_ssh_key}}{%endraw%}'
-        ocp4_pull_secret: '{%raw%}{{ocp4_pull_secret[1:-1]}}{%endraw%}'
+        public_ssh_key: '{%raw%}{{ public_ssh_key }}{%endraw%}'
+        private_ssh_key: '{%raw%}{{ private_ssh_key }}{%endraw%}'
+        ocp4_pull_secret: '{%raw%}{{ ocp4_pull_secret[1:-1] }}{%endraw%}'
     state: present
     controller_host: "{{ controller_host }}"
     controller_username: "{{ controller_host_username }}"
@@ -223,8 +223,8 @@
         - token
     injectors:
       extra_vars:
-        VAULT_ADDRESS: '{%raw%}{{server}}{%endraw%}'
-        VAULT_TOKEN: '{%raw%}{{token}}{%endraw%}'
+        VAULT_ADDRESS: '{%raw%}{{ server }}{%endraw%}'
+        VAULT_TOKEN: '{%raw%}{{ token }}{%endraw%}'
     state: present
     controller_host: "{{ controller_host }}"
     controller_username: "{{ controller_host_username }}"

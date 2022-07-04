@@ -9,18 +9,18 @@
   fail:
     msg: "Required variable {{ item }} has not been provided for {{ ENV }} deployment"
   when:
-    - ENV != "local" 
+    - ENV != "local"
     - (vars[item] is undefined) or (vars[item]| length == 0)
   loop:
     - VAULT_ADDRESS
     - VAULT_TOKEN
-  
+
 - name: Validate local deployment variables
   fail:
     msg: "Required variable {{ item }} has not been provided for local deployment"
   when:
-    - ENV == "local" 
-    - (vars[item] is undefined) or (vars[item]| length == 0)  
+    - ENV == "local"
+    - (vars[item] is undefined) or (vars[item]| length == 0)
   loop:
     - PULL_SECRET
     - S3_BUCKET_NAME
@@ -40,7 +40,7 @@
     name: "{{ packages }}"
   vars:
     packages:
-    - git
+      - git
 
 - name: Git checkout repo to remote bastion
   ansible.builtin.git:
@@ -66,7 +66,7 @@
 - name: Wait namespace openshift-gitops is created
   kubernetes.core.k8s_info:
     kind: Namespace
-    wait: yes
+    wait: true
     name: openshift-gitops
     namespace: openshift-gitops
     wait_sleep: 5
@@ -75,7 +75,7 @@
 - name: Wait all pods to be ready
   kubernetes.core.k8s_info:
     kind: Pod
-    wait: yes
+    wait: true
     wait_condition:
       type: Ready
       status: "True"
@@ -152,7 +152,7 @@
     kind: InstallPlan
     api_version: v1alpha1
     namespace: open-cluster-management
-  register: acm_installPlan  
+  register: acm_installPlan
   until:
     - acm_installPlan.resources.0 is defined
   retries: 15
@@ -187,7 +187,7 @@
     namespace: open-cluster-management
   register: acm_route
   until:
-    - acm_route.resources.0 is defined 
+    - acm_route.resources.0 is defined
     - acm_route.resources.0.status.ingress.0.conditions.0.type == 'Admitted'
   retries: 20
   delay: 20

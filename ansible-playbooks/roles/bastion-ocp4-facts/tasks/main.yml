@@ -5,7 +5,7 @@
 - name: Find install root path
   find:
     paths: /root
-    recurse: no
+    recurse: false
     file_type: directory
   register: dir
 
@@ -35,7 +35,7 @@
   register: ocp4_metadata_raw
 
 - ansible.builtin.set_fact:
-    ocp4_metadata: "{{ ocp4_metadata_raw.content|b64decode|from_json }}"
+    ocp4_metadata: "{{ ocp4_metadata_raw.content | b64decode | from_json }}"
 
 - ansible.builtin.debug:
     msg: "{{ ocp4_metadata }}"

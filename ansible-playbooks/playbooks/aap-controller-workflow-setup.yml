@@ -2,7 +2,8 @@
 # This is the reference playbook that is used to develop the flow.
 # Another version of this playbook is also avaiable in the AOC project.
 
-- hosts: localhost
+- hosts:
+    localhost
   gather_facts: false
   connection: local
 
@@ -12,16 +13,19 @@
     # operations.
     ansible_become: false
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
-    acm_localhost_inventory: "ACM localhost"
+
+  collections:
+    - awx.awx
+    - azure.azcollection
 
   tasks:
-  - name: Include standard job templates and workflows
-    include_role:
-      name: ../roles/aap-controller-acm-workflow-setup
-      tasks_from: main
+    - name: Include standard job templates and workflows
+      ansible.builtin.include_role:
+        name: ../roles/aap-controller-acm-workflow-setup
+        tasks_from: main
 
-  - name: Include DEV only job templates and workflows
-    include_role:
-      name: ../roles/aap-controller-acm-workflow-setup
-      tasks_from: dev
-    when: target == 'openshiftdev' or target == 'adecorte'
+    - name: Include DEV only job templates and workflows
+      ansible.builtin.include_role:
+        name: ../roles/aap-controller-acm-workflow-setup
+        tasks_from: dev
+      when: target == 'openshiftdev' or target == 'adecorte'

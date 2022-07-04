@@ -15,11 +15,11 @@
     - name: "ensure namespace {{ namespace_fact.metadata.name }} does not exist"
       kubernetes.core.k8s:
         host: "{{ cluster_proxy.cluster_url }}"
-        validate_certs: no
+        validate_certs: false
         api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
         state: absent
         definition: "{{ namespace_fact }}"
-        wait: yes
+        wait: true
       register: result
       until: result.failed == false
       retries: 10

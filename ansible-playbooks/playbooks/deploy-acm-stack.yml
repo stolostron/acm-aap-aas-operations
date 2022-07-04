@@ -10,7 +10,7 @@
 #           groups: bastion_filtered
 #         when: hostvars[item]['tags']['cluster_name'] == cluster_name
 #         loop: "{{ ansible_play_hosts }}"
-#       when: 
+#       when:
 #       - cluster_name is defined
 #       - dynamic is defined
 #       run_once: true
@@ -21,17 +21,17 @@
 #           name: '{{ item }}'
 #           groups: bastion_filtered
 #         loop: "{{ ansible_play_hosts }}"
-#       when: 
+#       when:
 #       - cluster_name is not defined
 #       - dynamic is defined
 #       run_once: true
 
 - hosts: bastion
-  gather_facts: no
+  gather_facts: false
   become: true
   environment:
     ENV: "{{ ENV }}"
     K8S_AUTH_KUBECONFIG: "{{ K8S_AUTH_KUBECONFIG }}"
   tasks:
-  - include_role:
-      name: ../roles/deploy-acm-stack
+    - include_role:
+        name: ../roles/deploy-acm-stack

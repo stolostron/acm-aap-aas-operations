@@ -1,11 +1,11 @@
 - name: "ensure namespace {{ namespace_fact.metadata.name }} exist"
   kubernetes.core.k8s:
     host: "{{ cluster_proxy.cluster_url }}"
-    validate_certs: no
+    validate_certs: false
     api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
     state: present
     definition: "{{ namespace_fact }}"
-    wait: yes
+    wait: true
   register: result
   until: result.failed == false
   retries: 10
@@ -14,11 +14,11 @@
 - name: "ensure operatorgroup configuration"
   kubernetes.core.k8s:
     host: "{{ cluster_proxy.cluster_url }}"
-    validate_certs: no
+    validate_certs: false
     api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
     state: present
     definition: "{{ operatorgroup_fact }}"
-    wait: yes
+    wait: true
   register: result
   until: result.failed == false
   retries: 10
@@ -27,11 +27,11 @@
 - name: "ensure subscription '{{ subscription_fact.metadata.name }}' configuration"
   kubernetes.core.k8s:
     host: "{{ cluster_proxy.cluster_url }}"
-    validate_certs: no
+    validate_certs: false
     api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
     state: present
     definition: "{{ subscription_fact }}"
-    wait: yes
+    wait: true
   register: result
   until: result.failed == false
   retries: 10

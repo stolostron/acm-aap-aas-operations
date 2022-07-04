@@ -10,6 +10,6 @@
 #  - package-latest  # Package installs should not use latest.
   - risky-shell-pipe  # Shells that use pipes should set the pipefail option.
   - unnamed-task  # All tasks should be named.
-  - var-spacing  # Jinja2 variables and filters should have spaces before and after.
-  - yaml  # Violations reported by yamllint.
+#  - var-spacing  # Jinja2 variables and filters should have spaces before and after.
+#  - yaml  # Violations reported by yamllint.
   - role-name  # Role name {0} does not match ``^[a-z][a-z0-9_]+$`` pattern.

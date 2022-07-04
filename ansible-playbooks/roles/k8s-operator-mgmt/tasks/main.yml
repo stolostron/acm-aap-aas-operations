@@ -21,4 +21,3 @@
 
 - include_tasks: ensure-operator-config.yml
 - include_tasks: ensure-operator-version.yml
-
