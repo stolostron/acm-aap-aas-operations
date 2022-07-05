@@ -24,7 +24,7 @@
 - name: Ensure parent DNS zone exists
   ansible.builtin.fail:
     msg: "{{ parent_dns_zone }} missing!"
-  when: dns_zone_creationansible-playbooks/roles/setup-public-dns-zone/tasks/main.yml and parent_dnszone_result.dnszones | length == 0
+  when: dns_zone_creation and parent_dnszone_result.dnszones | length == 0
 - name: Create a Public DNS Zone
   azure_rm_dnszone:
     resource_group: "{{ azure_resource_group }}"
