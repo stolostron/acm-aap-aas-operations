@@ -52,6 +52,7 @@ spec:
                           severity: critical
                           team: aoc-sre
                           service: aap
+                          acm_console: https://{{(lookup "route.openshift.io/v1" "Route" "open-cluster-management" "multicloud-console").spec.host }}{{`/multicloud/infrastructure/clusters/managed`}}
                           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPMetricEndpointDown.md
                       - alert: AAPPodRestartingTooMuch
                         annotations:
@@ -138,6 +139,7 @@ spec:
                           team: acm-sre
                           service: policy
                           cluster_url: https://{{(lookup "route.openshift.io/v1" "Route" "open-cluster-management" "multicloud-console").spec.host }}{{`/multicloud/infrastructure/clusters/details/{{$labels.cluster_namespace}}/overview`}}
+                          policies_url: https://{{(lookup "route.openshift.io/v1" "Route" "open-cluster-management" "multicloud-console").spec.host }}{{`/multicloud/governance/policies`}}
                           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/PolicyNotCompliant.md
                       - alert: MetricsCollectorMissing
                         annotations:
@@ -149,6 +151,7 @@ spec:
                           severity: critical
                           team: acm-sre
                           service: observability
+                          acm_console: https://{{(lookup "route.openshift.io/v1" "Route" "open-cluster-management" "multicloud-console").spec.host }}{{`/multicloud/infrastructure/clusters/managed`}}
                           runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/advanced-cluster-management/MetricsCollectorMissing.md
                       - alert: ManagedClusterMissing
                         annotations:
