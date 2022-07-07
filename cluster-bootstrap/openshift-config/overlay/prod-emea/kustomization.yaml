@@ -3,6 +3,7 @@ kind: Kustomization
 
 bases:
 - ../../base
+- apiserver-certs-patch.yaml
 
 patches:
 - target:
