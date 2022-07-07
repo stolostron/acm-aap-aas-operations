@@ -7,7 +7,7 @@
       --resource-group {{ AKS_MRG }} \
       --name {{ AKS_NAME }} \
       --subscription {{ AKS_SUB }} \
-      --command "kubectl get ns; kubectl get pods -n open-cluster-management-agent; kubectl get pods -n open-cluster-management-agent-addon; kubectl logs -l app=klusterlet-manifestwork-agent -n open-cluster-management-agent;"
+      --command "kubectl get ns; kubectl get pods -n open-cluster-management-agent; kubectl get pods -n open-cluster-management-agent-addon; kubectl logs -l app=klusterlet-manifestwork-agent -n open-cluster-management-agent;" # noqa yaml[line-length]
   register: hubspoke_out
 
 - name: debug
@@ -33,7 +33,7 @@
       --resource-group {{ AKS_MRG }} \
       --name {{ AKS_NAME }} \
       --subscription {{ AKS_SUB }} \
-      --command "kubectl describe pods -l app=klusterlet-manifestwork-agent -n open-cluster-management-agent; kubectl get secret hub-kubeconfig-secret -n open-cluster-management-agent -o yaml;"
+      --command "kubectl describe pods -l app=klusterlet-manifestwork-agent -n open-cluster-management-agent; kubectl get secret hub-kubeconfig-secret -n open-cluster-management-agent -o yaml;" # noqa yaml[line-length]
   register: hubspoke_out
 
 # -l app=klusterlet-manifestwork-agent

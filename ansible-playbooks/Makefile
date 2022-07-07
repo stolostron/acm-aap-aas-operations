@@ -18,6 +18,7 @@ venv-generic:
 	$(PIP) install kubernetes
 	$(PIP) install selinux
 	$(ANSIBLE-GALAXY) collection install kubernetes.core
+	$(ANSIBLE-GALAXY) collection install ansible.posix
 
 venv-git:
 	${PIP} install pre-commit

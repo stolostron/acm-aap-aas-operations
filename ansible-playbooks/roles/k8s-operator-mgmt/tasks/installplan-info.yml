@@ -9,7 +9,7 @@
 - name: "get installplan info"
   kubernetes.core.k8s_info:
     host: "{{ cluster_proxy.cluster_url }}"
-    validate_certs: no
+    validate_certs: false
     api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
     api_version: "{{ installplan_fact.apiVersion }}"
     kind: "{{ installplan_fact.kind }}"

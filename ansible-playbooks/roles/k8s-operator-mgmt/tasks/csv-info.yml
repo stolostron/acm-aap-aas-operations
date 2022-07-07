@@ -1,4 +1,4 @@
-#TODO: handle case when current CSV and installed CSV are empty
+# TODO: handle case when current CSV and installed CSV are empty
 - name: "set current_csv_fact and installed_csv_fact"
   set_fact:
     current_csv_fact:
@@ -16,7 +16,7 @@
 - name: "get current csv"
   kubernetes.core.k8s_info:
     host: "{{ cluster_proxy.cluster_url }}"
-    validate_certs: no
+    validate_certs: false
     api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
     api_version: "{{ current_csv_fact.apiVersion }}"
     kind: "{{ current_csv_fact.kind }}"
@@ -30,7 +30,7 @@
 - name: "get installed csv"
   kubernetes.core.k8s_info:
     host: "{{ cluster_proxy.cluster_url }}"
-    validate_certs: no
+    validate_certs: false
     api_key: "{{ managed_serviceaccount.managed_serviceaccount.token }}"
     api_version: "{{ installed_csv_fact.apiVersion }}"
     kind: "{{ installed_csv_fact.kind }}"
@@ -42,5 +42,5 @@
     installed_csv_info: "{{ k8s_info.resources[0] | default(installed_csv_fact) }}"
 - debug:
     msg:
-      - "current_csv_info.spec.version:   {{ current_csv_info.spec.version | default('does not exist')}}"
-      - "installed_csv_info.spec.version: {{ installed_csv_info.spec.version | default('does not exist')}}"
+      - "current_csv_info.spec.version:   {{ current_csv_info.spec.version | default('does not exist') }}"
+      - "installed_csv_info.spec.version: {{ installed_csv_info.spec.version | default('does not exist') }}"

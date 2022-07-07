@@ -5,4 +5,4 @@ metadata:
   namespace: automation-test
 spec:
   targetNamespaces:
-  - automation-test
+    - automation-test

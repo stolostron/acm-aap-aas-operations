@@ -7,3 +7,12 @@ repos:
         language: python
         entry: detect-secrets-hook
         args: ['--baseline', '.secrets.baseline']
+-   repo: https://github.com/ansible-community/ansible-lint.git
+    rev: v6.3.0 
+    hooks:
+        - id: ansible-lint
+          entry: ansible-lint --force-color ansible-playbooks/ -c .ansible-lint
+          language: python
+          # do not pass files to ansible-lint, see:
+          # https://github.com/ansible-community/ansible-lint/issues/611
+          pass_filenames: false

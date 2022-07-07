@@ -3,11 +3,11 @@
   connection: local
   gather_facts: false
   tasks:
-    - block: 
+    - block:
         - include_tasks: ../roles/k8s-cluster-access/tasks/get-access.yml
           vars:
             rbac_template: ../k8s-rbac/operator-mgmt
-        - include_role: 
+        - include_role:
             name: ../roles/k8s-operator-mgmt
           ignore_errors: true
           with_items:

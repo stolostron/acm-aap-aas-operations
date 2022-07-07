@@ -26,7 +26,7 @@
 
 - name: Check if there are security updates
   yum:
-    security: yes
+    security: true
     state: latest # noqa package-latest
     name: '*'
   register: yum_output

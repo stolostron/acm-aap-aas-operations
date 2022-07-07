@@ -2,7 +2,7 @@
 
 - name: Get Cluster information
   kubernetes.core.k8s_cluster_info:
-        invalidate_cache: False
+    invalidate_cache: false
   register: api_status
 
 - name: Patch to enable cluster backup operator
@@ -35,11 +35,11 @@
     api_version: cluster.open-cluster-management.io/v1
     kind: ManagedCluster
     label_selectors:
-      - velero.io/restore-name #To get only restored clusters
+      - velero.io/restore-name # To get only restored clusters
   register: restored_managedclusters
 
 # Iterate over restored managed clusters and collect their name skipping the already Joined ones
-- set_fact: mc_lists="{{ (mc_lists | default([])) + ([ mc_item.metadata.name ])}}"
+- set_fact: mc_lists="{{ (mc_lists | default([])) + ([ mc_item.metadata.name ]) }}"
   loop: "{{ restored_managedclusters.resources }}"
   loop_control:
     loop_var: mc_item
@@ -56,9 +56,9 @@
 - name: deconnect AKS from {{OLD_HUB_PDNSZ}} and attach to {{ HUB_PDNSZ }}
   include_tasks: ../roles/connect-aks-to-acm-hub-collection/tasks/cleanup-for-restore.yml
   vars:
-     AKS_NAME:  "{{ aks_id.split('/')[8] }}"
-     AKS_MRG: "{{ aks_id.split('/')[4] }}"
-     AKS_SUB: "{{ aks_id.split('/')[2] }}"
+    AKS_NAME: "{{ aks_id.split('/')[8] }}"
+    AKS_MRG: "{{ aks_id.split('/')[4] }}"
+    AKS_SUB: "{{ aks_id.split('/')[2] }}"
   loop: "{{ aks_IDs.splitlines() }}"
   loop_control:
     loop_var: aks_id
@@ -71,9 +71,9 @@
 - name: reconnect AKS
   include_tasks: ../roles/connect-aks-to-acm-hub-collection/tasks/create.yml
   vars:
-     AKS_NAME:  "{{ aks_id.split('/')[8] }}"
-     AKS_MRG: "{{ aks_id.split('/')[4] }}"
-     AKS_SUB: "{{ aks_id.split('/')[2] }}"
+    AKS_NAME: "{{ aks_id.split('/')[8] }}"
+    AKS_MRG: "{{ aks_id.split('/')[4] }}"
+    AKS_SUB: "{{ aks_id.split('/')[2] }}"
   loop: "{{ aks_IDs.splitlines() }}"
   loop_control:
     loop_var: aks_id
@@ -86,9 +86,9 @@
 - name: re-import AKS
   include_tasks: ../roles/import-managedcluster-default-invoke/tasks/create.yml
   vars:
-     AKS_NAME:  "{{ aks_id.split('/')[8] }}"
-     AKS_MRG: "{{ aks_id.split('/')[4] }}"
-     AKS_SUB: "{{ aks_id.split('/')[2] }}"
+    AKS_NAME: "{{ aks_id.split('/')[8] }}"
+    AKS_MRG: "{{ aks_id.split('/')[4] }}"
+    AKS_SUB: "{{ aks_id.split('/')[2] }}"
   loop: "{{ aks_IDs.splitlines() }}"
   loop_control:
     loop_var: aks_id

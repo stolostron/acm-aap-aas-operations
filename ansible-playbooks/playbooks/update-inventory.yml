@@ -11,7 +11,7 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
 
   tasks:
-  - name: Include update inventory source role
-    include_role:
-      name: ../roles/aap-controller-update-inventory
-      tasks_from: main
+    - name: Include update inventory source role
+      include_role:
+        name: ../roles/aap-controller-update-inventory
+        tasks_from: main

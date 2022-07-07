@@ -1,25 +1,25 @@
 plugin: ocmplus.cm.ocm_managedcluster
 cluster_groups:
-- name: dev-amazon-aap
-  label_selectors:
-  - ansible-automation-platform=true
-  - cloud=Amazon
-  - environment=dev
-- name: prod-amazon-aap
-  label_selectors:
-  - ansible-automation-platform=true
-  - cloud=Amazon
-  - environment=prod
-- name: dev-azure-aap
-  label_selectors:
-  - ansible-automation-platform=true
-  - cloud=Azure
-  - environment=dev
-- name: prod-azure-aap
-  label_selectors:
-  - ansible-automation-platform=true
-  - cloud=Azure
-  - environment=prod
-- name: kind-clusters
-  label_selectors:
-  - name=kind-cluster
+  - name: dev-amazon-aap
+    label_selectors:
+      - ansible-automation-platform=true
+      - cloud=Amazon
+      - environment=dev
+  - name: prod-amazon-aap
+    label_selectors:
+      - ansible-automation-platform=true
+      - cloud=Amazon
+      - environment=prod
+  - name: dev-azure-aap
+    label_selectors:
+      - ansible-automation-platform=true
+      - cloud=Azure
+      - environment=dev
+  - name: prod-azure-aap
+    label_selectors:
+      - ansible-automation-platform=true
+      - cloud=Azure
+      - environment=prod
+  - name: kind-clusters
+    label_selectors:
+      - name=kind-cluster

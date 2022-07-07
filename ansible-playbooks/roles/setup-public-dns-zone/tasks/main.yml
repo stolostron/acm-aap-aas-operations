@@ -3,17 +3,17 @@
     msg: "{{ item }} var not defined!"
   when: (vars[item] is undefined) or (vars[item]| length == 0)
   with_items:
-  - "cluster_name"
-  - "azure_dns_zone"
-  - "azure_resource_group"
-  - "azure_cluster_resource_group"
+    - "cluster_name"
+    - "azure_dns_zone"
+    - "azure_resource_group"
+    - "azure_cluster_resource_group"
 - name: Check whether variables are defined
   ansible.builtin.fail:
     msg: "{{ item }} var not defined!"
   when: dns_zone_creation and (vars[item] is undefined) or (vars[item]| length == 0)
   with_items:
-  - "parent_dns_zone"
-  - "parent_dns_zone_resource_group"
+    - "parent_dns_zone"
+    - "parent_dns_zone_resource_group"
 
 - name: Ensure parent DNS zone exists
   azure_rm_dnszone_info:

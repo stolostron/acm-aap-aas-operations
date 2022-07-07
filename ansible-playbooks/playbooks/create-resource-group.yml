@@ -24,5 +24,5 @@
     - name: Create a resource group
       azure_rm_resourcegroup:
         name: "{{ resource_group }}"
-        location: "{{ resource_group_location | default('westeurope')}}"
+        location: "{{ resource_group_location | default('westeurope') }}"
       when: result.resourcegroups | length == 0
