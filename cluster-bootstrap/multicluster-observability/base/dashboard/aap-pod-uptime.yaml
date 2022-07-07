@@ -1,0 +1,504 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: aap-pod-uptime
+  namespace: open-cluster-management-observability
+  labels:
+    grafana-custom-dashboard: 'true'
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+data:
+  aap-pod-uptime.json: |-
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": "-- Grafana --",
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "target": {
+              "limit": 100,
+              "matchAny": false,
+              "tags": [
+                
+              ],
+              "type": "dashboard"
+            },
+            "type": "dashboard"
+          }
+        ]
+      },
+      "description": "AAP Pod Uptime Dashboard",
+      "editable": true,
+      "gnetId": null,
+      "graphTooltip": 0,
+      "id": 33,
+      "iteration": 1657180724794,
+      "links": [
+        
+      ],
+      "panels": [
+        {
+          "datasource": null,
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "light-green",
+                "mode": "fixed"
+              },
+              "mappings": [
+                
+              ],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "dtdurations"
+            },
+            "overrides": [
+              
+            ]
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 5,
+            "x": 0,
+            "y": 0
+          },
+          "id": 2,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "limit": 9,
+              "values": false
+            },
+            "text": {
+              
+            },
+            "textMode": "value"
+          },
+          "pluginVersion": "8.1.3",
+          "repeat": null,
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "(time() - kube_pod_start_time{namespace=\"ansible-automation-platform\", pod=~\"automation-controller-.*\", cluster=\"$cluster\"})",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ],
+          "title": "AAP Controller",
+          "type": "stat"
+        },
+        {
+          "datasource": null,
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "light-green",
+                "mode": "fixed"
+              },
+              "mappings": [
+                
+              ],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "dtdurations"
+            },
+            "overrides": [
+              
+            ]
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 5,
+            "x": 5,
+            "y": 0
+          },
+          "id": 3,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "limit": 9,
+              "values": false
+            },
+            "text": {
+              
+            },
+            "textMode": "value"
+          },
+          "pluginVersion": "8.1.3",
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "(time() - kube_pod_start_time{namespace=\"ansible-automation-platform\", pod=~\"automation-hub-api-.*\", cluster=\"$cluster\"})",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ],
+          "title": "AAP Hub API",
+          "type": "stat"
+        },
+        {
+          "datasource": null,
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "light-green",
+                "mode": "fixed"
+              },
+              "mappings": [
+                
+              ],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "dtdurations"
+            },
+            "overrides": [
+              
+            ]
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 5,
+            "x": 10,
+            "y": 0
+          },
+          "id": 4,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "limit": 9,
+              "values": false
+            },
+            "text": {
+              
+            },
+            "textMode": "value"
+          },
+          "pluginVersion": "8.1.3",
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "(time() - kube_pod_start_time{namespace=\"ansible-automation-platform\", pod=~\"automation-hub-content-.*\", cluster=\"$cluster\"})",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ],
+          "title": "AAP Hub Content",
+          "type": "stat"
+        },
+        {
+          "datasource": null,
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "light-green",
+                "mode": "fixed"
+              },
+              "mappings": [
+                
+              ],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "dtdurations"
+            },
+            "overrides": [
+              
+            ]
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 5,
+            "x": 0,
+            "y": 5
+          },
+          "id": 5,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "limit": 9,
+              "values": false
+            },
+            "text": {
+              
+            },
+            "textMode": "value"
+          },
+          "pluginVersion": "8.1.3",
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "(time() - kube_pod_start_time{namespace=\"ansible-automation-platform\", pod=~\"automation-hub-redis-.*\", cluster=\"$cluster\"})",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ],
+          "title": "AAP Hub Redis",
+          "type": "stat"
+        },
+        {
+          "datasource": null,
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "light-green",
+                "mode": "fixed"
+              },
+              "mappings": [
+                
+              ],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "dtdurations"
+            },
+            "overrides": [
+              
+            ]
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 5,
+            "x": 5,
+            "y": 5
+          },
+          "id": 7,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "limit": 9,
+              "values": false
+            },
+            "text": {
+              
+            },
+            "textMode": "value"
+          },
+          "pluginVersion": "8.1.3",
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "(time() - kube_pod_start_time{namespace=\"ansible-automation-platform\", pod=~\"automation-hub-web-.*\", cluster=\"$cluster\"})",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ],
+          "title": "AAP Hub Web",
+          "type": "stat"
+        },
+        {
+          "datasource": null,
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "light-green",
+                "mode": "fixed"
+              },
+              "mappings": [
+                
+              ],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "dtdurations"
+            },
+            "overrides": [
+              
+            ]
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 5,
+            "x": 10,
+            "y": 5
+          },
+          "id": 8,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "limit": 9,
+              "values": false
+            },
+            "text": {
+              
+            },
+            "textMode": "value"
+          },
+          "pluginVersion": "8.1.3",
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "(time() - kube_pod_start_time{namespace=\"ansible-automation-platform\", pod=~\"automation-hub-worker-.*\", cluster=\"$cluster\"})",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ],
+          "title": "AAP Hub Worker",
+          "type": "stat"
+        }
+      ],
+      "refresh": "",
+      "schemaVersion": 30,
+      "style": "dark",
+      "tags": [
+        "AAP",
+        "Uptime"
+      ],
+      "templating": {
+        "list": [
+          {
+            "allValue": null,
+            "current": {
+              "selected": false,
+              "text": "$cluster",
+              "value": "$cluster"
+            },
+            "datasource": null,
+            "definition": "label_values(kube_pod_start_time, cluster)",
+            "description": null,
+            "error": null,
+            "hide": 0,
+            "includeAll": false,
+            "label": "cluster",
+            "multi": false,
+            "name": "cluster",
+            "options": [
+              
+            ],
+            "query": {
+              "query": "label_values(kube_pod_start_time, cluster)",
+              "refId": "StandardVariableQuery"
+            },
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-5m",
+        "to": "now"
+      },
+      "timepicker": {
+        
+      },
+      "timezone": "",
+      "title": "AAP Pod Uptime",
+      "version": 3
+    }
