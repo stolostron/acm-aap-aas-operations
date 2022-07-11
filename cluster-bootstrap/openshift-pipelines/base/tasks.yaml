@@ -1,0 +1,363 @@
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: github-open-pr
+  labels:
+    app.kubernetes.io/version: "0.2"
+  annotations:
+    tekton.dev/categories: Git
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/tags: github
+    tekton.dev/displayName: "open github pull request"
+    tekton.dev/platforms: "linux/amd64,linux/s390x,linux/ppc64le"
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  description: >-
+    This task will open a PR on Github based on several parameters.
+    This could be useful in GitOps repositories for example.
+
+  params:
+  - name: GITHUB_HOST_URL
+    description: |
+      The GitHub host, adjust this if you run a GitHub enteprise.
+    default: "api.github.com"
+    type: string
+
+  - name: API_PATH_PREFIX
+    description: |
+      The API path prefix, GitHub Enterprise has a prefix e.g. /api/v3
+    default: ""
+    type: string
+
+  - name: REPO_FULL_NAME
+    description: |
+      The GitHub repository full name, e.g.: tektoncd/catalog
+    type: string
+
+  - name: GITHUB_TOKEN_SECRET_NAME
+    description: |
+      The name of the kubernetes secret that contains the GitHub token, default: github
+    type: string
+    default: github
+
+  - name: GITHUB_TOKEN_SECRET_KEY
+    description: |
+      The key within the kubernetes secret that contains the GitHub token, default: token
+    type: string
+    default: token
+
+  - name: AUTH_TYPE
+    description: |
+      The type of authentication to use. You could use the less secure "Basic" for example
+    type: string
+    default: Bearer
+
+  - name: HEAD
+    description: |
+      The name of the branch where your changes are implemented.
+    type: string
+
+  - name: BASE
+    description: |
+      The name of the branch you want the changes pulled into.
+    type: string
+
+  - name: BODY
+    description: |
+      The body description of the pull request.
+    type: string
+
+  - name: TITLE
+    description: |
+      The title of the pull request.
+    type: string
+
+  results:
+    - name: NUMBER
+      description: Number of the created pull request.
+
+    - name: URL
+      description: URL of the created pull request.
+
+  volumes:
+  - name: githubtoken
+    secret:
+      secretName: $(params.GITHUB_TOKEN_SECRET_NAME)
+
+  steps:
+    - name: open-pr
+      volumeMounts:
+        - name: githubtoken
+          readOnly: true
+          mountPath: /etc/github-open-pr
+      env:
+        - name: PULLREQUEST_NUMBER_PATH
+          value: $(results.NUMBER.path)
+        - name: PULLREQUEST_URL_PATH
+          value: $(results.URL.path)
+
+      image: registry.access.redhat.com/ubi8/python-38:1-34.1599745032
+      script: |
+        #!/usr/libexec/platform-python
+
+        """This script will open a PR on Github"""
+
+        import json
+        import os
+        import sys
+        import http.client
+
+        github_token = open("/etc/github-open-pr/$(params.GITHUB_TOKEN_SECRET_KEY)", "r").read()
+
+        open_pr_url = "$(params.API_PATH_PREFIX)" + "/repos/$(params.REPO_FULL_NAME)/pulls"
+
+        data = {
+            "head": "$(params.HEAD)",
+            "base": "$(params.BASE)",
+            "title": "$(params.TITLE)",
+            "body": """$(params.BODY)"""
+        }
+        print("Sending this data to GitHub: ")
+        print(data)
+
+        authHeader = "$(params.AUTH_TYPE) " + github_token
+
+        # This is for our fake github server
+        if "$(params.GITHUB_HOST_URL)".startswith("http://"):
+            conn = http.client.HTTPConnection("$(params.GITHUB_HOST_URL)"
+                                              .replace("http://", ""))
+        else:
+            conn = http.client.HTTPSConnection("$(params.GITHUB_HOST_URL)")
+
+        conn.request(
+            "POST",
+            open_pr_url,
+            body=json.dumps(data),
+            headers={
+                "User-Agent": "TektonCD, the peaceful cat",
+                "Authorization": authHeader,
+                "Accept": "application/vnd.github.v3+json ",
+            })
+        resp = conn.getresponse()
+        if not str(resp.status).startswith("2"):
+            print("Error: %d" % (resp.status))
+            print(resp.read())
+            sys.exit(1)
+        else:
+            # https://docs.github.com/en/rest/reference/pulls#create-a-pull-request
+            body = json.loads(resp.read().decode())
+
+            open(os.environ.get('PULLREQUEST_NUMBER_PATH'), 'w').write(f'{body["number"]}')
+            open(os.environ.get('PULLREQUEST_URL_PATH'), 'w').write(body["html_url"])
+
+            print("GitHub pull request created for $(params.REPO_FULL_NAME): "
+                  f'number={body["number"]} url={body["html_url"]}')
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: switch-to-grafana-admin
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  params:
+    - name: userName
+      type: string
+  steps:
+  - name: switch-to-grafana-admin
+    command:
+        - /bin/bash
+        - '-c'
+    image: quay.io/acm-sre/ocm-utils@sha256:39846d8b9a3027f3412c7b210beb5c45c17d26c900cd9143d623dfd14882decf
+    resources: {}
+    args:
+      - |-
+        #!/bin/bash
+
+          set -e
+
+          if command -v python &> /dev/null;  then
+              PYTHON_CMD="python"
+          elif command -v python2 &> /dev/null;  then
+              PYTHON_CMD="python2"
+          elif command -v python3 &> /dev/null;  then
+              PYTHON_CMD="python3"
+          else
+              echo "Failed to found python command, please install firstly"
+              exit 1
+          fi
+
+          user_name="$(inputs.params.userName)"
+
+          obs_namespace='open-cluster-management-observability'
+
+          username_no_num_sign=$user_name
+
+          if [[ $user_name == *"#"* ]]; then
+              username_no_num_sign="${user_name//#/%23}"
+          fi
+
+          podName=`kubectl get pods -n "$obs_namespace" -l app=multicluster-observability-grafana-dev --template '{{range.items}}{{.metadata.name}}{{"\n"}}{{end}}'`
+
+          if [ $? -ne 0 ] || [ -z "$podName" ]; then
+              echo "Failed to get grafana pod name, please check your grafana-dev deployment"
+              exit 1
+          fi
+
+          curlCMD="kubectl exec -i -n "$obs_namespace" $podName -c grafana-dashboard-loader -- /usr/bin/curl"
+
+          XForwardedUser="WHAT_YOU_ARE_DOING_IS_VOIDING_SUPPORT_0000000000000000000000000000000000000000000000000000000000000000"
+
+          response=`$curlCMD -s -X GET -H "Content-Type: application/json" -H "X-Forwarded-User: $XForwardedUser" 127.0.0.1:3001/api/users/lookup?loginOrEmail=$username_no_num_sign`
+
+          if [[ $response != *$user_name* ]]; then
+            echo "Failed to fetch user ID, please check your user name"
+            exit 1
+          fi
+
+          userID=`$curlCMD -s -X GET -H "Content-Type: application/json" -H "X-Forwarded-User: $XForwardedUser" 127.0.0.1:3001/api/users/lookup?loginOrEmail=$username_no_num_sign | $PYTHON_CMD -c "import sys, json; print(json.load(sys.stdin)['id'])" 2>/dev/null`
+
+          orgID=`$curlCMD -s -X GET -H "Content-Type: application/json" -H "X-Forwarded-User:$XForwardedUser" 127.0.0.1:3001/api/users/lookup?loginOrEmail=$username_no_num_sign | $PYTHON_CMD -c "import sys, json; print(json.load(sys.stdin)['orgId'])" 2>/dev/null`
+
+          if [ $? -ne 0 ]; then
+              echo "Failed to fetch organization ID, please check your user name"
+              exit 1
+          fi
+
+          $curlCMD -s -X DELETE -H "Content-Type: application/json" -H "X-Forwarded-User:$XForwardedUser" 127.0.0.1:3001/api/orgs/$orgID/users/$userID > /dev/null
+
+          if [ $? -ne 0 ]; then
+              echo "Failed to delete user <$user_name>"
+              exit 1
+          fi
+
+          $curlCMD -s -X POST -H "Content-Type: application/json" -d "{\"loginOrEmail\":\"$user_name\", \"role\": \"Admin\"}" -H "X-Forwarded-User:$XForwardedUser" 127.0.0.1:3001/api/orgs/$orgID/users > /dev/null
+
+          if [ $? -ne 0 ]; then
+              echo "Failed to switch the user <$user_name> to be grafana admin"
+              exit 1
+          fi
+
+          echo "User $user_name switched to be grafana admin. Login to grafana dev to design your dashboard!"
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: export-dashboard
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  params:
+    - name: dashboardName
+      type: string
+  results:
+    - description: dashboard name
+      name: dashboardName    
+  steps:
+    - name: export-dashboard
+      command:
+        - /bin/bash
+        - '-c'
+      image: quay.io/acm-sre/ocm-utils@sha256:39846d8b9a3027f3412c7b210beb5c45c17d26c900cd9143d623dfd14882decf
+      resources: {}
+      args:
+        - |-
+          #!/bin/bash
+
+          set -e
+
+          savePath="cluster-bootstrap/multicluster-observability/base/dashboard"
+
+          if command -v python &> /dev/null;  then
+              PYTHON_CMD="python"
+          elif command -v python2 &> /dev/null;  then
+              PYTHON_CMD="python2"
+          elif command -v python3 &> /dev/null;  then
+              PYTHON_CMD="python3"
+          else
+              echo "Failed to found python command, please install firstly"
+              exit 1
+          fi
+
+          obs_namespace='open-cluster-management-observability'
+
+          org_dashboard_name="$(inputs.params.dashboardName)"
+
+          dashboard_name=$(echo ${org_dashboard_name//[!(a-z\A-Z\0-9\-\.)]/-} | tr '[:upper:]' '[:lower:]')
+
+          git clone https://github.com/stolostron/acm-aap-aas-operations.git
+
+          cd acm-aap-aas-operations
+
+          git checkout -b add-new-dashboard-$dashboard_name
+
+          podName=`kubectl get pods -n "$obs_namespace" -l app=multicluster-observability-grafana-dev --template '{{range.items}}{{.metadata.name}}{{"\n"}}{{end}}'`
+
+          if [ $? -ne 0 ] || [ -z "$podName" ]; then
+              echo "Failed to get grafana pod name, please check your grafana-dev deployment"
+              exit 1
+          fi
+
+          curlCMD="kubectl exec -i -n "$obs_namespace" $podName -c grafana-dashboard-loader -- /usr/bin/curl"
+
+          XForwardedUser="WHAT_YOU_ARE_DOING_IS_VOIDING_SUPPORT_0000000000000000000000000000000000000000000000000000000000000000"
+
+          dashboards=`$curlCMD -s -X GET -H "Content-Type: application/json" -H "X-Forwarded-User: $XForwardedUser" 127.0.0.1:3001/api/search`
+
+          if [ $? -ne 0 ]; then
+              echo "Failed to search dashboards, please check your grafana-dev instance"
+              exit 1
+          fi
+
+          dashboard=`echo $dashboards | $PYTHON_CMD -c "import sys, json;[sys.stdout.write(json.dumps(dash)) for dash in json.load(sys.stdin) if dash['title'] == '$org_dashboard_name']"`
+
+          if [ -n $dashboard ]; then
+              echo "Failed to fetch dashboard json data, please check your dashboard name <$org_dashboard_name>"
+              exit 1
+          fi
+
+          dashboardUID=`echo $dashboard | $PYTHON_CMD -c "import sys, json; print(json.load(sys.stdin)['uid'])" 2>/dev/null`
+
+          if [[ "$dashboard" == *"folderId"* ]]; then
+            dashboardFolderId=`echo $dashboard | $PYTHON_CMD -c "import sys, json; print(json.load(sys.stdin)['folderId'])" 2>/dev/null`
+          else
+            dashboardFolderTitle="General"
+          fi          
+
+          dashboardJson=`$curlCMD -s -X GET -H "Content-Type: application/json" -H "X-Forwarded-User:$XForwardedUser" 127.0.0.1:3001/api/dashboards/uid/$dashboardUID | $PYTHON_CMD -c "import sys, json; print(json.dumps(json.load(sys.stdin)['dashboard']))" 2>/dev/null`
+
+          # delete dashboard uid avoid conflict with old dashboard
+          dashboardJson=`echo $dashboardJson | $PYTHON_CMD -c "import sys, json; d=json.load(sys.stdin);del d['uid'];print(json.dumps(d))"`
+
+          cat > $savePath/$dashboard_name.yaml <<EOF  
+            kind: ConfigMap
+            apiVersion: v1 metadata:
+              name: $dashboard_name
+              namespace: open-cluster-management-observability
+              annotations:
+                observability.open-cluster-management.io/dashboard-folder: $dashboardFolderTitle
+              labels:
+                grafana-custom-dashboard: "true"
+            data:
+              $dashboard_name.json: |
+                $dashboardJson
+          EOF
+
+          echo "Save dashboard <$dashboard_name> to $savePath/$dashboard_name.yaml"
+
+          git add $savePath/$dashboard_name.yaml
+
+          git config --global user.email "acm-sre@redhat.com" 
+
+          git config --global user.name "acm-sre"
+
+          git commit -m "Add new dashboard: $dashboard_name"
+
+          git push --set-upstream origin add-new-dashboard-$dashboard_name
+
+          echo "$dashboard_name" | tr -d '\n' > $(results.dashboardName.path)
+  workspaces:
+    - name: output

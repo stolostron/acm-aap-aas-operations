@@ -1,0 +1,6 @@
+- op: replace
+  path: /metadata/annotations
+  value:
+    argocd.argoproj.io/sync-wave: "-1"
+    avp.kubernetes.io/path: /sre-testing/data/pipeline
+    avp.kubernetes.io/secret-version: "2"
