@@ -1,7 +1,7 @@
 ---
 
 - name: Verify Hub and Spoke components
-  shell: |
+  ansible.builtin.shell: |
     oc get managedcluster {{ AKS_NAME }} -n {{ AKS_NAME }} -o yaml
     az aks command invoke \
       --resource-group {{ AKS_MRG }} \
@@ -11,11 +11,11 @@
   register: hubspoke_out
 
 - name: debug
-  debug:
+  ansible.builtin.debug:
     msg: "{{ hubspoke_out.stdout_lines }}"
 
 - name: Verify Hub and Spoke components
-  shell: |
+  ansible.builtin.shell: |
     az aks command invoke \
       --resource-group {{ AKS_MRG }} \
       --name {{ AKS_NAME }} \
@@ -24,11 +24,11 @@
   register: hubspoke_out
 
 - name: debug
-  debug:
+  ansible.builtin.debug:
     msg: "{{ hubspoke_out.stdout_lines }}"
 
 - name: Verify Hub and Spoke components
-  shell: |
+  ansible.builtin.shell: |
     az aks command invoke \
       --resource-group {{ AKS_MRG }} \
       --name {{ AKS_NAME }} \
@@ -38,5 +38,5 @@
 
 # -l app=klusterlet-manifestwork-agent
 - name: debug
-  debug:
+  ansible.builtin.debug:
     msg: "{{ hubspoke_out.stdout_lines }}"

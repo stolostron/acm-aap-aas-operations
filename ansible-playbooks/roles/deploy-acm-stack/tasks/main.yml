@@ -1,12 +1,12 @@
 ---
 
 - name: Validate ENV variable
-  fail:
+  ansible.builtin.fail:
     msg: "Required variable ENV has not been provided"
   when: (ENV is undefined) or (ENV| length == 0)
 
 - name: Validate {{ ENV }} deployment variables
-  fail:
+  ansible.builtin.fail:
     msg: "Required variable {{ item }} has not been provided for {{ ENV }} deployment"
   when:
     - ENV != "local"
@@ -16,7 +16,7 @@
     - VAULT_TOKEN
 
 - name: Validate local deployment variables
-  fail:
+  ansible.builtin.fail:
     msg: "Required variable {{ item }} has not been provided for local deployment"
   when:
     - ENV == "local"
@@ -36,7 +36,7 @@
   register: tempdir
 
 - name: Install a list of packages with a list variable
-  yum:
+  ansible.builtin.yum:
     name: "{{ packages }}"
   vars:
     packages:
@@ -48,11 +48,13 @@
     version: "{{ acm_repo_version }}"
     dest: "{{ tempdir.path }}/acm-aap-aas-operations"
 
-- set_fact:
+- name: Set working dir fact
+  ansible.builtin.set_fact:
     working_dir: "{{ tempdir.path }}/acm-aap-aas-operations"
 
 - name: Update argocd configuration
-  template:
+  ansible.builtin.template:
+    mode: 0644
     src: argocd.yaml.j2
     dest: "{{ working_dir }}/cluster-bootstrap/openshift-gitops/config/argocd.yaml"
 
@@ -204,7 +206,8 @@
   retries: 15
   delay: 20
 
-- set_fact:
+- name: Set ACM facts
+  ansible.builtin.set_fact:
     acm_console_url: "{{ acm_route.resources.0.spec.host }}"
     mco_console_url: "{{ mco_route.resources.0.spec.host }}"
 

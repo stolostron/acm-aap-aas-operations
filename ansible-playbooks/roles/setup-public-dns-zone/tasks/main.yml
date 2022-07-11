@@ -33,12 +33,12 @@
   register: dnszone_result
 
 - name: Transform NS list into dictionary
-  set_fact:
+  ansible.builtin.set_fact:
     delegated_zone_ns: "{{ delegated_zone_ns + ([{'entry': item}]) }}"
   with_items: "{{ dnszone_result.state.name_servers }}"
   when: dns_zone_creation
 - name: Print the resulting dictionary
-  debug:
+  ansible.builtin.debug:
     var: delegated_zone_ns
     verbosity: 1
   when: dns_zone_creation
@@ -85,7 +85,8 @@
   ansible.builtin.fail:
     msg: "Couldn't find the IPs does not exist"
   when: (apps_ip.dnsrecordsets | length == 0) or (api_ip.dnsrecordsets | length == 0) or (bastion_ip.publicipaddresses | length == 0)
-- ansible.builtin.set_fact:
+- name: Set IPs facts
+  ansible.builtin.set_fact:
     ips:
       "*.apps": "{{ apps_ip.dnsrecordsets[0].records[0].ipv4_address }}"
       api: "{{ api_ip.dnsrecordsets[0].records[0].ipv4_address }}"

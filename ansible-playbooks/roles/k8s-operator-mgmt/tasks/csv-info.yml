@@ -1,6 +1,6 @@
 # TODO: handle case when current CSV and installed CSV are empty
 - name: "set current_csv_fact and installed_csv_fact"
-  set_fact:
+  ansible.builtin.set_fact:
     current_csv_fact:
       apiVersion: "operators.coreos.com/v1alpha1"
       kind: "ClusterServiceVersion"
@@ -25,7 +25,7 @@
   register: k8s_info
   when: current_csv_fact.metadata.name != "-DNE-"
 - name: set current_csv_info
-  set_fact:
+  ansible.builtin.set_fact:
     current_csv_info: "{{ k8s_info.resources[0] | default(current_csv_fact) }}"
 - name: "get installed csv"
   kubernetes.core.k8s_info:
@@ -38,9 +38,10 @@
     namespace: "{{ installed_csv_fact.metadata.namespace }}"
   register: k8s_info
 - name: set installed_csv_info
-  set_fact:
+  ansible.builtin.set_fact:
     installed_csv_info: "{{ k8s_info.resources[0] | default(installed_csv_fact) }}"
-- debug:
+- name: Debug
+  ansible.builtin.debug:
     msg:
       - "current_csv_info.spec.version:   {{ current_csv_info.spec.version | default('does not exist') }}"
       - "installed_csv_info.spec.version: {{ installed_csv_info.spec.version | default('does not exist') }}"

@@ -8,11 +8,13 @@
   check_mode: true
   register: os_type
 
-- fail:
+- name: Check OS
+  ansible.builtin.fail:
     msg: The system doesn't look like a RHEL
   when: (os_type is changed) or (os_type is failed) # noqa no-handler
 
-- fail:
+- name: Check RHSM setup
+  ansible.builtin.fail:
     msg: Please define RHSM variables
   when: (rhsm_username| length == 0) or (rhsm_password| length == 0)
 
@@ -25,18 +27,18 @@
   register: result
 
 - name: Check if there are security updates
-  yum:
+  ansible.builtin.yum:
     security: true
     state: latest # noqa package-latest
     name: '*'
   register: yum_output
 
 - name: Check if reboot is required
-  command: needs-restarting -r
+  ansible.builtin.command: needs-restarting -r
   failed_when: false
   register: reboot_required
   changed_when: false
 
 - name: Reboot if necessary
-  reboot:
+  ansible.builtin.reboot:
   when: reboot_required.rc != 0

@@ -5,5 +5,6 @@
     - azure.azcollection
 
   tasks:
-    - include_role:
+    - name: Include role
+      ansible.builtin.include_role:
         name: ../roles/connect-aks-to-acm-hub-collection

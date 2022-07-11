@@ -5,30 +5,31 @@
   tasks:
 
   - name: Gathering pending api-privatelink service private endpoint
-    command: |-
+    ansible.builtin.command: |-
         az network private-link-service  show --subscription {{ HUB_SUB }} -g {{ HUB_RG }} -n api-privatelink \
         --query "privateEndpointConnections[].{Name: name, Status: privateLinkServiceConnectionState.status} | [?Status=='Pending'].Name" -o tsv
     register: pending_api_plnk_pes
 
-  - set_fact:
+  - name: Set API facts
+    ansible.builtin.set_fact:
       api_plinksvc_pe: "{{ pending_api_plnk_pes.stdout }}"
 
-
   - name: Gathering pending apps-privatelink service private endpoint
-    command: |-
+    ansible.builtin.command: |-
         az network private-link-service  show --subscription {{ HUB_SUB }} -g {{ HUB_RG }} -n apps-privatelink \
         --query "privateEndpointConnections[].{Name: name, Status: privateLinkServiceConnectionState.status} | [?Status=='Pending'].Name" -o tsv
     register: pending_apps_plnk_pes
 
-  - set_fact:
+  - name: Set APPS facts
+    ansible.builtin.set_fact:
       apps_plinksvc_pe: "{{ pending_apps_plnk_pes.stdout }}"
 
   - name: approving apps-privatelink service
-    command: |-
+    ansible.builtin.command: |-
         az network private-link-service connection update --name {{ apps_plinksvc_pe }} -g {{ HUB_RG }} \
         --subscription {{ HUB_SUB }} --service-name apps-privatelink --connection-status 'Approved' --description 'Approved by AAP'
 
   - name: approving api-privatelink service
-    command: |-
+    ansible.builtin.command: |-
         az network private-link-service connection update --name {{ api_plinksvc_pe }} -g {{ HUB_RG }} \
         --subscription {{ HUB_SUB }} --service-name api-privatelink --connection-status 'Approved' --description 'Approved by AAP'

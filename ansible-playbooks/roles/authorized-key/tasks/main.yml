@@ -16,6 +16,6 @@
   with_items: "{{ public_key }}"
 
 - name: Ensure sudo access
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/sudoers
     line: "%wheel        ALL=(ALL)       NOPASSWD: ALL"  # pragma: allowlist secret

@@ -1,7 +1,7 @@
 ---
 
 - name: show me the info
-  debug:
+  ansible.builtin.debug:
     msg: "Cleanup for restore for AKS {{ AKS_NAME }} in RG {{ AKS_MRG }} in subscription {{ AKS_SUB }}"
 
 - name: Get facts for virtual network info
@@ -10,21 +10,24 @@
     subscription_id: "{{ AKS_SUB }}"
   register: vnetinfo
 
-- set_fact:
+- name: Set PE facts
+  ansible.builtin.set_fact:
     jq_name: "[?contains(name, 'aks')]"
     jq_nic_apps_name: "[?contains(name, 'apps-privatelink-pe')]"
     jq_nic_api_name: "[?contains(name, 'api-privatelink-pe')]"
 
-- set_fact:
+- name: Set AKS facts
+  ansible.builtin.set_fact:
     AKS_SUBNET: "{{ vnetinfo.virtualnetworks[0].subnets  | to_json | from_json | json_query(jq_name) | first }}"
     AKS_VNET: "{{ vnetinfo.virtualnetworks[0].name }}"
 
 - name: Get private-link-services map
-  command: |-
+  ansible.builtin.command: |-
     az network private-link-service list --subscription '{{ HUB_SUB }}' -g '{{ HUB_RG }}' --output json
   register: privatelink_map
 
-- set_fact:
+- name: Set Hub facts
+  ansible.builtin.set_fact:
     HUB_PRIVATE_LINK_MAP: "{{ privatelink_map.stdout | from_json | json_query('[*].{name: name, id: id}') }}"
 
 - name: Get network interfaces within a resource group
@@ -33,7 +36,8 @@
     subscription_id: "{{ AKS_SUB }}"
   register: NIC_MAP
 
-- set_fact:
+- name: Set NIC facts
+  ansible.builtin.set_fact:
     NIC_APPS: "{{ NIC_MAP.networkinterfaces  | to_json | from_json | json_query(jq_nic_apps_name) }}"
     NIC_API: "{{ NIC_MAP.networkinterfaces  | to_json | from_json | json_query(jq_nic_api_name) }}"
 

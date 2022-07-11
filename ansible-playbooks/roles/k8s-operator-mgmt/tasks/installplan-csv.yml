@@ -1,9 +1,9 @@
 # TODO make this work
 - name: get csv name prefix
-  set_fact:
+  ansible.builtin.set_fact:
     csv_prefix: subscription_fact.spec.name
 - name: get csv from install plan
-  set_fact:
+  ansible.builtin.set_fact:
     installplan_csv: "{{ item }}"
   with_list: '{{ installplan_info.spec.clusterServiceVersionNames }}'
   when: item is match(csv_prefix.*)

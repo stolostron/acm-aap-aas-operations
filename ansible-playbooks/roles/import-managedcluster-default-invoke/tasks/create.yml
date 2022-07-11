@@ -1,7 +1,7 @@
 ---
 
 - name: Verify ACM Hub cluster connection
-  shell: |-
+  ansible.builtin.shell: |-
     oc cluster-info
     oc get managedclusters -A
 
@@ -12,7 +12,7 @@
       - path: 'managedcluster.yml'
 
 - name: Pause 20s
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 20
 
 - name: Create temporary SPOKE directory
@@ -22,12 +22,12 @@
   register: tempdir
 
 - name: Generate the Import Blob
-  shell: |-
+  ansible.builtin.shell: |-
     oc get secret {{ AKS_NAME }}-import -n {{ AKS_NAME }} -ojsonpath='{.data.crds\.yaml}' | base64 --decode > {{ tempdir.path }}/01_import.yaml
     oc get secret {{ AKS_NAME }}-import -n {{ AKS_NAME }} -ojsonpath='{.data.import\.yaml}' | base64 --decode > {{ tempdir.path }}/04_import.yaml
 
 - name: Switch to Managed Cluster and Apply Import Blob
-  shell: |-
+  ansible.builtin.shell: |-
     IMPORT_BLOB=$(cat {{ tempdir.path }}/{{ item }} | base64 -w 0)
     az aks command invoke --resource-group {{ AKS_MRG }} \
       --name {{ AKS_NAME }} \
@@ -38,7 +38,7 @@
     - 04_import.yaml
 
 - name: Verify Hub and Spoke components
-  shell: |
+  ansible.builtin.shell: |
     oc get managedcluster {{ AKS_NAME }} -n {{ AKS_NAME }} -o yaml
     az aks command invoke \
       --resource-group {{ AKS_MRG }} \
@@ -48,5 +48,5 @@
   register: hubspoke_out
 
 - name: debug
-  debug:
+  ansible.builtin.debug:
     msg: "{{ hubspoke_out.stdout_lines }}"

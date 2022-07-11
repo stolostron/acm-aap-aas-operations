@@ -1,22 +1,25 @@
 - name: "load namespace_fact from {{ item }}/namespace.yml"
-  include_vars:
+  ansible.builtin.include_vars:
     file: "{{ item }}/namespace.yml"
     name: namespace_fact
-- debug:
+- name: Debug
+  ansible.builtin.debug:
     msg: "namespace_fact: {{ namespace_fact }}"
 
 - name: "load operatorgroup_fact from {{ item }}/operatorgroup.yml"
-  include_vars:
+  ansible.builtin.include_vars:
     file: "{{ item }}/operatorgroup.yml"
     name: operatorgroup_fact
-- debug:
+- name: Debug
+  ansible.builtin.debug:
     msg: "operatorgroup_fact: {{ operatorgroup_fact }}"
 
 - name: "load subscription_fact from {{ item }}/subscription.yml"
-  include_vars:
+  ansible.builtin.include_vars:
     file: "{{ item }}/subscription.yml"
     name: subscription_fact
-- debug:
+- name: Debug
+  ansible.builtin.debug:
     msg: "subscription_fact: {{ subscription_fact }}"
 
 - include_tasks: ensure-operator-config.yml

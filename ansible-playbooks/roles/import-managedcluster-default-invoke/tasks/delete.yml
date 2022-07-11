@@ -7,17 +7,17 @@
   register: tempdir
 
 - name: Generate the Import Blob
-  shell: |-
+  ansible.builtin.shell: |-
     oc get secret {{ AKS_NAME }}-import -n {{ AKS_NAME }} -ojsonpath='{.data.crds\.yaml}' | base64 --decode > {{ tempdir.path }}/01_import.yaml
     oc get secret {{ AKS_NAME }}-import -n {{ AKS_NAME }} -ojsonpath='{.data.import\.yaml}' | base64 --decode > {{ tempdir.path }}/04_import.yaml
 
 - name: Detaching managed cluster
-  command: |-
+  ansible.builtin.command: |-
     oc delete managedcluster {{ AKS_NAME }}
   register: detach_out
 
 - name: Switch to Managed Cluster and Delete Import Blob
-  shell: |-
+  ansible.builtin.shell: |-
     IMPORT_BLOB=$(cat {{ tempdir.path }}/{{ item }} | base64 -w 0)
     az aks command invoke --resource-group {{ AKS_MRG }} \
       --name {{ AKS_NAME }} \

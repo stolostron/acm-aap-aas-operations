@@ -17,7 +17,7 @@
         enableClusterBackup: true
 
 - name: Let's pause 1m to let cluster-backup operator run
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 60
 
 - name: Creating Restore CRD to trigger restoring
@@ -27,7 +27,7 @@
       - path: "restore-hub.yml"
 
 - name: Let's pause 20s to let restore running
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 20
 
 - name: Get managed clusters
@@ -39,7 +39,8 @@
   register: restored_managedclusters
 
 # Iterate over restored managed clusters and collect their name skipping the already Joined ones
-- set_fact: mc_lists="{{ (mc_lists | default([])) + ([ mc_item.metadata.name ]) }}"
+- name: Set facts
+  ansible.builtin.set_fact: mc_lists="{{ (mc_lists | default([])) + ([ mc_item.metadata.name ]) }}"
   loop: "{{ restored_managedclusters.resources }}"
   loop_control:
     loop_var: mc_item
@@ -47,10 +48,11 @@
 
 
 - name: retrieve  all AKS across all subcrtiptions
-  shell: for subid in $(az account list --query [].id -o tsv); do az aks list --subscription $subid --query [].id -o tsv; done
+  ansible.builtin.shell: for subid in $(az account list --query [].id -o tsv); do az aks list --subscription $subid --query [].id -o tsv; done
   register: list_all_aks_x_accounts
 
-- set_fact:
+- name: Set AKS facts
+  ansible.builtin.set_fact:
     aks_IDs: "{{ list_all_aks_x_accounts.stdout }}"
 
 - name: deconnect AKS from {{OLD_HUB_PDNSZ}} and attach to {{ HUB_PDNSZ }}
@@ -65,7 +67,7 @@
   when: ( aks_id.split('/')[8] in {{ mc_lists }} )
 
 - name: Let's pause 20s to let private dns zone fade away
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 20
 
 - name: reconnect AKS
@@ -80,7 +82,7 @@
   when: ( aks_id.split('/')[8] in {{ mc_lists }} )
 
 - name: Let's pause 20s to let private endpoint/linksvc connect correctly
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 20
 
 - name: re-import AKS

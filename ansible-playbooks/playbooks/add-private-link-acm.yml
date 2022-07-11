@@ -9,7 +9,7 @@
   tasks:
 
     - name: Verify variables are set
-      debug:
+      ansible.builtin.debug:
         msg:
           - "HUB RG:        {{ ACM_HUB_RG }}"
           - "HUB VNET RG:   {{ azure_resource_group }}"
@@ -21,7 +21,7 @@
       register: rg_info
 
     - name: Store facts
-      set_fact:
+      ansible.builtin.set_fact:
         location: "{{ rg_info.resourcegroups.0.location }}"
 
     - name: Get the subnet id for control-plane subnet
@@ -61,7 +61,7 @@
       register: nat_gateway
 
     - name: Show NAT Gateway
-      debug:
+      ansible.builtin.debug:
         var: nat_gateway.response
         verbosity: 1
 

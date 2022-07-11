@@ -7,10 +7,11 @@
       vars:
         rbac_template: ../k8s-rbac/cluster-admin
     - name: "load namespace_fact from ../k8s-operators/automation-test-etcd/namespace.yml"
-      include_vars:
+      ansible.builtin.include_vars:
         file: "../k8s-operators/automation-test-etcd/namespace.yml"
         name: namespace_fact
-    - debug:
+    - name: Debug
+      ansible.builtin.debug:
         msg: "namespace_fact: {{ namespace_fact }}"
     - name: "ensure namespace {{ namespace_fact.metadata.name }} does not exist"
       kubernetes.core.k8s:

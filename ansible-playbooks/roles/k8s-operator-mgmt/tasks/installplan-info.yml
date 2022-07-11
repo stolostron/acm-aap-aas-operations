@@ -1,5 +1,5 @@
 - name: "set installplan_fact"
-  set_fact:
+  ansible.builtin.set_fact:
     installplan_fact:
       apiVersion: "{{ subscription_info.status.installPlanRef.apiVersion }}"
       kind: "{{ subscription_info.status.installPlanRef.kind }}"
@@ -20,9 +20,10 @@
   retries: 10
   delay: 10
 - name: set installplan_info
-  set_fact:
+  ansible.builtin.set_fact:
     installplan_info: "{{ k8s_info.resources[0] }}"
-- debug:
+- name: Debug
+  ansible.builtin.debug:
     msg:
       - "installplan.metadata.name: {{ installplan_info.metadata.name }}"
       - "installplan.metadata.namespace: {{ installplan_info.metadata.namespace }}"

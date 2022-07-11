@@ -3,9 +3,12 @@
   gather_facts: false
   become: false
   tasks:
-    - include_role:
+    - name: Include OADP operator role
+      ansible.builtin.include_role:
         name: ../roles/enable-oadp-operator
-    - include_role:
+    - name: Include OADP storage role
+      ansible.builtin.include_role:
         name: ../roles/enable-oadp-object-storage
-    - include_role:
+    - name: Include Hub backup role
+      ansible.builtin.include_role:
         name: ../roles/enable-hub-backup
