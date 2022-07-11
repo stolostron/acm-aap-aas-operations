@@ -96,7 +96,7 @@ spec:
                             - name: "links"
                               text: "Grafana :grafana:"
                               type: "button"
-                              url: https://{{fromSecret "openshift-gitops" "console-url" "ACM_CONSOLE_URL" | base64dec}}{{`/grafana/explore?orgId=1&left=["now-1h","now","Observatorium",{"expr":"ALERTS{alertname=\"{{ .CommonLabels.alertname }}\",cluster=\"{{ .CommonLabels.cluster }}\"}","context":"explore"},{"mode":"Metrics"},{"ui":[true,true,true,"none"]}]`}}'
+                              url: https://{{fromSecret "openshift-gitops" "console-url" "ACM_CONSOLE_URL" | base64dec}}{{`/grafana/explore?orgId=1&left=["now-1h","now","Observatorium",{"expr":"ALERTS{alertname=\"{{ .CommonLabels.alertname }}\",cluster=\"{{ .CommonLabels.cluster }}\"}","context":"explore"},{"mode":"Metrics"},{"ui":[true,true,true,"none"]}]`}}
                           footer: |
                             "{{`{{ .CommonLabels.cluster }}`}}"
                           mrkdwn_in:
@@ -119,7 +119,7 @@ spec:
                             - name: "links"
                               text: "Grafana :grafana:"
                               type: "button"
-                              url: https://{{fromSecret "openshift-gitops" "console-url" "ACM_CONSOLE_URL" | base64dec}}{{`/grafana/explore?orgId=1&left=["now-1h","now","Observatorium",{"expr":"ALERTS{alertname=\"{{ .CommonLabels.alertname }}\",cluster=\"{{ .CommonLabels.cluster }}\"}","context":"explore"},{"mode":"Metrics"},{"ui":[true,true,true,"none"]}]`}}'
+                              url: https://{{fromSecret "openshift-gitops" "console-url" "ACM_CONSOLE_URL" | base64dec}}{{`/grafana/explore?orgId=1&left=["now-1h","now","Observatorium",{"expr":"ALERTS{alertname=\"{{ .CommonLabels.alertname }}\",cluster=\"{{ .CommonLabels.cluster }}\"}","context":"explore"},{"mode":"Metrics"},{"ui":[true,true,true,"none"]}]`}}
                           footer: |
                             "{{`{{ .CommonLabels.cluster }}`}}"
                           mrkdwn_in:
@@ -142,7 +142,7 @@ spec:
                             - name: "links"
                               text: "Grafana :grafana:"
                               type: "button"
-                              url: https://{{fromSecret "openshift-gitops" "console-url" "ACM_CONSOLE_URL" | base64dec}}{{`/grafana/explore?orgId=1&left=["now-1h","now","Observatorium",{"expr":"ALERTS{alertname=\"{{ .CommonLabels.alertname }}\",cluster=\"{{ .CommonLabels.cluster }}\"}","context":"explore"},{"mode":"Metrics"},{"ui":[true,true,true,"none"]}]`}}'
+                              url: https://{{fromSecret "openshift-gitops" "console-url" "ACM_CONSOLE_URL" | base64dec}}{{`/grafana/explore?orgId=1&left=["now-1h","now","Observatorium",{"expr":"ALERTS{alertname=\"{{ .CommonLabels.alertname }}\",cluster=\"{{ .CommonLabels.cluster }}\"}","context":"explore"},{"mode":"Metrics"},{"ui":[true,true,true,"none"]}]`}}
                           footer: |
                             "{{`{{ .CommonLabels.cluster }}`}}"
                           mrkdwn_in:
