@@ -7,6 +7,13 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "1"
 spec:
+  advanced:
+    alertmanager:
+      replicas: 1
+      resources:
+        limits:
+          cpu: 100m
+          memory: 400Mi
   enableDownsampling: true
   imagePullSecret: multiclusterhub-operator-pull-secret
   observabilityAddonSpec:
