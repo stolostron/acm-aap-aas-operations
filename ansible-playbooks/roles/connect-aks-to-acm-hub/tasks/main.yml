@@ -1,26 +1,26 @@
 ---
 
 - name: Create private endpoint
-  command: |
+  ansible.builtin.command: |
     az network vnet list --subscription {{ AKS_SUB }} -g {{ AKS_MRG }} --query [].name -o tsv --only-show-errors
   register: aksvnet_out
 
 - name: set fact
-  set_fact:
+  ansible.builtin.set_fact:
     AKS_VNET: '{{ aksvnet_out.stdout }}'
 
 - name: Get AKS subnet
-  shell: |-
+  ansible.builtin.shell: |-
     az network vnet subnet list --resource-group {{ AKS_MRG }}  --subscription {{ AKS_SUB }} \
     --vnet-name {{ AKS_VNET }} --query [].name -o tsv --only-show-errors | grep 'aks'
   register: akssubnet_out
 
 - name: set fact
-  set_fact:
+  ansible.builtin.set_fact:
     AKS_SUBNET: '{{ akssubnet_out.stdout }}'
 
 - name: Create AKS Private DNS Zone
-  shell: |-
+  ansible.builtin.shell: |-
     az network private-dns zone create \
       -n "{{ HUB_PDNSZ }}" \
       -g "{{ AKS_MRG }}" \
@@ -41,12 +41,12 @@
       --disable-private-endpoint-network-policies true --only-show-errors
 
 - name: Get Hub Private Link Info
-  command: |-
+  ansible.builtin.command: |-
     az network private-link-service list --subscription "{{ HUB_SUB }}" --query [].name -o tsv
   register: plink_list
 
 - name: Create Private Link
-  shell: |-
+  ansible.builtin.shell: |-
     plid=$(az network private-link-service show --name "{{ item }}" --resource-group "{{ HUB_RG }}" --subscription "{{ HUB_SUB }}" --query id --output tsv)
     # echo "hub private link id: ${plid}"
     az network private-endpoint create --name "{{ item }}-pe" \
@@ -60,11 +60,11 @@
   ignore_errors: true
 
 - name: Get Private Endpoint list
-  command: |-
+  ansible.builtin.command: |-
     az network private-endpoint list --resource-group "{{ AKS_MRG }}" --subscription "{{ AKS_SUB }}"  --query [].name -o tsv
 
 # - name: Nic
-#   command: |-
+#   ansible.builtin.command: |-
 #     az network private-endpoint show -n "{{ item }}" \
 #       --resource-group "{{ AKS_MRG }}" \
 #       --subscription "{{ AKS_SUB }}" \
@@ -74,12 +74,12 @@
 #   register: nic_out
 
 # - name: NicIP
-#   command: |-
+#   ansible.builtin.command: |-
 #     az network nic show --ids "{{ item.stdout }}" --query ipConfigurations[*].privateIpAddress -o tsv
 #   with_items: "{{ nic_out['results'] }}"
 
 - name: AKS - Adding private-dns record A - apps
-  shell: |-
+  ansible.builtin.shell: |-
     appsNic=$(az network private-endpoint show -n "{{ item }}" --resource-group "{{ AKS_MRG }}" \
     --subscription "{{ AKS_SUB }}" --query networkInterfaces[*].id -o tsv)
 
@@ -97,7 +97,7 @@
   ignore_errors: true
 
 - name: AKS - Adding private-dns record A - api
-  shell: |-
+  ansible.builtin.shell: |-
     apiNic=$(az network private-endpoint show -n "{{ item }}" --resource-group "{{ AKS_MRG }}" \
     --subscription "{{ AKS_SUB }}" --query networkInterfaces[*].id -o tsv)
 

@@ -20,6 +20,6 @@
 
   tasks:
     - name: Include DNS role
-      include_role:
+      ansible.builtin.include_role:
         name: ../roles/setup-public-dns-zone
         tasks_from: main

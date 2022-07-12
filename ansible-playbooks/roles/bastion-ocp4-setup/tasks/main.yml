@@ -1,5 +1,5 @@
 - name: Configure no_log
-  debug:
+  ansible.builtin.debug:
     msg: "Shown only with verbosity > 1"
     verbosity: 2
   register: verbose_check
@@ -25,13 +25,16 @@
   when: vault_uri is defined
   ignore_errors: true
 
-- ansible.builtin.set_fact:
+- name: Set SSL fact
+  ansible.builtin.set_fact:
     kubeconfig_ssl_certs_valid: false
   when: '(ns.resources | length == 0) and "SSL: CERTIFICATE_VERIFY_FAILED" in ns.msg'
-- ansible.builtin.set_fact:
+- name: Set SSL fact
+  ansible.builtin.set_fact:
     kubeconfig_ssl_certs_valid: true
   when: '(ns.resources | length == 1) or ((ns.resources | length == 0) and "SSL: CERTIFICATE_VERIFY_FAILED" not in ns.msg)'
-- ansible.builtin.set_fact:
+- name: Set SSL fact
+  ansible.builtin.set_fact:
     sa_namespace: "acm-infra"
 
 - name: Check if apiserver has certificates

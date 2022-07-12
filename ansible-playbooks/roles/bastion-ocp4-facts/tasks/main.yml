@@ -3,7 +3,7 @@
 # created by the OpenShift installer and containing cluster info
 
 - name: Find install root path
-  find:
+  ansible.builtin.find:
     paths: /root
     recurse: false
     file_type: directory
@@ -12,11 +12,13 @@
 # Normally 1 single folder with the install root path
 # Alternative is to have an hardcoded path since anyway
 # we have 1 bastion <-> 1 cluster
-- fail:
+- name: Fail when needed
+  ansible.builtin.fail:
     msg: Can't find the root path on this bastion
   when: dir.matched != 1
 
-- ansible.builtin.set_fact:
+- name: Set file system facts
+  ansible.builtin.set_fact:
     root_path: "{{ dir.files[0].path }}"
     metadata_path: "{{ dir.files[0].path + '/metadata.json' }}"
 
@@ -25,7 +27,8 @@
     path: "{{ metadata_path }}"
   register: stat_result
 
-- fail:
+- name: Fail when needed
+  ansible.builtin.fail:
     msg: Missing metadata file on this bastion
   when: not stat_result.stat.exists
 
@@ -34,11 +37,14 @@
     src: "{{ metadata_path }}"
   register: ocp4_metadata_raw
 
-- ansible.builtin.set_fact:
+- name: Set fact
+  ansible.builtin.set_fact:
     ocp4_metadata: "{{ ocp4_metadata_raw.content | b64decode | from_json }}"
 
-- ansible.builtin.debug:
+- name: Debug
+  ansible.builtin.debug:
     msg: "{{ ocp4_metadata }}"
 
-- ansible.builtin.set_fact:
+- name: Set OCP fact
+  ansible.builtin.set_fact:
     ocp4_rg: "{{ ocp4_metadata.azure.resourceGroupName | default((ocp4_metadata.infraID + '-rg'), true) }}"

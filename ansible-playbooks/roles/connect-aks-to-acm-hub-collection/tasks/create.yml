@@ -1,7 +1,7 @@
 ---
 
 - name: show me the info
-  debug:
+  ansible.builtin.debug:
     msg: "Creating connection to ACM HUB for  AKS:{{ AKS_NAME }}, in Resource Group:{{ AKS_MRG  }}, Subscription:{{ AKS_SUB }} "
 
 
@@ -11,12 +11,14 @@
     subscription_id: "{{ AKS_SUB }}"
   register: vnetinfo
 
-- set_fact:
+- name: Set PE facts
+  ansible.builtin.set_fact:
     jq_name: "[?contains(name, 'aks')]"
     jq_nic_apps_name: "[?contains(name, 'apps-privatelink-pe')]"
     jq_nic_api_name: "[?contains(name, 'api-privatelink-pe')]"
 
-- set_fact:
+- name: Set AKS facts
+  ansible.builtin.set_fact:
     AKS_SUBNET: "{{ vnetinfo.virtualnetworks[0].subnets | to_json | from_json | json_query(jq_name) | first }}"
     AKS_VNET: "{{ vnetinfo.virtualnetworks[0].name }}"
 
@@ -59,7 +61,8 @@
     subscription_id: "{{ subscription_id }}"
   register: pls
 
-- set_fact:
+- name: Set Hub facts
+  ansible.builtin.set_fact:
     HUB_PRIVATE_LINK_MAP: "{{ pls.response | json_query('[*].{name: name, id: id}') }}"
 
 - name: Create private endpoint connected to private link
@@ -83,7 +86,8 @@
     subscription_id: "{{ AKS_SUB }}"
   register: NIC_MAP
 
-- set_fact:
+- name: Set NIC facts
+  ansible.builtin.set_fact:
     NIC_APPS: "{{ NIC_MAP.networkinterfaces | to_json | from_json | json_query(jq_nic_apps_name) }}"
     NIC_API: "{{ NIC_MAP.networkinterfaces | to_json | from_json | json_query(jq_nic_api_name) }}"
 

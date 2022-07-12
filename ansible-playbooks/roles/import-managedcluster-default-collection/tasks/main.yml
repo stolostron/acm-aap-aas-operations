@@ -4,7 +4,8 @@
 # vars
 # - ACM_HUB_KUBECONFIG reference the hub kubeconfig
 # - MANAGED_CLUSTER_KUBECONFIG references the spoke kubeconfig
-- set_fact:
+- name: Set facts
+  ansible.builtin.set_fact:
     cluster_name: kind-56
 
 - name: Verify ACM Hub Connection
@@ -36,7 +37,8 @@
     kubeconfig: "{{ ACM_HUB_KUBECONFIG }}"
   register: importblob
 
-- set_fact:
+- name: Set facts
+  ansible.builtin.set_fact:
     importblobcrds: "{{ importblob.resources[0].data['crds.yaml'] }}"
     importblobimport: "{{ importblob.resources[0].data['import.yaml'] }}"
 

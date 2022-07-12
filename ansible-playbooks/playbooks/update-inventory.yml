@@ -12,6 +12,6 @@
 
   tasks:
     - name: Include update inventory source role
-      include_role:
+      ansible.builtin.include_role:
         name: ../roles/aap-controller-update-inventory
         tasks_from: main

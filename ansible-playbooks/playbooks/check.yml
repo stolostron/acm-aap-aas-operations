@@ -4,5 +4,6 @@
   collections:
   - azure.azcollection
   tasks:
-  - include_role:
-      name: ../roles/check
+    - name: Include role
+      ansible.builtin.include_role:
+        name: ../roles/check

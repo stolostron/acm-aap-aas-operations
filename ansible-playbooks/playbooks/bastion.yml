@@ -2,9 +2,10 @@
 # --limit only works with name and groups
 - hosts: bastion
   tasks:
-    - block:
+    - name: Single host
+      block:
         - name: Add only current host to the bastion_filtered group
-          add_host:
+          ansible.builtin.add_host:
             name: '{{ item }}'
             groups: bastion_filtered
           when: hostvars[item]['tags']['cluster_name'] == cluster_name
@@ -12,9 +13,10 @@
       when: cluster_name is defined
       run_once: true
 
-    - block:
+    - name: All hosts
+      block:
         - name: Add all hosts running this playbook to the bastion_filtered group
-          add_host:
+          ansible.builtin.add_host:
             name: '{{ item }}'
             groups: bastion_filtered
           loop: "{{ ansible_play_hosts }}"

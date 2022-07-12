@@ -17,10 +17,12 @@
 
 # TODO replace this with URI
 - name: retrieve the storage account key
-  shell: az storage account keys list -n {{ STORAGE_ACCOUNT }} -g {{ STORAGE_RESOURCEGROUP }} --subscription {{ STORAGE_SUBSCRIPTION }} --query [0].value -o tsv
+  ansible.builtin.shell:
+    cmd: az storage account keys list -n {{ STORAGE_ACCOUNT }} -g {{ STORAGE_RESOURCEGROUP }} --subscription {{ STORAGE_SUBSCRIPTION }} --query [0].value -o tsv
   register: key
 
-- set_fact:
+- name: Set storage fact
+  ansible.builtin.set_fact:
     STORAGE_KEY: "{{ key.stdout }}"
 
 # TODO (sdminonne): this for restore should be replaced with an _info to prevent creation
@@ -37,7 +39,7 @@
   register: tempfile_1
 
 - name: generate storage secret
-  template:
+  ansible.builtin.template:
     src: ../roles/enable-oadp-object-storage/templates/cloud-credentials-azure
     dest: "{{ tempfile_1.path }}"
 
