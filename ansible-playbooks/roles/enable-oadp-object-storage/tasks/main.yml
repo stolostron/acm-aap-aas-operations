@@ -20,6 +20,7 @@
   ansible.builtin.shell:
     cmd: az storage account keys list -n {{ STORAGE_ACCOUNT }} -g {{ STORAGE_RESOURCEGROUP }} --subscription {{ STORAGE_SUBSCRIPTION }} --query [0].value -o tsv
   register: key
+  changed_when: false
 
 - name: Set storage fact
   ansible.builtin.set_fact:

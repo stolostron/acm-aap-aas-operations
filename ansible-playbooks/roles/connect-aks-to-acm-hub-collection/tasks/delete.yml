@@ -25,6 +25,7 @@
   ansible.builtin.command: |-
     az network private-link-service list --subscription '{{ HUB_SUB }}' -g '{{ HUB_RG }}' --output json
   register: privatelink_map
+  changed_when: false
 
 - name: Set Hub facts
   ansible.builtin.set_fact:

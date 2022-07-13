@@ -50,6 +50,7 @@
 - name: retrieve  all AKS across all subcrtiptions
   ansible.builtin.shell: for subid in $(az account list --query [].id -o tsv); do az aks list --subscription $subid --query [].id -o tsv; done
   register: list_all_aks_x_accounts
+  changed_when: false
 
 - name: Set AKS facts
   ansible.builtin.set_fact:
