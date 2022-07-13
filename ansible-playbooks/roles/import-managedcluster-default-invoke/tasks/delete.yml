@@ -10,11 +10,13 @@
   ansible.builtin.shell: |-
     oc get secret {{ AKS_NAME }}-import -n {{ AKS_NAME }} -ojsonpath='{.data.crds\.yaml}' | base64 --decode > {{ tempdir.path }}/01_import.yaml
     oc get secret {{ AKS_NAME }}-import -n {{ AKS_NAME }} -ojsonpath='{.data.import\.yaml}' | base64 --decode > {{ tempdir.path }}/04_import.yaml
+  changed_when: true
 
 - name: Detaching managed cluster
   ansible.builtin.command: |-
     oc delete managedcluster {{ AKS_NAME }}
   register: detach_out
+  changed_when: true
 
 - name: Switch to Managed Cluster and Delete Import Blob
   ansible.builtin.shell: |-
@@ -26,3 +28,4 @@
   with_items:
     - 01_import.yaml
     - 04_import.yaml
+  changed_when: true

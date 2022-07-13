@@ -9,6 +9,7 @@
       --subscription {{ AKS_SUB }} \
       --command "kubectl get ns; kubectl get pods -n open-cluster-management-agent; kubectl get pods -n open-cluster-management-agent-addon; kubectl logs -l app=klusterlet-manifestwork-agent -n open-cluster-management-agent;" # noqa yaml[line-length]
   register: hubspoke_out
+  changed_when: false
 
 - name: debug
   ansible.builtin.debug:
@@ -22,6 +23,7 @@
       --subscription {{ AKS_SUB }} \
       --command "kubectl get secrets -n open-cluster-management-agent; kubectl get pods -n open-cluster-management-agent-addon"
   register: hubspoke_out
+  changed_when: false
 
 - name: debug
   ansible.builtin.debug:
@@ -35,6 +37,7 @@
       --subscription {{ AKS_SUB }} \
       --command "kubectl describe pods -l app=klusterlet-manifestwork-agent -n open-cluster-management-agent; kubectl get secret hub-kubeconfig-secret -n open-cluster-management-agent -o yaml;" # noqa yaml[line-length]
   register: hubspoke_out
+  changed_when: false
 
 # -l app=klusterlet-manifestwork-agent
 - name: debug

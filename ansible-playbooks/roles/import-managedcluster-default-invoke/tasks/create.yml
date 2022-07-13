@@ -4,6 +4,7 @@
   ansible.builtin.shell: |-
     oc cluster-info
     oc get managedclusters -A
+  changed_when: false
 
 - name: Create manifests for Namespace and Managed Cluster CR
   kubernetes.core.k8s:
@@ -25,6 +26,7 @@
   ansible.builtin.shell: |-
     oc get secret {{ AKS_NAME }}-import -n {{ AKS_NAME }} -ojsonpath='{.data.crds\.yaml}' | base64 --decode > {{ tempdir.path }}/01_import.yaml
     oc get secret {{ AKS_NAME }}-import -n {{ AKS_NAME }} -ojsonpath='{.data.import\.yaml}' | base64 --decode > {{ tempdir.path }}/04_import.yaml
+  changed_when: true
 
 - name: Switch to Managed Cluster and Apply Import Blob
   ansible.builtin.shell: |-
@@ -36,6 +38,7 @@
   with_items:
     - 01_import.yaml
     - 04_import.yaml
+  changed_when: true
 
 - name: Verify Hub and Spoke components
   ansible.builtin.shell: |
@@ -46,6 +49,7 @@
       --subscription {{ AKS_SUB }} \
       --command "kubectl get ns; kubectl get pods -n open-cluster-management-agent"
   register: hubspoke_out
+  changed_when: false
 
 - name: debug
   ansible.builtin.debug:

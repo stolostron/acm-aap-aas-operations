@@ -1,9 +1,10 @@
 ---
 
-- name: Create private endpoint
+- name: Get VNet list
   ansible.builtin.command: |
     az network vnet list --subscription {{ AKS_SUB }} -g {{ AKS_MRG }} --query [].name -o tsv --only-show-errors
   register: aksvnet_out
+  changed_when: false
 
 - name: set fact
   ansible.builtin.set_fact:
@@ -14,6 +15,7 @@
     az network vnet subnet list --resource-group {{ AKS_MRG }}  --subscription {{ AKS_SUB }} \
     --vnet-name {{ AKS_VNET }} --query [].name -o tsv --only-show-errors | grep 'aks'
   register: akssubnet_out
+  changed_when: false
 
 - name: set fact
   ansible.builtin.set_fact:
@@ -39,11 +41,13 @@
       --subscription "{{ AKS_SUB }}" \
       --vnet-name "{{ AKS_VNET }}" \
       --disable-private-endpoint-network-policies true --only-show-errors
+  changed_when: true
 
 - name: Get Hub Private Link Info
   ansible.builtin.command: |-
     az network private-link-service list --subscription "{{ HUB_SUB }}" --query [].name -o tsv
   register: plink_list
+  changed_when: false
 
 - name: Create Private Link
   ansible.builtin.shell: |-
@@ -58,10 +62,12 @@
       --vnet-name "{{ AKS_VNET }}" --only-show-errors
   with_items: "{{ plink_list.stdout.split('\n') }}"
   ignore_errors: true
+  changed_when: true
 
 - name: Get Private Endpoint list
   ansible.builtin.command: |-
     az network private-endpoint list --resource-group "{{ AKS_MRG }}" --subscription "{{ AKS_SUB }}"  --query [].name -o tsv
+  changed_when: false
 
 # - name: Nic
 #   ansible.builtin.command: |-
@@ -95,6 +101,7 @@
   with_items:
     - apps-privatelink-pe
   ignore_errors: true
+  changed_when: true
 
 - name: AKS - Adding private-dns record A - api
   ansible.builtin.shell: |-
@@ -119,3 +126,4 @@
   with_items:
     - api-privatelink-pe
   ignore_errors: true
+  changed_when: true
