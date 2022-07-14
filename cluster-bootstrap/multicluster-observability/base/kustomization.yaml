@@ -11,3 +11,4 @@ resources:
 - dashboard/alert-analysis.yaml
 - dashboard/aap-golden-signals-by-tenant.yaml
 - dashboard/cluster-problem-by-tenant.yaml
+- dashboard/aap-pod-uptime.yaml
