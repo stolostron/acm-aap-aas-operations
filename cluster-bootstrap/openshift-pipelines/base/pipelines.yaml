@@ -35,10 +35,6 @@ spec:
       description: The dashboard name
       name: dashboardName
       type: string
-  resources:
-    - name: >-
-        registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:afc5d3f9efe26c7042635d43b8ffd09d67936e3d0b6b901dc08a33e20313d361
-      type: image
   tasks:
     - name: export-dashboard
       params:
