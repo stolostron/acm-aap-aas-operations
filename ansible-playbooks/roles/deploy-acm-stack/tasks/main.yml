@@ -179,6 +179,7 @@
     - "sso"
     - "alertmanager-to-github"
     - "argocd"
+    - "openshift-pipelines"
   when:
     ENV != 'local'
 

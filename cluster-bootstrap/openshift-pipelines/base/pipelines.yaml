@@ -1,0 +1,73 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: switch-to-grafana-admin
+  namespace: open-cluster-management-observability
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  params:
+    - default: ''
+      description: Logged in user name
+      name: userName
+      type: string
+  tasks:
+    - name: switch-to-grafana-admin
+      params:
+        - name: userName
+          value: $(params.userName)
+      taskRef:
+        kind: ClusterTask
+        name: switch-to-grafana-admin
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: export-dashboard
+  namespace: open-cluster-management-observability
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  params:
+    - default: ''
+      description: The dashboard name
+      name: dashboardName
+      type: string
+  tasks:
+    - name: export-dashboard
+      params:
+        - name: dashboardName
+          value: $(params.dashboardName)
+      taskRef:
+        kind: ClusterTask
+        name: export-dashboard
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+    - name: github-open-pr
+      params:
+        - name: GITHUB_HOST_URL
+          value: api.github.com
+        - name: REPO_FULL_NAME
+          value: stolostron/acm-aap-aas-operations
+        - name: GITHUB_TOKEN_SECRET_NAME
+          value: github
+        - name: GITHUB_TOKEN_SECRET_KEY
+          value: token
+        - name: HEAD
+          value: stolostron:add-new-dashboard-$(tasks.export-dashboard.results.dashboardName)
+        - name: BASE
+          value: main
+        - name: BODY
+          value: Add new dashboard $(tasks.export-dashboard.results.dashboardName)
+        - name: TITLE
+          value: Add new dashboard $(tasks.export-dashboard.results.dashboardName)
+      runAfter:
+        - export-dashboard
+      taskRef:
+        kind: ClusterTask
+        name: github-open-pr
+  workspaces:
+    - name: shared-workspace

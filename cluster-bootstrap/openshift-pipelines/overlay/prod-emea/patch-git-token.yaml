@@ -1,0 +1,5 @@
+- op: replace
+  path: /metadata/annotations
+  value:
+    argocd.argoproj.io/sync-wave: "-1"
+    avp.kubernetes.io/path: /sre-prod-emea/data/pipeline

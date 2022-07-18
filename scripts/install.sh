@@ -103,6 +103,9 @@ if [ $1 != "local" ]; then
 
     printf "=====================Create Auto create github issue based on alert application ...\n"
     kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/alertmanager-to-github
+
+    printf "=====================Create openshift-pipelines application ...\n"
+    kubectl apply -k ./cluster-bootstrap/argocd-apps/$1/openshift-pipelines
 fi
 
 printf "Cluster bootstrap completed with following componnents/configurations: \n"
@@ -116,4 +119,5 @@ if [ $1 != "local" ]; then
     printf "✓ Group Sync \n"
     printf "✓ SSO \n"
     printf "✓ Github issue auto generator \n"
+    printf "✓ Openshift pipelines \n"
 fi
