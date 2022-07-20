@@ -37,6 +37,20 @@ spec:
               type: Opaque
           - complianceType: musthave
             objectDefinition:
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: ClusterRoleBinding
+              metadata:
+                name: aap-metric-accessor
+              roleRef:
+                name: cluster-admin
+                apiGroup: rbac.authorization.k8s.io
+                kind: ClusterRole
+              subjects:
+                - name: prometheus-k8s
+                  namespace: open-cluster-management-addon-observability
+                  kind: ServiceAccount
+          - complianceType: musthave
+            objectDefinition:
               apiVersion: monitoring.coreos.com/v1
               kind: ServiceMonitor
               metadata:
