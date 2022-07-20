@@ -11,5 +11,8 @@ AAP_METRIC_ENDPOINT=$(kubectl get ep automation-controller-service -n $AAP_NS --
 AAP_CTRL_ADMIN_PASSWD=$(kubectl get secret automation-controller-admin-password -n $AAP_NS -ojson | jq -r '.data.password' | base64 -d)
 AAP_CTRL_POD=$(kubectl get po -n $AAP_NS -l app.kubernetes.io/component=automationcontroller --no-headers | awk '{print $1}')
 
+echo "AAP_METRIC_ENDPOINT=$AAP_METRIC_ENDPOINT"
+echo "AAP_CTRL_POD=$AAP_CTRL_POD"
+
 # to check if AAP are emitting metrics
 kubectl exec "$AAP_CTRL_POD" -n $AAP_NS -- curl -u admin:"$AAP_CTRL_ADMIN_PASSWD" http://"$AAP_METRIC_ENDPOINT"/api/v2/metrics/
