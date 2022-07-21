@@ -107,6 +107,13 @@ https://docs.google.com/document/d/1E5n62ed9-ls3rIIPqd8SoTM2W9OzC6xQTq6jQc11fsA/
     │       ├── prod
     │       ├── prod-emea
     │       └── testing
+    ├── openshift-pipelines                  # Deploy and config openshift pipeline with 2 tekon pipeline for automate Grafana dashboard customize 
+    │   ├── base                             
+    │   └── overlay  
+    │       ├── dev
+    │       ├── prod
+    │       ├── prod-emea
+    │       └── testing    
     ├── patch-operator                       # Deploy patch-operator
     │   ├── base                             
     │   └── overlay  
