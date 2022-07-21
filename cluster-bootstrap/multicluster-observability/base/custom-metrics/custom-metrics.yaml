@@ -43,4 +43,5 @@ data:
       - acm_managed_cluster_info
       - kube_pod_start_time
       - kube_endpoint_address_not_ready
+      - kube_endpoint_address_available
       - scrape_samples_scraped
