@@ -5,4 +5,4 @@ metadata:
   namespace: openshift-gitops
   annotations:
     avp.kubernetes.io/path: "/sre-dev/data/vault"
-    avp.kubernetes.io/secret-version: "3"
+    avp.kubernetes.io/secret-version: "4"
