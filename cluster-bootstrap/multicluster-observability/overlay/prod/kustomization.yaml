@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
 - ../../base
 - multiclusterhub-operator-pull-secret.yaml
-- thanos-storage-aws-secret.yaml
+- thanos-storage-azure-secret.yaml
