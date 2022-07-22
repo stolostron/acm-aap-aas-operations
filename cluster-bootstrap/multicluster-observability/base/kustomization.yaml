@@ -12,3 +12,4 @@ resources:
 - dashboard/aap-golden-signals-by-tenant.yaml
 - dashboard/cluster-problem-by-tenant.yaml
 - dashboard/aap-pod-uptime.yaml
+- dashboard/argocd.yaml
