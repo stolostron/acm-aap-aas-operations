@@ -40,13 +40,48 @@ spec:
                     groups:
                     - name: AnsibleAutomationPlatform
                       rules:
+                      - alert: AAPMetricMissing
+                        annotations:
+                          description: AAP metric missing, the number of samples should be equal to 44, the current value is {{`{{$value}}`}}
+                        expr: scrape_samples_scraped{job="automation-controller-service",namespace="ansible-automation-platform"} < 44
+                        for: 10m
+                        labels:
+                          severity: warning
+                          team: aoc-sre
+                          service: aap
+                          acm_console: https://{{(lookup "route.openshift.io/v1" "Route" "open-cluster-management" "multicloud-console").spec.host }}{{`/multicloud/infrastructure/clusters/managed`}}
+                          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPMetricMissing.md
+                      - alert: AAPEndpointAddressNotAvailable
+                        annotations:
+                          description: AAP endpoint {{`{{$labels.endpoint}}`}} address is not available
+                        expr: kube_endpoint_address_available{namespace="ansible-automation-platform"} == 0
+                        for: 10m
+                        labels:
+                          severity: critical
+                          team: aoc-sre
+                          service: aap
+                          acm_console: https://{{(lookup "route.openshift.io/v1" "Route" "open-cluster-management" "multicloud-console").spec.host }}{{`/multicloud/infrastructure/clusters/managed`}}
+                          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPEndpointAddressNotAvailable.md
+                      - alert: AAPEndpointAddressNotReady
+                        annotations:
+                          description: AAP endpoint {{`{{$labels.endpoint}}`}} has {{`{{$value}}`}} addresses which is not ready
+                        expr: kube_endpoint_address_not_ready{namespace="ansible-automation-platform"} != 0
+                        for: 10m
+                        labels:
+                          severity: warning
+                          team: aoc-sre
+                          service: aap
+                          acm_console: https://{{(lookup "route.openshift.io/v1" "Route" "open-cluster-management" "multicloud-console").spec.host }}{{`/multicloud/infrastructure/clusters/managed`}}
+                          runbook_url: https://github.com/stolostron/sre-doc/blob/main/runbooks/ansible-automation-platform-operator/AAPEndpointAddressNotReady.md
                       - alert: AAPMetricEndpointDown
                         annotations:
                           description: AAP metric endpoint has disappeared from Prometheus target discovery
                           summary: Target disappeared from Prometheus target discovery
                         expr: |
+                            # the number of AAP clusters and health instances are not equal
                             sum(up{namespace="ansible-automation-platform", job="automation-controller-service"}) != sum(acm_managed_cluster_info{managed_cluster_id!="", available="True"}) - 1
-                            or (absent(up{namespace="ansible-automation-platform", job="automation-controller-service"}) == 1 and sum(acm_managed_cluster_info{managed_cluster_id!="", available="True"}) == 1)
+                            # all AAP service down
+                            or absent(up{namespace="ansible-automation-platform", job="automation-controller-service"}) == 1
                         for: 20m
                         labels:
                           severity: critical
