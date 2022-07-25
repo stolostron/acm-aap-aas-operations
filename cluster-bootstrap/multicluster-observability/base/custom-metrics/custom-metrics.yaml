@@ -59,3 +59,4 @@ data:
       - argocd_git_request_duration_seconds_bucket
       - argocd-repo-server
       - argocd_redis_request_total
+      - process_start_time_seconds
