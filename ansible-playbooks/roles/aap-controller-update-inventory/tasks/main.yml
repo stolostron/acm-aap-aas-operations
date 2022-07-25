@@ -7,3 +7,4 @@
     controller_username: "{{ admin_username }}"
     controller_password: "{{ admin_password }}"
     wait: true
+    validate_certs: false
