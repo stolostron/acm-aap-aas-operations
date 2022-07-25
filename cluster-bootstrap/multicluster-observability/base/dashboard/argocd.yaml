@@ -72,6 +72,82 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
+                    }
+                  },
+                  "type": "special"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "dtdurations"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 2,
+            "y": 1
+          },
+          "id": 32,
+          "interval": null,
+          "links": [],
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "text": {},
+            "textMode": "auto"
+          },
+          "pluginVersion": "8.1.3",
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "time() - max(process_start_time_seconds{job=\"argocd-server-metrics\",namespace=~\"$namespace\", cluster=\"$cluster\"})",
+              "format": "time_series",
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ],
+          "title": "Uptime",
+          "type": "stat"
+        },
+        {
+          "cacheTimeout": null,
+          "datasource": "$datasource",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
                 "fixedColor": "rgb(31, 120, 193)",
                 "mode": "fixed"
               },
