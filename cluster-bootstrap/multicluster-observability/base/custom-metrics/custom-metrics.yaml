@@ -57,3 +57,4 @@ data:
       - argocd_git_request_duration_seconds_bucket
       - argocd_redis_request_total
       - process_start_time_seconds
+      - policy_governance_info
