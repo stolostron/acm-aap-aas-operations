@@ -1,0 +1,12 @@
+- name: "Getting namespaces"
+  kubernetes.core.k8s_info:
+    host: "{{ cluster_proxy.cluster_url }}"
+    validate_certs: false
+    api_key: "{{ managed_serviceaccount.token }}"
+    kind: Namespace
+  register: ns_list
+
+- name: Print namespaces
+  ansible.builtin.debug:
+    msg: "{{ item.metadata.name }}"
+  loop: "{{ ns_list.resources }}"
