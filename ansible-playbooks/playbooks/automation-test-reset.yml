@@ -3,7 +3,7 @@
   connection: local
   gather_facts: false
   tasks:
-    - include_tasks: ../roles/k8s-cluster-access/tasks/get-access.yml
+    - include_tasks: ../roles/k8s-cluster-access/tasks/get-temp-access.yml
       vars:
         rbac_template: ../k8s-rbac/cluster-admin
     - name: "load namespace_fact from ../k8s-operators/automation-test-etcd/namespace.yml"
