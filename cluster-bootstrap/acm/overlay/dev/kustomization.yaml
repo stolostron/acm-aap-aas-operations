@@ -6,6 +6,3 @@ resources:
 - subscription.yaml
 - multiclusterhub-operator-pull-secret.yaml
 - mce-operator-pull-secret.yaml
-
-patchesStrategicMerge:
-- multiclusterhub.yaml
