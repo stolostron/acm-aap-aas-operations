@@ -20,9 +20,9 @@ cluster_groups:
     label_selectors:
       - cloud=BareMetal
       - name!=local-cluster
-  - name: kind-clusters
+  - name: kind_clusters
     label_selectors:
       - name=kind-cluster
-  - name: all-managed-clusters
+  - name: all_managed_clusters
     label_selectors:
       - name!=local-cluster
