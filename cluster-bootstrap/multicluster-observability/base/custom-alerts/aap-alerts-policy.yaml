@@ -82,8 +82,8 @@ spec:
                         annotations:
                           description: AAP Pod in {{`{{$labels.namespace}}`}} restart more than 100 times over 60 minutes
                           summary: AAP Pod in {{`{{$labels.namespace}}`}} restarting too much
-                        expr: sum(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform", pod!~".+-job.*"}) by (cluster, namespace, pod, container) > 100
-                        for: 60m
+                        expr: rate(kube_pod_container_status_restarts_total{namespace="ansible-automation-platform", pod!~".+-job.*"}[1h]) * 60 * 60 > 100
+                        for: 0m
                         labels:
                           severity: warning
                           team: aoc-sre
