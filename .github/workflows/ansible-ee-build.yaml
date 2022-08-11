@@ -2,7 +2,7 @@ name: Ansible EE Build
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   ansible-ee:
