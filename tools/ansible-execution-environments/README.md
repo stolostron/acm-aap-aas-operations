@@ -1,18 +1,18 @@
 # ansible-execution-environments
+This folder contains an example of an Ansible Execution Environment built with Github Actions and pushed to Quay.
 
+It contains the stolostron.ocm collection to integrate Ansible and Red Hat Advanced Cluster Management and the Azure collection (which could be replaced with any other similar collection). Full list of included collections can be found in [requirements.yml](ansible_ee_acm/requirements.yml)
+
+## Requirements
+* Username/password for redhat.registry.io (see https://access.redhat.com/RegistryAuthentication)
+* Username/password for target registry (if authentication is necessary)
+
+## Manual build
 ```bash
-cd azure_ee_supported_1.13.0
-ansible-builder create
-cd context
-docker build -t quay.io/cdoan_rh/azure_ee_supported:1.13.0 .
+cd tools/ansible-execution-environments
+make venv
+make build-ansible-ee
 ```
 
-**Note: Build host environment needs to be a registered RHEL system or build will fail**
-
-## Changelog
-### 1.13.0
-Based on https://gitlab.cee.redhat.com/aoc/ee-aap-azure-sre/-/tree/main/ with:
-1) added collections:
-  * awx.awx
-  * stolostron.ocm
-
+## How to bump the version
+Change the variable in the [Makefile](./Makefile) and launch the manual step above or create a PR

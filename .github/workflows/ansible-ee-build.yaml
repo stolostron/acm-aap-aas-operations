@@ -1,0 +1,39 @@
+name: Ansible EE Build
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  ansible-ee:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files in selected directory
+        id: changed-files
+        uses: tj-actions/changed-files@v25
+        with:
+          files: |
+              tools/ansible-execution-environments/**
+
+      - name: List all changed files
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
+          done
+
+      - name: Configure environment if any relevant file changed
+        run: cd tools/ansible-execution-environments && make venv
+        if: steps.changed-files.outputs.any_changed == 'true'
+      - name: Run ansible-build if any relevant file changed
+        run: cd tools/ansible-execution-environments && make build-ansible-ee
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
