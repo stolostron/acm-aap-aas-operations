@@ -1,0 +1,208 @@
+- name: Configure no_log
+  ansible.builtin.debug:
+    msg: "Shown only with verbosity > 1"
+    verbosity: 2
+  register: verbose_check
+
+- name: Check whether variables are defined
+  ansible.builtin.fail:
+    msg: "'{{ item }}' variable not defined!"
+  when: (vars[item] is undefined) or (vars[item]| length == 0)
+  with_items:
+    - "target"
+
+- name: Switch to values based on target
+  ansible.builtin.include_vars:
+    file: "{{ 'vars-' + lookup('vars', 'tenant_name') + '.yml' }}"
+- name: Switch to values based on target
+  ansible.builtin.set_fact:
+    azure_resource_group: "{{ azure_resource_group | default(cluster_name) }}"
+    azure_cluster_resource_group: "{{ azure_cluster_resource_group | default(cluster_name + '-cluster') }}"
+    acm_organization: "Red Hat"
+    acm_sre_execution_environment: "SRE Playbook Execution Environment"
+
+- name: Retrieve our secrets from Azure Key Vault
+  azure.azcollection.azure_rm_keyvaultsecret_info:
+    vault_uri: "{{ vault_uri }}"
+    name: "acm-sre-{{ tenant_name }}-secrets"
+  register: secrets_from_kv
+  no_log: "{{ verbose_check is skipped }}"
+
+- name: Check if secret exists
+  ansible.builtin.fail:
+    msg: "Secret named acm-sre-{{ tenant_name }}-secrets not found in {{ vault_uri }}!"
+  when: secrets_from_kv.secrets | length == 0
+
+- name: Create temporary file
+  ansible.builtin.tempfile:
+    state: file
+    suffix: temp
+  register: tempfile_1
+
+- name: Copy to temporary file
+  ansible.builtin.copy:
+    content: "{{ secrets_from_kv.secrets[0].secret | b64decode }}"
+    dest: "{{ tempfile_1.path }}"
+    mode: '0600'
+  no_log: "{{ verbose_check is skipped }}"
+
+- name: Import file content into vars
+  ansible.builtin.include_vars:
+    file: "{{ tempfile_1.path }}"
+  no_log: "{{ verbose_check is skipped }}"
+
+- name: Remove the temporary file
+  ansible.builtin.file:
+    path: "{{ tempfile_1.path }}"
+    state: absent
+  when: tempfile_1.path is defined
+
+# If we run with AAP inventory, the target controller is there
+# Else, we use ACM variables
+- name: Override some vars if we have them in inventory
+  ansible.builtin.set_fact:
+    controller_host: "{% if inventory_hostname != 'localhost' %}{{ inventory_hostname }}{% else %}{{ controller_host }}{% endif %}"
+    controller_host_username: "{{ admin_username | default(controller_host_username, true) }}"
+    controller_host_password: "{{ admin_password | default(controller_host_password, true) }}"
+
+# Define some facts based on env values
+- name: Set some facts
+  ansible.builtin.set_fact:
+    phase: "[{{ phase_name }}]"
+    target_ssh_keys: "[{{ phase_name }}] SSH Keys"
+# need to be split as it references other facts
+- name: Set more facts
+  ansible.builtin.set_fact:
+    workflow_name: "{{ phase }} Deploy ACM Hub"
+    inventory_name: "{{ phase }} Azure inventory"
+    inventory_credentials: "{{ phase }} Azure Service Principal"
+    azure_vars: "{{ phase }} Azure Vars"
+
+# Common parts - same for all the phases
+- name: Create project for stolostron/acm-aap-aas-operations repository
+  project:
+    organization: "{{ acm_organization }}"
+    name: "stolostron/acm-aap-aas-operations"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    scm_url: "https://github.com/stolostron/acm-aap-aas-operations.git"
+    scm_type: git
+    scm_update_on_launch: true
+    scm_update_cache_timeout: 3600
+    validate_certs: false
+
+- name: Add permissions to team to access project
+  role:
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    team: "ACM SRE"
+    role: "admin"
+    projects:
+      - "stolostron/acm-aap-aas-operations"
+    validate_certs: false
+
+- name: Configure execution environment
+  execution_environment:
+    organization: "{{ acm_organization }}"
+    name: "{{ acm_sre_execution_environment }}"
+    description: "Execution environment that contains ocm collection"
+    image: "quay.io/adecorte/ansible_ee_acm:0.0.1"
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    validate_certs: false
+
+- name: "Create 'ACM KubeConfig Credential Type"
+  awx.awx.credential_type:
+    name: "ACM KubeConfig"
+    kind: "cloud"
+    inputs: "{{ lookup('file', 'credential_inputs_kubeconfig.json') }}"
+    injectors: "{{ lookup('file', 'credential_injector_kubeconfig.json') }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+
+# Get Secret and token
+- name: Retrieve our secrets from Azure Key Vault
+  azure.azcollection.azure_rm_keyvaultsecret_info:
+    vault_uri: "{{ vault_uri }}"
+    name: "acm-sre-{{ cluster_name }}-aap-import-token" # TODO use a dedicated token
+  register: secrets_from_kv
+  no_log: "{{ verbose_check is skipped }}"
+
+- name: Check if secret exists
+  ansible.builtin.fail:
+    msg: "Secret named acm-sre-{{ cluster_name }}-aap-import-token not found in {{ vault_uri }}!"
+  when: secrets_from_kv.secrets | length == 0
+
+- name: "Gather inputs for kubeconfig"
+  ansible.builtin.set_fact:
+    api_token: "{{ secrets_from_kv.secrets[0].secret | b64decode }}"
+    api_endpoint: "https://api.{{ cluster_name }}.{{ azure_dns_zone }}:6443"
+
+- name: "Generate kubeconfig"
+  ansible.builtin.set_fact:
+    generated_kubeconfig: "{{ lookup('template', 'kubeconfig-token.j2') }}"
+
+- name: "Create 'ACM Hub credential"
+  awx.awx.credential:
+    name: "{{ phase }} ACM Hub"
+    organization: "{{ acm_organization }}"
+    credential_type: "ACM KubeConfig"
+    inputs:
+      kube_config: "{{ generated_kubeconfig }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+
+- name: "Create 'ACM Cluster Inventory'"
+  awx.awx.inventory:
+    name: "{{ phase }} ACM Cluster Inventory"
+    organization: "{{ acm_organization }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+
+- name: "Add dynamic inventory source to 'ACM Cluster Inventory'"
+  awx.awx.inventory_source:
+    name: "{{ phase }} ACM Dynamic Cluster Inventory"
+    inventory: "{{ phase }} ACM Cluster Inventory"
+    credential: "{{ phase }} ACM Hub"
+    source: "scm"
+    source_project: "stolostron/acm-aap-aas-operations"
+    source_path: "ansible-playbooks/inventories/hub-cluster-inventory.yml"
+    execution_environment: "{{ acm_sre_execution_environment }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+
+- name: "Create 'ACM SRE Debug Playbook' Job Template"
+  awx.awx.job_template:
+    name: "{{ phase }} ACM SRE Debug Playbook"
+    job_type: "run"
+    organization: "{{ acm_organization }}"
+    inventory: "{{ phase }} ACM Cluster Inventory"
+    project: "stolostron/acm-aap-aas-operations"
+    playbook: "ansible-playbooks/playbooks/aap-execute-action.yml"
+    credentials:
+      - "{{ phase }} ACM Hub"
+    extra_vars:
+      target_hosts: all_managed_clusters
+    ask_variables_on_launch: true
+    ask_limit_on_launch: true
+    execution_environment: "{{ acm_sre_execution_environment }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: "present"

@@ -94,17 +94,36 @@
 - name: Create workflow to deploy the Hub
   block:
     - name: Create a workflow job template
-      tower_workflow_job_template:
+      workflow_job_template:
         name: "{{ phase }} Full run"
         ask_scm_branch_on_launch: false
         organization: "{{ acm_organization }}"
         controller_host: "{{ controller_host }}"
+        notification_templates_approvals:
+          - "{{ slack_internal_notification_name }}"
+        notification_templates_started:
+          - "{{ slack_internal_notification_name }}"
+        notification_templates_success:
+          - "{{ slack_internal_notification_name }}"
+        notification_templates_error:
+          - "{{ slack_internal_notification_name }}"
         controller_username: "{{ controller_host_username }}"
         controller_password: "{{ controller_host_password }}"
         labels:
+          - "{{ target }}"
     # TODO add destroy cluster after some wait
+    - name: Create 8th node
+      workflow_job_template_node:
+        identifier: "{{ phase }} Create Private Link Service"
+        workflow_job_template: "{{ phase }} Full run"
+        unified_job_template: "{{ phase }} Create Private Link Service"
+        organization: "{{ acm_organization }}"
+        inventory: "{{ acm_localhost_inventory }}"
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_host_username }}"
+        controller_password: "{{ controller_host_password }}"
     - name: Create 7th node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Configure hub"
         workflow_job_template: "{{ phase }} Full run"
         unified_job_template: "{{ phase }} Deploy Cluster configuration with ArgoCD"
@@ -113,8 +132,10 @@
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_host_username }}"
         controller_password: "{{ controller_host_password }}"
+        success_nodes:
+          - "{{ phase }} Create Private Link Service"
     - name: Create 6th node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Setup DNS"
         workflow_job_template: "{{ phase }} Full run"
         unified_job_template: "{{ phase }} Setup DNS"
@@ -125,7 +146,7 @@
         success_nodes:
           - "{{ phase }} Configure hub"
     - name: Create 5th node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Configure bastion"
         workflow_job_template: "{{ phase }} Full run"
         unified_job_template: "{{ phase }} Configure bastion"
@@ -137,7 +158,7 @@
         success_nodes:
           - "{{ phase }} Setup DNS"
     - name: Create 4th node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Update Azure inventory source"
         workflow_job_template: "{{ phase }} Full run"
         unified_job_template: "{{ phase }} Update Azure inventory source"
@@ -149,7 +170,7 @@
         success_nodes:
           - "{{ phase }} Configure bastion"
     - name: Create 3rd node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Create OCP4 ACM HUB"
         workflow_job_template: "{{ phase }} Full run"
         unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
@@ -161,7 +182,7 @@
         success_nodes:
           - "{{ phase }} Update Azure inventory source"
     - name: Create 2nd node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Create RG for OCP4"
         workflow_job_template: "{{ phase }} Full run"
         unified_job_template: "{{ phase }} Create OCP4 Resource Group"
@@ -173,7 +194,7 @@
         success_nodes:
           - "{{ phase }} Create OCP4 ACM HUB"
     - name: Create first node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Create RG for bastion"
         workflow_job_template: "{{ phase }} Full run"
         unified_job_template: "{{ phase }} Create service Resource Group"

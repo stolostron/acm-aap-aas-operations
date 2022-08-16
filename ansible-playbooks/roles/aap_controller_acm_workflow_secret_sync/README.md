@@ -9,7 +9,7 @@ Currently we support:
 # Usage
 
 ```
-ansible-playbook ansible-playbooks/playbooks/aap-controller-workflow-secrets.yml -e target=openshiftdev
+ansible-playbook ansible-playbooks/playbooks/aap-controller-workflow-secrets.yml -e target=openshiftdev -e tenant_name=-e tenant_name=p
 ```
 where target must be one of the files in vars folder.
 
