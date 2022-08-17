@@ -13,43 +13,57 @@
 
 - name: Switch to values based on target
   ansible.builtin.include_vars:
-    file: "{{ 'vars-' + lookup('vars', 'target') + '.yml' }}"
+    file: "{{ 'vars-' + lookup('vars', 'tenant_name') + '.yml' }}"
 - name: Switch to values based on target
   ansible.builtin.set_fact:
     azure_resource_group: "{{ azure_resource_group | default(cluster_name) }}"
     azure_cluster_resource_group: "{{ azure_cluster_resource_group | default(cluster_name + '-cluster') }}"
     acm_organization: "Red Hat - ACM"
-    acm_sre_execution_environment: "ACM SRE Playbook Execution Environment"
+    acm_sre_execution_environment: "SRE Playbook Execution Environment"
 
 - name: Retrieve our secrets from Azure Key Vault
-  azure_rm_keyvaultsecret_info:
+  azure.azcollection.azure_rm_keyvaultsecret_info:
     vault_uri: "{{ vault_uri }}"
-    name: "acm-sre-{{ target }}-secrets"
+    name: "acm-sre-{{ tenant_name }}-secrets"
   register: secrets_from_kv
   no_log: "{{ verbose_check is skipped }}"
+
 - name: Check if secret exists
   ansible.builtin.fail:
-    msg: "Secret named acm-sre-{{ target }}-secrets not found in {{ vault_uri }}!"
+    msg: "Secret named acm-sre-{{ tenant_name }}-secrets not found in {{ vault_uri }}!"
   when: secrets_from_kv.secrets | length == 0
+
 - name: Create temporary file
   ansible.builtin.tempfile:
     state: file
     suffix: temp
   register: tempfile_1
+
 - name: Copy to temporary file
   ansible.builtin.copy:
     content: "{{ secrets_from_kv.secrets[0].secret | b64decode }}"
     dest: "{{ tempfile_1.path }}"
+    mode: '0600'
   no_log: "{{ verbose_check is skipped }}"
+
 - name: Import file content into vars
   ansible.builtin.include_vars:
     file: "{{ tempfile_1.path }}"
   no_log: "{{ verbose_check is skipped }}"
+
 - name: Remove the temporary file
   ansible.builtin.file:
     path: "{{ tempfile_1.path }}"
     state: absent
   when: tempfile_1.path is defined
+
+# If we run with AAP inventory, the target controller is there
+# Else, we use ACM variables
+- name: Override some vars if we have them in inventory
+  ansible.builtin.set_fact:
+    controller_host: "{% if inventory_hostname != 'localhost' %}{{ inventory_hostname }}{% else %}{{ controller_host }}{% endif %}"
+    controller_host_username: "{{ admin_username | default(controller_host_username, true) }}"
+    controller_host_password: "{{ admin_password | default(controller_host_password, true) }}"
 
 # Define some facts based on env values
 - name: Set some facts
@@ -75,6 +89,7 @@
     scm_url: "https://github.com/stolostron/ocp4-azure-ipi.git"
     scm_type: git
     scm_update_on_launch: true
+    scm_update_cache_timeout: 43200
     validate_certs: false
 
 - name: Create project for stolostron/acm-aap-aas-operations repository
@@ -87,6 +102,7 @@
     scm_url: "https://github.com/stolostron/acm-aap-aas-operations.git"
     scm_type: git
     scm_update_on_launch: true
+    scm_update_cache_timeout: 3600
     validate_certs: false
 
 - name: Add permissions to team to access project
@@ -99,17 +115,6 @@
     projects:
       - "stolostron/ocp4-azure-ipi"
       - "stolostron/acm-aap-aas-operations"
-    validate_certs: false
-
-- name: Configure execution environment
-  execution_environment:
-    organization: "{{ acm_organization }}"
-    name: "{{ acm_sre_execution_environment }}"
-    description: "Execution environment for running ACM SRE playbooks."
-    image: "quay.io/cdoan_rh/azure_ee_supported:1.11.1"
-    controller_host: "{{ controller_host }}"
-    controller_username: "{{ controller_host_username }}"
-    controller_password: "{{ controller_host_password }}"
     validate_certs: false
 
 # Common parts - same for all the phases
@@ -326,15 +331,18 @@
     name: "{{ acm_localhost_inventory }}"
     description: "ACM localhost inventory"
     organization: "{{ acm_organization }}"
+    validate_certs: false
     controller_host: "{{ controller_host }}"
     controller_username: "{{ controller_host_username }}"
     controller_password: "{{ controller_host_password }}"
     state: present
-- name: "Add localhost to localhost intentory"
+
+- name: "Add localhost to localhost inventory"
   host:
     name: localhost
     description: "Fake local host"
     inventory: "{{ acm_localhost_inventory }}"
+    validate_certs: false
     controller_host: "{{ controller_host }}"
     controller_username: "{{ controller_host_username }}"
     controller_password: "{{ controller_host_password }}"
@@ -342,6 +350,39 @@
     variables:
       ansible_connection: local
       ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
+
+# Slack Notification - unique
+- name: Add Slack main notification
+  notification_template:
+    name: "{{ slack_notification_name }}"
+    organization: "{{ acm_organization }}"
+    notification_type: slack
+    description: "Send Slack notification to ACM main channel"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+    notification_configuration:
+      channels:
+        - team-acm-sre
+      token: "{{ ansible_controller_slack_token }}"
+
+- name: Add Slack internal notification
+  notification_template:
+    name: "{{ slack_internal_notification_name }}"
+    organization: "{{ acm_organization }}"
+    notification_type: slack
+    description: "Send Slack notification to ACM internal channel"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+    notification_configuration:
+      channels:
+        - team-acm-sre-internal-notifications
+      token: "{{ ansible_controller_slack_token }}"
 
 # Azure Inventory - per phase
 - name: "Add inventory"
@@ -352,7 +393,9 @@
     controller_host: "{{ controller_host }}"
     controller_username: "{{ controller_host_username }}"
     controller_password: "{{ controller_host_password }}"
+    validate_certs: false
     state: present
+
 - name: Add inventory source
   inventory_source:
     name: "{{ inventory_source_name }}"
@@ -366,6 +409,7 @@
     controller_host: "{{ controller_host }}"
     controller_username: "{{ controller_host_username }}"
     controller_password: "{{ controller_host_password }}"
+    validate_certs: false
     source: azure_rm
     source_vars:
       keyed_groups:
@@ -376,6 +420,7 @@
 - name: Add target label to organization
   label:
     name: "{{ target }}"
+    validate_certs: false
     controller_host: "{{ controller_host }}"
     controller_username: "{{ controller_host_username }}"
     controller_password: "{{ controller_host_password }}"
@@ -557,34 +602,45 @@
 - name: Create workflow to deploy the Hub
   block:
     - name: Create a workflow job template
-      tower_workflow_job_template:
+      workflow_job_template:
         name: "{{ workflow_name }}"
         organization: "{{ acm_organization }}"
         labels:
           - "{{ target }}"
         ask_scm_branch_on_launch: false
+        notification_templates_approvals:
+          - "{{ slack_notification_name if 'RHAAP' in phase_name else slack_internal_notification_name }}"
+        notification_templates_started:
+          - "{{ slack_notification_name if 'RHAAP' in phase_name else slack_internal_notification_name }}"
+        notification_templates_success:
+          - "{{ slack_notification_name if 'RHAAP' in phase_name else slack_internal_notification_name }}"
+        notification_templates_error:
+          - "{{ slack_notification_name if 'RHAAP' in phase_name else slack_internal_notification_name }}"
+        validate_certs: false
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_host_username }}"
         controller_password: "{{ controller_host_password }}"
 
     - name: Create 6th node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Create Private Link Service"
         workflow_job_template: "{{ workflow_name }}"
         unified_job_template: "{{ phase }} Create Private Link Service"
         organization: "{{ acm_organization }}"
         inventory: "{{ acm_localhost_inventory }}"
+        validate_certs: false
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_host_username }}"
         controller_password: "{{ controller_host_password }}"
 
     - name: Create 5th node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Configure hub"
         workflow_job_template: "{{ workflow_name }}"
         unified_job_template: "{{ phase }} Deploy Cluster configuration with ArgoCD"
         organization: "{{ acm_organization }}"
         inventory: "{{ inventory_name }}"
+        validate_certs: false
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_host_username }}"
         controller_password: "{{ controller_host_password }}"
@@ -592,11 +648,12 @@
           - "{{ phase }} Create Private Link Service"
 
     - name: Create 4th node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Setup DNS"
         workflow_job_template: "{{ workflow_name }}"
         unified_job_template: "{{ phase }} Setup DNS"
         organization: "{{ acm_organization }}"
+        validate_certs: false
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_host_username }}"
         controller_password: "{{ controller_host_password }}"
@@ -604,12 +661,13 @@
           - "{{ phase }} Configure hub"
 
     - name: Create 3rd node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Configure bastion"
         workflow_job_template: "{{ workflow_name }}"
         unified_job_template: "{{ phase }} Configure bastion"
         organization: "{{ acm_organization }}"
         inventory: "{{ inventory_name }}"
+        validate_certs: false
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_host_username }}"
         controller_password: "{{ controller_host_password }}"
@@ -617,12 +675,13 @@
           - "{{ phase }} Setup DNS"
 
     - name: Create 2nd node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Update Azure inventory source"
         workflow_job_template: "{{ workflow_name }}"
         unified_job_template: "{{ phase }} Update Azure inventory source"
         organization: "{{ acm_organization }}"
         inventory: "{{ inventory_name }}"
+        validate_certs: false
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_host_username }}"
         controller_password: "{{ controller_host_password }}"
@@ -630,12 +689,13 @@
           - "{{ phase }} Configure bastion"
 
     - name: Create 1st node
-      tower_workflow_job_template_node:
+      workflow_job_template_node:
         identifier: "{{ phase }} Create OCP4 ACM HUB"
         workflow_job_template: "{{ workflow_name }}"
         unified_job_template: "{{ phase }} Create OCP4 ACM HUB"
         inventory: "{{ acm_localhost_inventory }}"
         organization: "{{ acm_organization }}"
+        validate_certs: false
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_host_username }}"
         controller_password: "{{ controller_host_password }}"
@@ -659,3 +719,96 @@
         workflows:
           - "{{ workflow_name }}"
         validate_certs: false
+
+- name: "Create 'ACM KubeConfig Credential Type"
+  awx.awx.credential_type:
+    name: "ACM KubeConfig"
+    kind: "cloud"
+    inputs: "{{ lookup('file', 'credential_inputs_kubeconfig.json') }}"
+    injectors: "{{ lookup('file', 'credential_injector_kubeconfig.json') }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+
+# Get Secret and token
+- name: Retrieve our secrets from Azure Key Vault
+  azure.azcollection.azure_rm_keyvaultsecret_info:
+    vault_uri: "{{ vault_uri }}"
+    name: "acm-sre-{{ cluster_name }}-aap-import-token" # TODO use a dedicated token
+  register: secrets_from_kv
+  no_log: "{{ verbose_check is skipped }}"
+
+- name: Check if secret exists
+  ansible.builtin.fail:
+    msg: "Secret named acm-sre-{{ cluster_name }}-aap-import-token not found in {{ vault_uri }}!"
+  when: secrets_from_kv.secrets | length == 0
+
+- name: "Gather inputs for kubeconfig"
+  ansible.builtin.set_fact:
+    api_token: "{{ secrets_from_kv.secrets[0].secret | b64decode }}"
+    api_endpoint: "https://api.{{ cluster_name }}.{{ azure_dns_zone }}:6443"
+
+- name: "Generate kubeconfig"
+  ansible.builtin.set_fact:
+    generated_kubeconfig: "{{ lookup('template', 'kubeconfig-token.j2') }}"
+
+- name: "Create 'ACM Hub credential"
+  awx.awx.credential:
+    name: "{{ phase }} ACM Hub"
+    organization: "{{ acm_organization }}"
+    credential_type: "ACM KubeConfig"
+    inputs:
+      kube_config: "{{ generated_kubeconfig }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+
+- name: "Create 'ACM Cluster Inventory'"
+  awx.awx.inventory:
+    name: "{{ phase }} ACM Cluster Inventory"
+    organization: "{{ acm_organization }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+
+- name: "Add dynamic inventory source to 'ACM Cluster Inventory'"
+  awx.awx.inventory_source:
+    name: "{{ phase }} ACM Dynamic Cluster Inventory"
+    inventory: "{{ phase }} ACM Cluster Inventory"
+    credential: "{{ phase }} ACM Hub"
+    source: "scm"
+    source_project: "stolostron/acm-aap-aas-operations"
+    source_path: "ansible-playbooks/inventories/hub-cluster-inventory.yml"
+    execution_environment: "{{ acm_sre_execution_environment }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: present
+
+- name: "Create 'ACM SRE Debug Playbook' Job Template"
+  awx.awx.job_template:
+    name: "{{ phase }} ACM SRE Debug Playbook"
+    job_type: "run"
+    organization: "{{ acm_organization }}"
+    inventory: "{{ phase }} ACM Cluster Inventory"
+    project: "stolostron/acm-aap-aas-operations"
+    playbook: "ansible-playbooks/playbooks/aap-execute-action.yml"
+    credentials:
+      - "{{ phase }} ACM Hub"
+    extra_vars:
+      target_hosts: all_managed_clusters
+    ask_variables_on_launch: true
+    ask_limit_on_launch: true
+    execution_environment: "{{ acm_sre_execution_environment }}"
+    validate_certs: false
+    controller_host: "{{ controller_host }}"
+    controller_username: "{{ controller_host_username }}"
+    controller_password: "{{ controller_host_password }}"
+    state: "present"

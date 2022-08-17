@@ -4,3 +4,5 @@ worker_instance_type: "Standard_D8ds_v5"
 worker_instance_count: 3
 ocp4_version: "4.10.16"
 acm_localhost_inventory: "ACM localhost"
+slack_notification_name: "Notify Slack ACM Main Channel"
+slack_internal_notification_name: "Notify Slack ACM Internal Channel"

@@ -21,11 +21,11 @@
   tasks:
     - name: Include standard job templates and workflows
       ansible.builtin.include_role:
-        name: ../roles/aap-controller-acm-workflow-setup
+        name: ../roles/aap_controller_acm_workflow_setup
         tasks_from: main
 
     - name: Include DEV only job templates and workflows
       ansible.builtin.include_role:
-        name: ../roles/aap-controller-acm-workflow-setup
+        name: ../roles/aap_controller_acm_workflow_setup
         tasks_from: dev
       when: target == 'openshiftdev' or target == 'adecorte'

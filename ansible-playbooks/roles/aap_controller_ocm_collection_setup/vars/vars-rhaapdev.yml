@@ -1,0 +1,8 @@
+# general
+phase_name: "RHAAPDEV"
+# ocp setup
+cluster_name: "acm1"
+azure_dns_zone: "az.mgmtdev.ansiblecloud.com" # TODO az -> to replace with na
+# AAP setup
+controller_host: "https://controller.dev.mgmt.ansiblecloud.com"
+vault_uri: "https://kv-acm-sre-rhaapdev.vault.azure.net"

@@ -1,0 +1,8 @@
+# general
+phase_name: "pn"
+# cluster related
+cluster_name: "pn"
+azure_dns_zone: "demo.az.red-chesterfield.com"
+# AAP setup
+controller_host: "https://aap-automation-controller-ansible-automation-platform.apps.playback-next.demo.red-chesterfield.com"
+vault_uri: "https://kv-acmsre-team.vault.azure.net"

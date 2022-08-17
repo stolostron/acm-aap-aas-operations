@@ -1,0 +1,17 @@
+---
+# This playbook configures an AAP controller to run a playbook against ACM Managed Clusters
+
+- hosts:
+    localhost
+  gather_facts: false
+  connection: local
+
+  collections:
+    - awx.awx
+    - azure.azcollection
+
+  tasks:
+    - name: Include ocm collection setup role
+      ansible.builtin.include_role:
+        name: ../roles/aap_controller_ocm_collection_setup
+        tasks_from: main

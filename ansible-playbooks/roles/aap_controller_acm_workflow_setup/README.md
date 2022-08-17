@@ -1,15 +1,13 @@
 # aap-controller-acm-workflow-setup
 This role setups an AAP controller with ACM related workflows. It takes in input an Azure Key Vault and targets an AAP controller instance.
 
-Currently we support:
-
-- Input: Azure Key Vault *vault_uri* containing a secret named acm-sre-{{ target }}-secrets
+- Input: Azure Key Vault *vault_uri* containing a secret named acm-sre-{{ target }}-secrets and one named acm-sre-{{ target }}-aap-import-token
 - Target: *controller_host*
 
 # Usage
 
 ```
-ansible-playbook ansible-playbooks/playbooks/aap-controller-workflow-setup.yml -e target=openshiftdev
+ansible-playbook ansible-playbooks/playbooks/aap-controller-workflow-setup.yml -e target=openshiftdev -e tenant_name=openshiftdev
 ```
 where target must be one of the files in vars folder.
 
