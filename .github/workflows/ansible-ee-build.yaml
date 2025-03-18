@@ -15,7 +15,7 @@ jobs:
 
       - name: Get changed files in selected directory
         id: changed-files
-        uses: tj-actions/changed-files@v25
+        uses: tj-actions/changed-files@v46
         with:
           files: |
               tools/ansible-execution-environments/**
